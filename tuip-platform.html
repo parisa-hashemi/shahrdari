@@ -339,6 +339,23 @@ textarea.f-in{resize:vertical;font-family:inherit;line-height:1.7}
 .icon-btn .cnt{position:absolute;inset-block-start:1px;inset-inline-end:1px;min-width:15px;height:15px;padding:0 3px;
   border-radius:9px;background:var(--stop);color:#fff;font-size:9.5px;line-height:15px;text-align:center;border:1.5px solid #fff}
 .task.unread{background:var(--run-050)}
+.pickbox{border:1px solid var(--line);border-radius:var(--r-m);max-height:188px;overflow-y:auto;background:var(--surface-2)}
+.pickbox.empty{display:grid;place-items:center;min-height:64px}
+.pick{display:flex;align-items:center;gap:9px;width:100%;padding:7px 10px;background:none;border:none;
+  border-bottom:1px solid var(--line);cursor:pointer;text-align:start}
+.pick:last-child{border-bottom:none}
+.pick:hover{background:#fff}
+.pick.on{background:var(--primary-050);box-shadow:inset 3px 0 0 var(--primary)}
+.pick .px{flex:1;min-width:0;line-height:1.5}
+.pick .px b{display:block;font-size:12.5px;font-weight:500}
+.pick .px span{display:block;font-size:10.5px;color:var(--text-3)}
+.pick .code{font-size:11px;color:var(--text-3);flex:none}
+.agewrap{display:flex;flex-direction:column;gap:3px;min-width:104px}
+.agebar{height:5px;border-radius:5px;background:var(--surface-3);overflow:hidden}
+.agebar i{display:block;height:100%;border-radius:5px}
+.agebar.age-new i{background:var(--way)} .agebar.age-mid i{background:var(--primary)}
+.agebar.age-long i{background:var(--warn)} .agebar.age-old i{background:var(--stop)}
+.agelbl{font-size:10.5px;color:var(--text-3);white-space:nowrap}
 /* ---------- drawer / modal / toast ---------- */
 .scrim{position:fixed;inset:0;background:rgba(8,17,28,.50);z-index:60;opacity:0;pointer-events:none;transition:opacity .16s}
 .scrim.on{opacity:1;pointer-events:auto}
@@ -793,12 +810,14 @@ function StudiesPage(){
   const rows = visibleStudies().filter(s=>
     (!f.q || (s.name+s.id+s.owner).includes(f.q)) &&
     (!f.type || s.type===f.type) && (!f.region || s.region===f.region) &&
-    (!f.status || s.status===f.status) && (!f.mine || s.owner===STATE.user.name));
+    (!f.status || s.status===f.status) && (!f.mine || s.owner===STATE.user.name))
+    .sort((a,b)=>(b.createdTs||0)-(a.createdTs||0));
 
   const table = rows.length ? `<div class="tw"><table class="tbl"><thead><tr>
-    <th>نام مطالعه</th><th>نوع</th><th>منطقه</th><th>وضعیت</th><th>مسئول</th><th>آخرین به‌روزرسانی</th><th>پیشرفت</th><th>اقدام بعدی</th><th></th></tr></thead><tbody>
+    <th>نام مطالعه</th><th>عمر مطالعه</th><th>نوع</th><th>منطقه</th><th>وضعیت</th><th>مسئول</th><th>آخرین به‌روزرسانی</th><th>پیشرفت</th><th>اقدام بعدی</th><th></th></tr></thead><tbody>
     ${rows.map(s=>`<tr data-href="#/study/${s.id}">
-      <td><span class="ttl">${s.name}</span><span class="sub" style="display:flex;gap:6px;align-items:center"><span class="code">${s.id}</span><span class="vbadge">${s.v}</span></span></td>
+      <td><span class="ttl">${s.name}${(ageOf(s)!==null&&ageOf(s)<7)?' <span class="bdg b-way plain">جدید</span>':''}</span><span class="sub" style="display:flex;gap:6px;align-items:center"><span class="code">${s.id}</span><span class="vbadge">${s.v}</span></span></td>
+      <td>${AgeBar(s)}</td>
       <td style="white-space:nowrap">${s.type}</td><td>${s.region}<span class="sub">${s.sub}</span></td>
       <td>${badge(s.status)}</td>
       <td style="white-space:nowrap"><div style="display:flex;gap:6px;align-items:center"><span class="av" style="width:22px;height:22px;font-size:10px">${initials(s.owner)}</span>${s.owner}</div></td>
@@ -986,7 +1005,7 @@ function StudyPage(id,tab='overview'){
   <div class="phead"><div style="min-width:0">
     <div class="eyebrow">${s.type} · <span class="code">${s.id}</span></div>
     <h1 style="display:flex;gap:9px;align-items:center;flex-wrap:wrap">${s.name} ${badge(s.status)} <span class="vbadge">${s.v}</span></h1>
-    <p class="sub">${s.region} — ${s.sub} · مسئول: ${s.owner} · بازه <span class="num">${s.period}</span></p>
+    <p class="sub">${s.region} — ${s.sub} · مسئول: ${s.owner} · بازه <span class="num">${s.period}</span>${ageOf(s)!==null?` · <span class="num">${fa(ageOf(s))}</span> روز از ایجاد`:''}</p>
     <div style="display:flex;gap:10px;align-items:center;margin-top:8px;max-width:420px">${Prog(s.prog, s.status==='blocked'?'stop':'')}</div></div>
     <div class="acts">
       <button class="btn" data-act="copilot">${ico.spark}تحلیل با دستیار</button>
@@ -1594,6 +1613,7 @@ function ChapterZero(id){
     <h1>مرکز آمادگی مطالعه</h1>
     <p class="sub">سیاهه مشترک وابستگی‌های مطالعه: نسخه انتخاب‌شده هر ورودی، متولی، پوشش، کیفیت و شکاف‌ها. تکمیل فصل صفر یعنی وضعیت داده شفاف است، نه اینکه همه شکاف‌ها برطرف شده‌اند.</p></div>
     <div class="acts">
+      ${can('EDIT_STUDY')&&sum.rows.some(r=>r.reqNeed)?`<button class="btn btn-pri" id="cz-reqall">${ico.data}ثبت درخواست داده برای ${fa(sum.rows.filter(r=>r.reqNeed).length)} مورد تأمین‌نشده</button>`:''}
       <button class="btn" data-act="cz-assume">${ico.flag}ثبت فرض یا محدودیت</button>
       <button class="btn ${gateOpen&&canSign?'btn-pri':''}" id="cz-sign" ${gateOpen&&canSign?'':'disabled'}
         title="${!canSign?'امضا در اختیار مالک مطالعه یا دبیرخانه است.':!gateOpen?'تا رفع موارد مسدودکننده، امضا ممکن نیست.':''}">${ico.check}امضای فصل صفر</button></div></div>
@@ -1665,11 +1685,18 @@ function czDrawer(id,key){
   </div>
   <div class="drawer-f" style="display:flex;gap:8px;flex-wrap:wrap">
     <a class="btn btn-pri" href="${r.act.h}">${r.act.t}</a>
+    ${r.reqNeed&&can('EDIT_STUDY')?`<button class="btn btn-way" data-reqdata="${r.cat}:${r.k}">${ico.data}ثبت درخواست داده از متولی داده</button>`:''}
+    ${r.reqId?`<span class="bdg b-run plain">درخواست <span class="code">${r.reqId}</span> در جریان است</span>`:''}
     ${d?`<a class="btn" href="#/data/${d.code}/versions">نسخه‌های این داده</a>`:''}
     ${(r.waivable && !czOk(r))?`<button class="btn" data-assume="${key}">ثبت فرض و پذیرش محدودیت</button>`:''}
     ${(r.waivable===false && r.blocking)?`<span class="muted" style="font-size:11.5px;align-self:center">این ایراد قابل چشم‌پوشی نیست.</span>`:''}
   </div>`);
   els('[data-assume]',drawer).forEach(b=>b.onclick=()=>{ closeAll(); czAssumeModal(id,key); });
+  els('[data-reqdata]',drawer).forEach(b=>b.onclick=()=>{
+    const kk=b.dataset.reqdata.split(':');
+    const rr=czRows(id)[kk[0]].find(x=>x.k===kk[1]);
+    const req=requestData(id,rr); closeAll(); render();
+    toast(`درخواست ${req.id} برای متولی داده ثبت شد — وظیفه و اعلان ساخته شد`); });
 }
 
 function czAssumeModal(id,key){
@@ -1727,6 +1754,10 @@ function bindChapterZero(id){
   els('tr[data-row]').forEach(tr=>tr.onclick=e=>{ if(e.target.closest('[data-stop]')) return; czDrawer(id,tr.dataset.row); });
   els('[data-act="cz-assume"]').forEach(b=>b.onclick=()=>czAssumeModal(id,null));
   const sg=el('#cz-sign'); if(sg && !sg.disabled) sg.onclick=()=>czSignModal(id);
+  const ra=el('#cz-reqall'); if(ra) ra.onclick=()=>{
+    const list=czAll(id).filter(r=>r.reqNeed); if(!list.length){toast('موردی برای درخواست نیست',false);return;}
+    const ids=list.map(r=>requestData(id,r).id); render();
+    toast(`${fa(ids.length)} درخواست تأمین داده برای متولی داده ثبت شد`); };
 }
 
 /* ---------- 14. study → data tab ---------- */
@@ -3369,6 +3400,11 @@ function PropDecision(id){
 
         ${Card('ارجاع به فرآیند رسمی', `<div class="card-b">
           <p class="t2" style="font-size:12.5px;margin-bottom:10px">پس از تکمیل ارزیابی، بسته تحلیلی برای فرآیند سازمانی یا قانونی مربوط آماده می‌شود. سامانه فقط بسته را آماده و ارسال می‌کند.</p>
+          <div class="notice n-info" style="margin-bottom:10px">${ico.flag}<div>
+            ${/کاربری|تراکم|ضوابط|تجمیع/.test(p.type)
+              ?'این پیشنهاد به تغییر در طرح تفصیلی می‌انجامد؛ مسیر متعارف آن <b>کمیسیون ماده ۵</b> است.'
+              :'محور این پیشنهاد بر مطالعات اجتماعی-فرهنگی است؛ مسیر متعارف آن <b>شورای شهر</b> است.'}
+            انتخاب نهایی مقصد با مرجع سازمانی است و این راهنما جایگزین آن نیست.</div></div>
           <div style="display:grid;gap:6px;margin-bottom:10px">
             ${['شورای شهر','کمیسیون ماده ۵','کمیسیون یا فرآیند سازمانی مرتبط'].map(d=>
               `<label class="role ${a.dest===d?'on':''} ${mayRefer?'':'off'}" ${mayRefer?`data-dest="${d}"`:''}><span class="rk"></span><span><b>${d}</b></span></label>`).join('')}</div>
@@ -3954,7 +3990,7 @@ function dispatch(type,p){
 
   case 'CREATE_STUDY':{
     const id='ST-1405-'+String(DB.seq.ST=(DB.seq.ST||22)+1).padStart(3,'0');
-    const st=Object.assign({id,status:'active',prog:4,v:'v1',stage:1,created:NOW,updated:NOW,
+    const st=Object.assign({id,status:'active',prog:4,v:'v1',stage:1,created:NOW,updated:NOW,createdTs:Date.now(),
       next:'تکمیل فصل صفر',nextHref:'#/study/'+id+'/chapter0',
       ready:{data:[0,1],rules:[0,1],ind:'ناقص',models:[0,1],ev:0},userCreated:true},p);
     DB.studies.unshift(st);
@@ -4119,6 +4155,9 @@ function dispatch(type,p){
   case 'SIGN_CHAPTER_ZERO':{
     const s=byId(p.id); const cs=czState(p.id); const sum=czSummary(p.id);
     cs.signed=me; cs.snapshots.unshift({id:'CZ-'+nid('AC').slice(3),ok:sum.ok,total:sum.total,by:me,tm:clock()});
+    if(s){ s.stage=Math.max(s.stage||1,3); s.prog=Math.max(s.prog||0,35); s.updated=NOW;
+      if(['blocked','waitdata','draft'].includes(s.status)) s.status='active';
+      s.next='ثبت پیشنهاد و ارزیابی اثر روی این وضع موجود'; s.nextHref='#/proposals/new'; }
     logAct({action:'SIGN_CHAPTER_ZERO',et:'study',eid:p.id,etitle:s.name,to:'signed',
       text:`فصل صفر مطالعه «${s.name}» امضا و تصویر تغییرناپذیر ثبت شد`,k:'ok'});
     break;}
@@ -4218,6 +4257,8 @@ function MyWork(){
       <a class="btn" href="#/proposals/new">${ico.spark}پیشنهاد جدید</a>
       <a class="btn btn-pri" href="#/studies/new">${ico.plus}مطالعه جدید</a></div></div>
 
+  <div class="notice n-demo" style="margin-bottom:14px">${ico.spark}<div>
+    این سامانه یک مرحله میان <b>فاز ۱ (شناخت و برداشت وضع موجود)</b> و <b>فاز ۲ (تحلیل)</b> مطالعات شهرسازی اضافه می‌کند: برداشت مشاور را می‌گیرد، تحلیل سامانه را کنار آن می‌گذارد و از تلفیق این دو، ارزیابی اثر پیشنهادها را برای تصمیم فاز ۳ آماده می‌کند. مصوب‌کردن طرح در شورای شهر یا کمیسیون ماده ۵ بیرون از این سامانه انجام می‌شود.</div></div>
   <div class="kpis" style="margin-bottom:14px">
     ${K(mine.length,'مطالعات من','مالک یا عضو تیم','k-pri','#/studies')}
     ${K(tasks.length,'وظایف باز من',fa(tasks.filter(t=>t.st==='blocked').length)+' مورد مسدود','k-warn','#/')}
@@ -4632,12 +4673,12 @@ const ROLE_NAV={
  analyst:[['کار من',[['میز تحلیل شهری','home','#/'],['پیام‌های داخلی','doc','#/messages']]],
    ['مطالعه و تحلیل',[['مطالعات','study','#/studies'],['پیشنهادها و ارزیابی اثر','spark','#/proposals'],
      ['نقشه و تحلیل','map','#/map'],['سناریوها','scenario','#/scenarios'],['مدل‌ها و اجراها','run','#/runs']]],
-   ['داده و قواعد',[['داده‌ها','data','#/data'],['قواعد و شاخص‌ها','rules','#/rules']]],
+   ['داده و قواعد',[['داده‌ها','data','#/data'],['درخواست‌های داده من','alert','#/data/requests'],['قواعد و شاخص‌ها','rules','#/rules']]],
    ['شواهد و تصمیم',[['شواهد و گزارش‌ها','report','#/reports'],['وضعیت بازبینی','review','#/review']]]],
  consultant:[['کار من',[['میز کار مشاور','home','#/'],['پیام‌ها و اصلاحات','doc','#/messages']]],
    ['کار ارجاع‌شده',[['مطالعات ارجاع‌شده','study','#/studies'],['یافته‌های کارشناسی','doc','#/findings'],
      ['داده‌های مرتبط','data','#/data']]]],
- steward:[['میز داده',[['میز داده','home','#/'],['کاتالوگ داده','data','#/data'],['صف انتشار','flag','#/data/queue'],
+ steward:[['میز داده',[['میز داده','home','#/'],['کاتالوگ داده','data','#/data'],['درخواست‌های تأمین داده','alert','#/data/requests'],['صف انتشار','flag','#/data/queue'],
    ['قرنطینه','lock','#/data/quarantine'],['مسائل داده','alert','#/data/issues'],['بارگذاری نسخه','plus','#/data/ingest']]],
    ['اثر بر کار',[['مطالعات متأثر','study','#/studies'],['پیام‌های داخلی','doc','#/messages']]]],
  ruleman:[['میز قواعد',[['میز قواعد و شاخص‌ها','home','#/'],['ضوابط','rules','#/rules'],['شاخص‌ها','report','#/rules?tab=ind']]],
@@ -4660,6 +4701,7 @@ function roleNav(){
   const pill={'#/messages':unreadMsgs(),'#/review':reviewQueue().length,
     '#/cases':(DB.cases||[]).filter(c=>c.st!=='closed').length,
     '#/decisions':visibleProposals().filter(p=>p.status==='decision').length,
+    '#/data/requests':(DB.dataRequests||[]).filter(r=>['open','in_progress'].includes(r.st)).length,
     '#/data/quarantine':DB.datasets.filter(d=>d.versions.some(v=>v.st==='quarantined')).length,
     '#/data/queue':DB.datasets.filter(d=>d.versions.some(v=>v.st==='ready')).length,
     '#/findings':myRole()==='consultant'?(DB.findings||[]).filter(f=>f.by===ME()).length:(DB.findings||[]).length};
@@ -5052,6 +5094,14 @@ function HomeSteward(){
         `<a class="btn btn-sm" href="#/data/${d.code}/quality">بازرسی</a>`);}).join('')
       : State('check','چیزی در قرنطینه نیست',''))}
   </div><div class="grid">
+    ${Card('درخواست‌های تأمین داده مطالعات', (DB.dataRequests||[]).filter(r=>['open','in_progress'].includes(r.st)).length
+      ?(DB.dataRequests||[]).filter(r=>['open','in_progress'].includes(r.st)).map(r=>RowI('ic-warn','data',
+        `<span class="code">${r.id}</span> — ${r.label}`,
+        `${byId(r.studyId)?byId(r.studyId).name:r.studyId}<span class="muted">·</span>${r.region}<span class="muted">·</span>درخواست: ${r.by}`,
+        `<button class="btn btn-sm btn-pri" data-fulfil="${r.id}">تأمین داده</button>`)).join('')
+      : State('data','درخواست تأمین داده‌ای در صف نیست','وقتی کارشناس تحلیل در فصل صفر وابستگی تأمین‌نشده ثبت کند، اینجا می‌آید.'),
+      {act:`<a class="btn btn-sm btn-ghost" href="#/data/requests">همه درخواست‌ها</a>`,
+       foot:'تأمین درخواست، مجموعه را به مطالعه متصل و فصل صفر آن را به‌روز می‌کند.'})}
     ${MyTasksCard()}
     ${Card('مطالعات متأثر از نسخه جدید', stale.length?stale.map(k=>{const s=byId(k); if(!s) return '';
       return RowI('ic-run','study',s.name,`${(DB.stale[k]||[]).map(x=>x.title+' v'+fa(x.v)).join('، ')}`,
@@ -5289,6 +5339,7 @@ function bindHome(){
   els('[data-ar]').forEach(b=>b.onclick=()=>{dispatchX('DECIDE_ACCESS',{id:b.dataset.ar,ok:b.dataset.ok==='1'});
     render(); toast(b.dataset.ok==='1'?'دسترسی تأیید شد و به کاربر اعلان داده شد':'درخواست دسترسی رد شد و به کاربر اعلان داده شد');});
   const cn=el('#sc-new'); if(cn) cn.onclick=caseModal;
+  els('[data-fulfil]').forEach(b=>b.onclick=()=>fulfilModal(b.dataset.fulfil));
   const cf=el('#cn-finding'); if(cf) cf.onclick=()=>findingModal();
   els('[data-fix]').forEach(b=>b.onclick=()=>findingModal(b.dataset.fix));
   els('[data-fdok]').forEach(b=>b.onclick=()=>{const f=DB.findings.find(x=>x.id===b.dataset.fdok); f.st='accepted';
@@ -5665,7 +5716,443 @@ function bindAuthority(id){
     else { STATE.user=null; try{sessionStorage.removeItem('tuip.user');}catch(e){} } }
 })();
 
-/* ---------- 79. router ---------- */
+
+/* ---------- 80. login: role picker → searchable person picker → credentials ---------- */
+STATE.login={role:'',phone:'',q:''};
+function LoginPage(){
+  const L=STATE.login, err=STATE.loginErr;
+  const list=L.role?USERS.filter(u=>u.role===L.role).filter(u=>!L.q||(u.id+u.org+u.title+u.phone).includes(L.q)):[];
+  const picked=L.phone?accountBy(L.phone):null;
+  return `<div class="login">
+    <div class="pane">
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:18px">${Mark(34)}
+        <div><b style="font-size:14px">سامانه هوشمند برنامه‌ریزی شهری تهران</b>
+        <div class="muted" style="font-size:11.5px">ورود کاربران سازمانی</div></div></div>
+      <h1 style="margin-bottom:4px">ورود به حساب سازمانی</h1>
+      <p class="t2" style="font-size:12.5px;margin-bottom:14px">در محیط نمونه، ابتدا نقش و سپس کاربر را انتخاب کنید تا شماره همراه حساب پر شود؛ ورود با شماره و رمز انجام می‌شود.</p>
+      ${err?`<div class="notice n-stop" style="margin-bottom:12px">${ico.alert}<div>${err}</div></div>`:''}
+
+      <div class="f-row"><label class="f-lbl" for="lg-role">گام ۱ — نقش سازمانی</label>
+        <select class="f-in" id="lg-role">
+          <option value="">— انتخاب نقش —</option>
+          ${ROLES.map(r=>`<option value="${r.id}" ${L.role===r.id?'selected':''}>${r.t} (${fa(USERS.filter(u=>u.role===r.id).length)} کاربر)</option>`).join('')}
+        </select>
+        ${L.role?`<p class="muted" style="font-size:11px;margin-top:5px">${(ROLES.find(r=>r.id===L.role)||{}).d}</p>`:''}</div>
+
+      <div class="f-row"><label class="f-lbl">گام ۲ — کاربر</label>
+        ${L.role?`<div class="fld" style="width:100%;margin-bottom:7px">${ico.search}
+            <input id="lg-q" placeholder="جست‌وجوی نام، سازمان یا شماره" value="${esc(L.q)}" style="width:100%"></div>
+          <div class="pickbox">${list.length?list.map(u=>`<button class="pick ${L.phone===u.phone?'on':''}" data-pick="${u.phone}">
+              <span class="av" style="width:24px;height:24px;font-size:10px">${initials(u.id)}</span>
+              <span class="px"><b>${u.id}</b><span>${u.title} · ${u.org}</span></span>
+              <span class="code">${u.phone}</span></button>`).join('')
+            :`<div class="muted" style="padding:12px;font-size:12px;text-align:center">کاربری با این جست‌وجو در این نقش نیست</div>`}</div>`
+          :`<div class="pickbox empty"><div class="muted" style="padding:14px;font-size:12px;text-align:center">ابتدا نقش سازمانی را انتخاب کنید</div></div>`}</div>
+
+      <div class="f-row"><label class="f-lbl" for="lg-u">گام ۳ — شماره همراه</label>
+        <input class="f-in" id="lg-u" dir="ltr" inputmode="numeric" placeholder="09120000003" value="${esc(L.phone)}"></div>
+      <div class="f-row"><label class="f-lbl" for="lg-p">رمز عبور</label>
+        <input class="f-in" id="lg-p" type="password" dir="ltr" placeholder="••••••••"></div>
+      <button class="btn btn-pri" id="lg-go" style="width:100%;justify-content:center;padding:9px" ${L.phone?'':'disabled'}>
+        ${picked?`ورود به‌عنوان ${esc(picked.id)}`:'ورود به سامانه'}</button>
+
+      <div class="notice n-demo" style="margin-top:14px">${ico.lock}<div>
+        <b>حساب‌های نمایشی</b> — انتخاب نقش و کاربر فقط برای آزمون نمونه است و مدل احراز هویت محصول نیست. در محصول، نقش از حساب خوانده می‌شود و کاربر آن را انتخاب نمی‌کند. رمز همه حساب‌ها: <span class="code">${DEMO_PASS}</span></div></div>
+      <div class="muted" style="font-size:11px;margin-top:10px">پشتیبانی: داخلی ۲۴۱۸</div>
+    </div>
+    <div class="art">${ArtSVG()}
+      <div class="cap"><div><b>پهنه مرکزی منطقه ۶ — محدوده مطالعه نمونه</b>
+        <span>مرز مطالعه، بلوک‌های شهری و پلاک‌ها؛ نمایش ساختگی</span></div>
+        <span class="code">EPSG:32639</span></div></div>
+  </div>`;
+}
+function bindLogin(){
+  const L=STATE.login;
+  const role=el('#lg-role');
+  if(role) role.onchange=e=>{ L.role=e.target.value; L.q=''; L.phone=''; STATE.loginErr=null; render(); };
+  const q=el('#lg-q');
+  if(q) q.oninput=e=>{ L.q=e.target.value; render(); setTimeout(()=>{const n=el('#lg-q');
+    if(n){ n.focus(); n.setSelectionRange(n.value.length,n.value.length); }},0); };
+  els('[data-pick]').forEach(b=>b.onclick=()=>{ L.phone=b.dataset.pick; STATE.loginErr=null; render();
+    setTimeout(()=>{const n=el('#lg-p'); if(n) n.focus();},0); });
+  const u=el('#lg-u'); if(u) u.oninput=e=>{ L.phone=e.target.value.trim();
+    const g=el('#lg-go'); if(g) g.disabled=!L.phone; };
+  const submit=()=>{
+    const ph=(el('#lg-u').value||'').trim(), pw=el('#lg-p').value||'';
+    const acc=accountBy(ph); L.phone=ph;
+    if(!acc){ STATE.loginErr='شماره همراه در سامانه ثبت نشده است.'; render(); return; }
+    if(pw!==DEMO_PASS){ STATE.loginErr='رمز عبور نادرست است.'; render(); return; }
+    STATE.loginErr=null;
+    STATE.user={name:acc.id,role:acc.role,phone:acc.phone,org:acc.org,title:acc.title};
+    save(); location.hash='#/'; render();
+  };
+  const go=el('#lg-go'); if(go) go.onclick=submit;
+  const pw=el('#lg-p'); if(pw) pw.onkeydown=e=>{ if(e.key==='Enter') submit(); };
+  if(u) u.onkeydown=e=>{ if(e.key==='Enter'){ const n=el('#lg-p'); if(n) n.focus(); } };
+}
+
+
+/* ============================================================
+   PHASE 6 — automatic Chapter Zero dependency inventory,
+   data-request workflow to the data steward, and study ageing.
+   ============================================================ */
+
+/* ---------- 82. requirement templates by study type ---------- */
+const ROLE_LABEL={population:'جمعیت و خانوار',parcels:'پلاک و قطعات ثبتی',buildings:'سطح اشغال و ارتفاع ساختمان‌ها',
+  road_network:'شبکه معابر',land_use:'کاربری اراضی مصوب',transit:'ایستگاه‌های حمل‌ونقل همگانی',
+  services_edu:'مراکز و ظرفیت خدمات',terrain:'توپوگرافی و مدل ارتفاعی',trip_survey:'ماتریس سفر مبدأ-مقصد',
+  parking:'عرضه پارکینگ عمومی',utilities:'شبکه آب، فاضلاب و برق'};
+const MODEL_INPUTS={M01:['land_use','parcels'],M02:['parcels','buildings'],M03:['population'],
+  M04:['population','trip_survey','road_network'],M05:['population','parking'],M06:['population','services_edu'],
+  M07:['road_network'],M08:['population'],M09:['buildings'],M10:['population'],M11:[],M12:[]};
+const TYPE_NEEDS={
+ 'بازنگری طرح تفصیلی':{data:['parcels','buildings','land_use','population','road_network','services_edu'],models:['M01','M02','M03','M06','M09'],inds:['IN-01','IN-02','IN-03']},
+ 'ظرفیت‌سنجی توسعه':{data:['parcels','buildings','population','road_network','transit','trip_survey'],models:['M02','M03','M04','M07'],inds:['IN-01','IN-04']},
+ 'ارزیابی اثر ترافیکی':{data:['road_network','trip_survey','parcels','parking'],models:['M04','M05','M07'],inds:['IN-04']},
+ 'پایش شاخص‌ها':{data:['population','services_edu','land_use'],models:['M06','M11'],inds:['IN-02','IN-03']},
+ 'ارزیابی مخاطره':{data:['terrain','parcels','road_network'],models:['M08','M10'],inds:['IN-05']},
+ 'مکان‌یابی خدمات':{data:['population','services_edu','road_network','land_use'],models:['M06','M07'],inds:['IN-03']},
+ 'بازنگری ضوابط':{data:['parcels','buildings','land_use'],models:['M01','M02'],inds:['IN-01']},
+};
+const needsOf=st=>TYPE_NEEDS[st.type]||TYPE_NEEDS['بازنگری طرح تفصیلی'];
+const regionOK=(d,region)=>String(d.extent||'').includes(region)||String(d.extent||'').includes('شهر تهران');
+function matchDs(role,region){
+  const c=DB.datasets.filter(d=>d.role===role);
+  return c.find(d=>regionOK(d,region)&&d.versions.some(v=>v.st==='published'))
+      || c.find(d=>regionOK(d,region)) || null;
+}
+const openReq=(sid,role)=>(DB.dataRequests||[]).find(r=>r.studyId===sid&&r.role===role&&['open','in_progress'].includes(r.st));
+
+/* ---------- 83. generated dependency inventory ---------- */
+function genRows(st){
+  const N=needsOf(st), out={data:[],rules:[],models:[],indicators:[],evidence:[]};
+  const resolved={};
+  N.data.forEach(role=>{
+    const d=matchDs(role,st.region), req=openReq(st.id,role);
+    const label=ROLE_LABEL[role]||role;
+    let row={cat:'data',k:'d_'+role,role,t:label,sub:`نقش داده: ${role} — محدوده لازم: ${st.region}`,
+      ver:'—',owner:'—',upd:'—',cov:st.region,mods:Object.keys(MODEL_INPUTS).filter(m=>N.models.includes(m)&&MODEL_INPUTS[m].includes(role)),
+      act:{t:'کاتالوگ داده',h:'#/data'}};
+    if(!d){
+      Object.assign(row,{st:'missing',blocking:true,waivable:false,reqNeed:true,
+        issue:`هیچ مجموعه داده‌ای با نقش «${role}» برای محدوده ${st.region} در کاتالوگ ثبت نشده است.`,
+        impact:'ماژول‌های وابسته به این ورودی اجرا نمی‌شوند و مطالعه در فصل صفر مسدود می‌ماند.'});
+    } else {
+      const pub=d.versions.filter(v=>v.st==='published').slice(-1)[0], cur=dsCur(d), f=freshness(d);
+      row.ds=d.code; row.ver=pub?pub.v:cur.v; row.owner=d.owner; row.upd=(pub&&pub.pub)||cur.imported; row.cov=d.extent;
+      row.act={t:'مشاهده داده',h:'#/data/'+d.code};
+      if(!pub){
+        Object.assign(row,{st:'blocked',blocking:true,waivable:false,reqNeed:true,
+          issue:`مجموعه «${d.title}» در کاتالوگ هست، اما نسخه منتشرشده‌ای ندارد (وضعیت فعلی: ${DSTAT[cur.st].t}).`,
+          impact:'نسخه منتشرنشده برای انتخاب رسمی در مطالعه مجاز نیست.'});
+      } else if(f.c==='b-stop'){
+        Object.assign(row,{st:'stale',blocking:true,waivable:true,reqNeed:true,
+          issue:`آخرین نسخه منتشرشده «${d.title}» قاعده تازگی را برآورده نمی‌کند (${f.t}).`,
+          impact:'خروجی‌های وابسته با وصف «قدیمی» تولید می‌شوند و برای اجرای رسمی پذیرفته نیستند.'});
+      } else if(f.c==='b-warn'||qCounts(pub).w>0){
+        Object.assign(row,{st:'limited',blocking:false,waivable:true,
+          issue:`نسخه منتشرشده «${d.title}» هشدار کیفیت یا تازگی دارد (${f.t}).`,
+          impact:'محدودیت باید در گزارش ذکر شود؛ اجرای مطالعه مسدود نمی‌شود.'});
+      } else {
+        Object.assign(row,{st:'ready',blocking:false,issue:'',impact:''});
+      }
+      if(!canSee(d)&&CLASS_RANK[d.cls]>=2){
+        Object.assign(row,{st:'no_access',blocking:false,
+          issue:'طبقه‌بندی این داده محرمانه است و نقش فعلی شما اجازه مشاهده محتوای آن را ندارد.',
+          impact:'وابستگی «بدون دسترسی» ثبت می‌شود و برای اجرای رسمی مجوز جداگانه لازم دارد.',
+          act:{t:'درخواست دسترسی',h:'#/messages'}});
+      }
+    }
+    if(req){ Object.assign(row,{st:'waiting',blocking:false,reqNeed:false,reqId:req.id,
+      issue:row.issue+` درخواست تأمین داده با شناسه ${req.id} برای متولی داده ثبت شده است.`,
+      impact:'تا پاسخ متولی داده، این وابستگی «در انتظار اقدام دیگران» می‌ماند.',
+      act:{t:'پیگیری درخواست',h:'#/data/requests'}}); }
+    resolved[role]=['ready','limited','no_access'].includes(row.st);
+    out.data.push(row);
+  });
+
+  const pack=DB.rules.filter(r=>String(r.pack).includes(st.region));
+  if(pack.length) pack.forEach(r=>out.rules.push({cat:'rules',k:'r_'+r.id,t:r.t,sub:`${r.pack} — ${r.sev==='blocking'?'مسدودکننده':'توصیه‌ای'}`,
+    ver:r.v,owner:'دبیرخانه',upd:r.eff,cov:st.region,mods:['M01'],act:{t:'مشاهده ضابطه',h:'#/rules'},
+    st:r.st==='approved'?'ready':r.st==='pending'?'waiting':r.st==='expiring'?'stale':'needs_review',
+    blocking:false,waivable:true,
+    issue:r.st==='approved'?'':`وضعیت ضابطه: ${{pending:'نسخه پیشنهادی تأییدنشده',expiring:'در آستانه انقضا',conflict:'تعریف متعارض'}[r.st]}.`,
+    impact:r.st==='approved'?'':'ارزیابی انطباق با نسخه تأییدشده قبلی انجام می‌شود و تفاوت باید در گزارش ذکر شود.'}));
+  else out.rules.push({cat:'rules',k:'r_none',t:`بسته ضوابط ${st.region}`,sub:'بسته ضوابط منطقه‌ای',ver:'—',owner:'دبیرخانه',
+    upd:'—',cov:st.region,mods:['M01'],st:'missing',blocking:false,waivable:true,act:{t:'مشاهده ضوابط',h:'#/rules'},
+    issue:`بسته ضوابط منطقه‌ای برای ${st.region} در کاتالوگ ثبت نشده است.`,
+    impact:'کنترل انطباق M01 بدون بسته ضوابط انجام نمی‌شود.'});
+
+  const roleOK=role=>{
+    if(role in resolved) return resolved[role];
+    const d=matchDs(role,st.region);
+    return !!(d&&d.versions.some(v=>v.st==='published'));
+  };
+  N.models.forEach(mid=>{
+    const m=(DB.models||[]).find(x=>x.id===mid)||{id:mid,t:MODULES[mid],v:'—',st:'active'};
+    const miss=(MODEL_INPUTS[mid]||[]).filter(r=>!roleOK(r));
+    const row={cat:'models',k:mid,t:`${mid} — ${MODULES[mid]}`,sub:m.st==='unavailable'?'خارج از دامنه اجرایی نسخه فعلی محصول':`نسخه مدل ${m.v} — مالک: ${m.owner||'تیم مدل'}`,
+      ver:m.v,owner:m.owner||'تیم مدل',upd:'—',cov:st.region,mods:[mid],act:{t:'رجیستری مدل',h:'#/models'}};
+    if(m.st==='unavailable') Object.assign(row,{st:'na',blocking:false,
+      issue:`طبق مشخصات، ${mid} در این نسخه خروجی «در دسترس نیست» تولید می‌کند.`,
+      impact:'اجرای مطالعه با وضعیت «ناقص» پایان می‌یابد؛ این رفتار مورد انتظار است و نقص محسوب نمی‌شود.'});
+    else if(miss.length){
+      const pending=miss.filter(r=>openReq(st.id,r));
+      Object.assign(row,{st:pending.length===miss.length?'waiting':'blocked',
+        blocking:pending.length!==miss.length,waivable:false,depRoles:miss,role:miss[0],
+        reqNeed:pending.length!==miss.length&&!N.data.includes(miss[0]),
+        reqId:pending.length?openReq(st.id,miss[0]).id:undefined,
+        issue:`ورودی الزامی این مدل تأمین نشده است: ${miss.map(r=>ROLE_LABEL[r]||r).join('، ')}.`
+          +(pending.length?' درخواست تأمین آن برای متولی داده ثبت شده است.':''),
+        impact:'تا تأمین ورودی، این ماژول قابل اجرای رسمی نیست.',
+        act:{t:pending.length?'پیگیری درخواست':'مشاهده وابستگی داده',h:pending.length?'#/data/requests':'#/data'}});
+    }
+    else Object.assign(row,{st:'ready',blocking:false,issue:'',impact:''});
+    out.models.push(row);
+  });
+
+  (N.inds||[]).forEach(iid=>{
+    const i=(DB.indicators||[]).find(x=>x.id===iid); if(!i) return;
+    out.indicators.push({cat:'indicators',k:iid,t:i.t,sub:`واحد: ${i.unit} — مقیاس: ${i.scale} — جهت: ${i.dir}`,
+      ver:i.v,owner:'دبیرخانه',upd:'—',cov:st.region,mods:['M11'],act:{t:'مشاهده شاخص',h:'#/rules'},
+      st:i.st==='approved'?'ready':i.st==='review'?'needs_review':'needs_review',blocking:false,waivable:true,
+      issue:i.st==='approved'?'':'تعریف این شاخص هنوز اعتبارسنجی/تعیین تکلیف نشده است.',
+      impact:i.st==='approved'?'':'مقدار شاخص با تعریف نسخه فعلی محاسبه و محدودیت آن ذکر می‌شود.'});
+  });
+
+  const cov=st.prog>=60?76:st.prog>=30?24:0;
+  out.evidence.push({cat:'evidence',k:'e_link',t:'پیوند نتایج به نسخه ورودی‌ها',
+    sub:'الزام قالب: هر ادعای کمی گزارش باید شواهد نسخه‌دار داشته باشد',ver:'—',owner:st.owner,upd:st.updated,
+    cov:`${fa(cov)}٪ ادعاها`,mods:['M12'],act:{t:'گزارش‌ها',h:'#/study/'+st.id+'/reports'},
+    st:cov>=80?'ready':'limited',blocking:false,waivable:true,
+    issue:cov>=80?'':`${fa(100-cov)}٪ ادعاهای گزارش هنوز به نسخه داده، ضابطه یا اجرا پیوند نخورده‌اند.`,
+    impact:cov>=80?'':'گزارش تا رسیدن به آستانه پوشش شواهد قالب، قابل ارسال برای بررسی نیست.'});
+  out.evidence.push({cat:'evidence',k:'e_method',t:'مستندسازی روش و محدودیت‌ها',
+    sub:'الزام قالب: روش هر نتیجه و محدودیت آن ثبت شود',ver:'—',owner:st.owner,upd:st.updated,cov:'—',
+    mods:['M12'],act:{t:'گزارش‌ها',h:'#/study/'+st.id+'/reports'},st:'limited',blocking:false,waivable:true,
+    issue:'مستندسازی روش هنوز آغاز نشده است.',impact:'بدون ثبت روش، نتایج قابل داوری کارشناسی نیستند.'});
+  return out;
+}
+
+/* ---------- 84. chapter zero rows (seeded inventory or generated) ---------- */
+function czRows(id){
+  const def=CZ_DEF[id]; const s=czState(id); const st=byId(id);
+  const finish=out=>{
+    const flat={}; CZ_CATS.forEach(([c])=>out[c].forEach(r=>flat[c+':'+r.k]=r));
+    CZ_CATS.forEach(([c])=>out[c].forEach(r=>{
+      if(r.dep && flat[r.dep] && !flat[r.dep].blocking && r.blocking){
+        r.blocking=false; r.st='limited';
+        r.impact=r.impact+' محدودیت ورودی بالادست مستند شده است؛ خروجی با وصف «موقت» تولید می‌شود.';
+      }
+    }));
+    return out;
+  };
+  if(def){
+    const out={};
+    CZ_CATS.forEach(([c])=>out[c]=(def[c]||[]).map(r=>{
+      const row={...r,cat:c};
+      if(row.restricted && !canSee({cls:'confidential'})) { row.st='no_access'; row.blocking=false;
+        row.issue='طبقه‌بندی این داده «محرمانه» است و نقش فعلی شما اجازه مشاهده محتوای آن را ندارد.';
+        row.impact='وابستگی به‌صورت «بدون دسترسی» ثبت می‌شود و برای اجرای رسمی نیازمند مجوز جداگانه است.';
+        row.act={t:'درخواست دسترسی',h:'#/admin'}; }
+      if(s.over[c+':'+row.k]) Object.assign(row,s.over[c+':'+row.k]);
+      return row;
+    }));
+    return finish(out);
+  }
+  if(!st) { const e={}; CZ_CATS.forEach(([c])=>e[c]=[]); return e; }
+  const out=genRows(st);
+  CZ_CATS.forEach(([c])=>out[c]=out[c].map(r=>{
+    if(s.over[c+':'+r.k]) Object.assign(r,s.over[c+':'+r.k]);
+    return r;
+  }));
+  return finish(out);
+}
+
+/* ---------- 85. data request workflow ---------- */
+const DREQ_ST={open:{t:'ثبت‌شده — در انتظار متولی داده',c:'b-warn'},in_progress:{t:'در حال تأمین',c:'b-run'},
+  fulfilled:{t:'تأمین شد',c:'b-ok'},rejected:{t:'رد شد',c:'b-stop'}};
+function requestData(studyId,row){
+  const st=byId(studyId);
+  const role=row.role||(row.depRoles&&row.depRoles[0])||'data';
+  const label=ROLE_LABEL[role]||row.t;
+  const steward=usersByRole('steward')[0];
+  const r={id:nid('DR'),studyId,role,label,by:ME(),to:steward,tm:clock(),st:'open',
+    reason:row.issue||'تأمین ورودی الزامی فصل صفر',need:row.t,region:st.region};
+  DB.dataRequests=DB.dataRequests||[]; DB.dataRequests.unshift(r);
+  DB.tasks.unshift({id:nid('TS'),t:`تأمین داده «${label}» برای ${st.name}`,studyId,assignee:steward,st:'todo',due:'۱۴۰۵/۰۷/۱۰'});
+  logAct({action:'REQUEST_DATA',et:'study',eid:studyId,etitle:st.name,to:'open',
+    text:`درخواست تأمین داده «${label}» (${r.id}) برای متولی داده ثبت شد`,k:'warn'});
+  notify({to:steward,type:'warn',title:'درخواست تأمین داده برای یک مطالعه ثبت شد',
+    msg:`${label} — ${st.name} (${st.region})`,route:'#/data/requests',et:'study',eid:studyId});
+  saveDB(); return r;
+}
+function fulfillRequest(reqId,opt){
+  const r=DB.dataRequests.find(x=>x.id===reqId); if(!r) return;
+  const st=byId(r.studyId);
+  let d=opt.dsCode?ds(opt.dsCode):null;
+  if(!d){
+    const code=(r.role.toUpperCase().slice(0,8).replace(/_/g,'-'))+'-'+fa(DB.datasets.length+1).replace(/[۰-۹]/g,x=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(x));
+    d={code,title:`${r.label} — ${r.region}`,kind:'tabular',role:r.role,owner:ME(),
+      org:'تأمین‌شده به درخواست مطالعه (نمونه)',cls:'restricted_municipal',
+      desc:`مجموعه داده تأمین‌شده در پاسخ به درخواست ${r.id} برای ${st?st.name:r.studyId}. مقادیر ساختگی است.`,
+      extent:r.region,crs:'EPSG:32639',
+      schema:[['record_id','string','—',1,'شناسه رکورد','شناسه'],['value','decimal(12,2)','—',1,'مقدار شاخص پایه',''],
+        ['observed_at','date','—',1,'تاریخ مشاهده','']],
+      versions:[{v:1,st:'published',rows:1280,counts:[1290,1280,10,0],obs:'۱۴۰۵/۰۵',imported:NOW,pub:NOW,
+        reason:`تأمین به درخواست ${r.id}`,
+        checks:[chk('REQUIRED_FIELDS','pass',0,1290,'۰٪','فیلدهای الزامی کامل است.','—','—'),
+                chk('DUPLICATES','warning',10,1290,'حداکثر ۱٪','۱۰ رکورد تکراری رد شد.','۱۰ رکورد در نسخه نهایی نیستند.','بررسی فهرست ردشده.'),
+                chk('TEMPORAL_COVERAGE','pass',0,1280,'حداکثر ۳۶ ماه','تاریخ مشاهده در دوره مجاز است.','—','—')]}],
+      issues:[],uses:[r.studyId]};
+    DB.datasets.push(d);
+    logAct({action:'CREATE_DATASET',et:'dataset',eid:d.code,etitle:d.title,to:'published',
+      text:`مجموعه داده «${d.title}» ثبت و نسخه v۱ آن منتشر شد (پاسخ به ${r.id})`,k:'ok'});
+  } else {
+    const pub=d.versions.filter(v=>v.st==='published').slice(-1)[0];
+    if(!pub){ const cand=d.versions.slice(-1)[0]; cand.st='published'; cand.pub=NOW;
+      logAct({action:'PUBLISH_DATASET_VERSION',et:'dataset',eid:d.code,etitle:d.title,to:'published',
+        text:`نسخه v${fa(cand.v)} داده «${d.title}» در پاسخ به ${r.id} منتشر شد`,k:'ok'}); }
+    if(!d.uses.includes(r.studyId)) d.uses.push(r.studyId);
+    if(!regionOK(d,r.region)) d.extent=d.extent+' + '+r.region;
+    if(freshness(d).c==='b-stop'){
+      d.versions.filter(v=>v.st==='published').forEach(v=>{v.st='superseded';});
+      const nv={v:(d.versions.slice(-1)[0].v||0)+1,st:'published',rows:1280,counts:[1290,1280,10,0],
+        obs:'۱۴۰۵/۰۵',imported:NOW,pub:NOW,reason:`به‌روزرسانی برای رفع کهنگی به درخواست ${r.id}`,
+        checks:[chk('REQUIRED_FIELDS','pass',0,1290,'۰٪','فیلدهای الزامی کامل است.','—','—'),
+                chk('DUPLICATES','warning',10,1290,'حداکثر ۱٪','۱۰ رکورد تکراری رد شد.','۱۰ رکورد در نسخه نهایی نیستند.','بررسی فهرست ردشده.'),
+                chk('TEMPORAL_COVERAGE','pass',0,1280,'حداکثر ۳۶ ماه','تاریخ مشاهده ۱۴۰۵/۰۵ در دوره مجاز است.','—','—')]};
+      d.versions.push(nv);
+      logAct({action:'PUBLISH_DATASET_VERSION',et:'dataset',eid:d.code,etitle:d.title,from:'superseded',to:'published',
+        text:`نسخه تازه v${fa(nv.v)} داده «${d.title}» برای رفع کهنگی منتشر شد (پاسخ به ${r.id})`,k:'ok'});
+    }
+  }
+  r.st='fulfilled'; r.dsCode=d.code; r.doneBy=ME(); r.doneTm=clock(); r.note=opt.note||'';
+  if(st){ st.dsUsed=st.dsUsed||[]; if(!st.dsUsed.includes(d.code)) st.dsUsed.push(d.code); }
+  DB.tasks.filter(t=>t.studyId===r.studyId&&t.assignee===r.to&&t.t.includes(r.label)).forEach(t=>t.st='done');
+  logAct({action:'FULFILL_DATA_REQUEST',et:'study',eid:r.studyId,etitle:st?st.name:r.studyId,from:'open',to:'fulfilled',
+    text:`درخواست ${r.id} با مجموعه «${d.title}» تأمین شد و به مطالعه متصل گردید`,k:'ok'});
+  notify({to:r.by,type:'ok',title:'درخواست داده شما تأمین شد',
+    msg:`${r.label} → ${d.title}`,route:'#/study/'+r.studyId+'/chapter0',et:'study',eid:r.studyId});
+  saveDB();
+}
+function rejectRequest(reqId,note){
+  const r=DB.dataRequests.find(x=>x.id===reqId); if(!r) return;
+  r.st='rejected'; r.note=note; r.doneBy=ME(); r.doneTm=clock();
+  const st=byId(r.studyId);
+  logAct({action:'REJECT_DATA_REQUEST',et:'study',eid:r.studyId,etitle:st?st.name:r.studyId,from:'open',to:'rejected',
+    text:`درخواست ${r.id} رد شد: ${note}`,k:'stop'});
+  notify({to:r.by,type:'stop',title:'درخواست داده شما رد شد',msg:note,
+    route:'#/study/'+r.studyId+'/chapter0',et:'study',eid:r.studyId});
+  saveDB();
+}
+
+/* ---------- 86. data requests desk (steward) ---------- */
+function DataRequestsPage(){
+  if(!can('VIEW_DATA')) return Denied('درخواست‌های داده','این بخش برای متولی داده و کارشناس تحلیل است.');
+  const may=can('MANAGE_DATA');
+  const L=DB.dataRequests||[];
+  const open=L.filter(r=>['open','in_progress'].includes(r.st)), done=L.filter(r=>!['open','in_progress'].includes(r.st));
+  const row=r=>{const st=byId(r.studyId);
+    return `<div class="task"><span class="ic ${r.st==='open'?'ic-warn':r.st==='fulfilled'?'ic-ok':'ic-stop'}">${ico.data}</span>
+      <div class="bd"><b><span class="code">${r.id}</span> — ${r.label}</b>
+        <div class="m">${st?`<a class="link" href="#/study/${st.id}" data-stop="1">${st.name}</a>`:r.studyId}
+          <span class="muted">·</span>${r.region}<span class="muted">·</span>درخواست: ${r.by} — ${r.tm}</div>
+        <div class="m">${esc(r.reason||'')}</div>
+        ${r.dsCode?`<div class="m">تأمین‌شده با <a class="link code" href="#/data/${r.dsCode}" data-stop="1">${r.dsCode}</a> — ${r.doneBy} · ${r.doneTm}</div>`:''}
+        ${r.st==='rejected'?`<div class="m">دلیل رد: ${esc(r.note||'')}</div>`:''}</div>
+      <div class="cta"><span class="bdg ${DREQ_ST[r.st].c}">${DREQ_ST[r.st].t}</span>
+        ${may&&['open','in_progress'].includes(r.st)?`<button class="btn btn-sm btn-pri" data-fulfil="${r.id}">تأمین داده</button>
+          <button class="btn btn-sm btn-danger" data-rejreq="${r.id}">رد</button>`:''}</div></div>`;};
+  return Shell(`${Crumb([{t:'میز کار من',h:'#/'},{t:'داده‌ها',h:'#/data'},{t:'درخواست‌های تأمین داده'}])}
+  <div class="phead"><div><div class="eyebrow">داده و قواعد</div><h1>درخواست‌های تأمین داده</h1>
+    <p class="sub">کارشناس تحلیل هنگام تکمیل فصل صفر، برای هر وابستگی تأمین‌نشده درخواست ثبت می‌کند؛ متولی داده آن را با اتصال مجموعه موجود یا ثبت و انتشار مجموعه تازه پاسخ می‌دهد.</p></div></div>
+  ${Card(`درخواست‌های باز <span class="bdg b-warn plain num">${fa(open.length)}</span>`,
+    open.length?open.map(row).join('')
+    : State('check','درخواست بازی نیست','هر درخواست تازه کارشناسان اینجا و در میز داده ظاهر می‌شود.'))}
+  <div style="height:14px"></div>
+  ${Card('تاریخچه درخواست‌ها', done.length?done.map(row).join('') : State('git','تاریخچه‌ای ثبت نشده',''))}`);
+}
+function bindDataRequests(){
+  els('[data-fulfil]').forEach(b=>b.onclick=()=>fulfilModal(b.dataset.fulfil));
+  els('[data-rejreq]').forEach(b=>b.onclick=()=>{
+    openModal(`<div class="modal-h"><h2>رد درخواست داده</h2><button class="icon-btn" data-close>${ico.block}</button></div>
+      <div class="modal-b"><label class="f-lbl">دلیل رد</label>
+        <textarea class="f-in" id="rj-t" rows="3" placeholder="مثال: این داده در اختیار شهرداری نیست و باید از سازمان متولی بیرونی دریافت شود."></textarea></div>
+      <div class="modal-f"><button class="btn btn-danger" id="rj-go">ثبت رد</button><button class="btn btn-ghost" data-close>انصراف</button></div>`);
+    el('#rj-go',modal).onclick=()=>{const t=el('#rj-t').value.trim(); if(!t){toast('دلیل را بنویسید',false);return;}
+      rejectRequest(b.dataset.rejreq,t); closeAll(); render(); toast('درخواست رد شد و کارشناس مطلع گردید');};
+  });
+  bindRows();
+}
+function fulfilModal(reqId){
+  const r=DB.dataRequests.find(x=>x.id===reqId);
+  const cands=DB.datasets.filter(d=>d.role===r.role);
+  openModal(`<div class="modal-h"><h2>تأمین داده برای درخواست ${r.id}</h2><button class="icon-btn" data-close>${ico.block}</button></div>
+   <div class="modal-b">
+     <dl class="kv" style="margin-bottom:12px">
+       <dt>نیاز</dt><dd>${r.label} <span class="code">${r.role}</span></dd>
+       <dt>مطالعه</dt><dd>${byId(r.studyId)?byId(r.studyId).name:r.studyId} — ${r.region}</dd>
+       <dt>درخواست‌کننده</dt><dd>${r.by} · ${r.tm}</dd>
+       <dt>دلیل</dt><dd>${esc(r.reason||'')}</dd></dl>
+     <label class="f-lbl">روش تأمین</label>
+     <div class="roles" style="margin-bottom:12px">
+       <label class="role ${cands.length?'on':''}" data-fmode="existing" ${cands.length?'':'style="opacity:.5"'}>
+         <span class="rk"></span><span><b>اتصال مجموعه موجود کاتالوگ</b>
+         <span>${cands.length?fa(cands.length)+' مجموعه با همین نقش داده در کاتالوگ هست':'مجموعه‌ای با این نقش داده در کاتالوگ نیست'}</span></span></label>
+       <label class="role ${cands.length?'':'on'}" data-fmode="new"><span class="rk"></span>
+         <span><b>ثبت و انتشار مجموعه تازه برای این محدوده</b>
+         <span>یک مجموعه نمونه با نسخه منتشرشده ساخته و به مطالعه متصل می‌شود</span></span></label></div>
+     <div id="f-exist" style="${cands.length?'':'display:none'}">
+       <label class="f-lbl">مجموعه داده</label>
+       <select class="f-in" id="f-ds">${cands.map(d=>{const pub=d.versions.some(v=>v.st==='published');
+         const fr=freshness(d); const note=!pub?' — بدون نسخه منتشرشده؛ با تأمین منتشر می‌شود'
+           :fr.c==='b-stop'?' — منقضی؛ با تأمین نسخه تازه منتشر می‌شود'
+           :!regionOK(d,r.region)?' — خارج از محدوده؛ با تأمین گستره آن توسعه می‌یابد':' — مناسب';
+         return `<option value="${d.code}">${d.title} — ${d.code}${note}</option>`;}).join('')}</select>
+       <p class="muted" style="font-size:11px;margin-top:5px">اگر مجموعه نسخه منتشرشده نداشته باشد یا از قاعده تازگی گذشته باشد، با این اقدام نسخه تازه‌ای منتشر و به مطالعه متصل می‌شود.</p></div>
+     <div style="margin-top:12px"><label class="f-lbl">یادداشت (اختیاری)</label>
+       <input class="f-in" id="f-note" placeholder="مثال: نسخه ۱۴۰۵/۰۵ برداشت میدانی"></div>
+   </div>
+   <div class="modal-f"><button class="btn btn-pri" id="f-go">تأمین و اتصال به مطالعه</button>
+     <button class="btn btn-ghost" data-close>انصراف</button></div>`);
+  let mode=cands.length?'existing':'new';
+  els('[data-fmode]',modal).forEach(n=>n.onclick=()=>{
+    if(n.dataset.fmode==='existing'&&!cands.length) return;
+    mode=n.dataset.fmode;
+    els('[data-fmode]',modal).forEach(x=>x.classList.toggle('on',x===n));
+    el('#f-exist').style.display=mode==='existing'?'':'none';
+  });
+  el('#f-go',modal).onclick=()=>{
+    fulfillRequest(reqId,{dsCode:mode==='existing'?el('#f-ds').value:null,note:el('#f-note').value.trim()});
+    closeAll(); render(); toast('داده تأمین و به فصل صفر مطالعه متصل شد — کارشناس مطلع گردید');
+  };
+}
+
+/* ---------- 87. study ageing ---------- */
+const DAY=86400000;
+function ageOf(s){
+  if(!s.createdTs) return null;
+  return Math.max(0,Math.floor((Date.now()-s.createdTs)/DAY));
+}
+function AgeBar(s){
+  const a=ageOf(s); if(a===null) return '<span class="muted">—</span>';
+  const band=a<7?['تازه','age-new']:a<30?['جاری','age-mid']:a<90?['طولانی','age-long']:['کهنه','age-old'];
+  const w=Math.min(100,Math.round(a/90*100));
+  return `<div class="agewrap" title="${fa(a)} روز از ایجاد مطالعه گذشته است">
+    <div class="agebar ${band[1]}"><i style="width:${Math.max(6,w)}%"></i></div>
+    <span class="agelbl">${a===0?'امروز':fa(a)+' روز'} · ${band[0]}</span></div>`;
+}
+
+(function migrate6(){
+  if(!DB.dataRequests) DB.dataRequests=[];
+  const ages={'ST-1405-021':4,'ST-1405-014':21,'ST-1405-009':38,'ST-1405-017':64,
+    'ST-1405-005':105,'ST-1405-002':168,'ST-1404-031':320};
+  DB.studies.forEach(s=>{ if(!s.createdTs) s.createdTs=Date.now()-((ages[s.id]||45)*DAY); });
+  saveDB();
+})();
+
+/* ---------- 88. router ---------- */
 const bindRows=()=>els('tr[data-href]').forEach(tr=>tr.onclick=e=>{if(e.target.closest('[data-stop]'))return; go(tr.dataset.href);});
 function route(){
   const h=location.hash||'#/';
@@ -5714,6 +6201,7 @@ function route(){
   if(h.startsWith('#/data')){
     if(!can('VIEW_DATA')) return {p:Denied('کاتالوگ داده','مشاهده و مدیریت کاتالوگ داده در حوزه مسئولیت متولی داده و نقش‌های تحلیلی است.','در میز تصمیم، خلاصه و شواهد نسخه‌دار همان داده در اختیار شماست.')};
     const seg=h.slice(1).split('?')[0].split('/').filter(Boolean).slice(1);
+    if(seg[0]==='requests') return {p:DataRequestsPage(),b:bindDataRequests};
     if(seg[0]==='ingest'&&!can('MANAGE_DATA')) return {p:Denied('بارگذاری نسخه داده','بارگذاری، نگاشت، اعتبارسنجی و انتشار نسخه داده تنها در اختیار متولی داده است.')};
     if(!seg.length) return {p:CatalogPage(),b:bindCatalog};
     if(seg[0]==='ingest') return {p:IngestPage(),b:bindIngest};
