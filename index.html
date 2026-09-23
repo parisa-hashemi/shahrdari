@@ -24,7 +24,7 @@
   --canvas:#F1F4F7; --surface:#FFFFFF; --surface-2:#F8FAFB; --surface-3:#EEF2F6;
   --line:#DCE3EA; --line-strong:#C3CEDA;
   --text:#122031; --text-2:#43556B; --text-3:#6E8098;
-  --primary:#0B5A63; --primary-600:#094A52; --primary-050:#E6F1F2; --primary-200:#9CC6C9;
+  --primary:#1E5BB0; --primary-600:#15478C; --primary-700:#0F356B; --primary-050:#EFF6FF; --primary-100:#DBEAFE; --primary-200:#BFDBFE;
   --brass:#8F6215; --brass-050:#FAF3E4;
   --way:#5B44D6; --way-050:#EFECFD; --way-200:#C4BAF4;
   --ok:#14795A; --ok-050:#E4F3EE;
@@ -32,7 +32,7 @@
   --stop:#A62319; --stop-050:#FAEAE8;
   --run:#17558F; --run-050:#E6EEF6;
   --neutral:#5B6B7F; --neutral-050:#EDF1F5;
-  --r-s:4px; --r-m:7px; --r-l:11px;
+  --r-s:4px; --r-m:8px; --r-l:12px;
   --sh-1:0 1px 2px rgba(16,32,48,.07);
   --sh-2:0 6px 20px -6px rgba(11,26,44,.18), 0 2px 6px rgba(11,26,44,.08);
   --sh-3:0 24px 60px -18px rgba(8,17,28,.38);
@@ -80,11 +80,11 @@ input,select,textarea{font:inherit; color:inherit}
   display:flex;align-items:center;gap:9px;padding:7px 16px;color:#B9C8D8;font-size:13px;
   border-inline-end:3px solid transparent; position:relative;
 }
-.nav-a:hover{background:rgba(255,255,255,.045);color:#fff}
-.nav-a.on{background:rgba(11,90,99,.30);color:#fff;border-inline-end-color:#2C9AA5;font-weight:500}
-.nav-a svg{flex:none;opacity:.82}
-.nav-a .pill{margin-inline-start:auto;background:rgba(255,255,255,.1);color:#DCE7F2;font-size:10.5px;padding:0 6px;border-radius:20px;min-width:20px;text-align:center}
-.nav-a.on .pill{background:#2C9AA5;color:#03201F}
+.nav-a:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav-a.on{background:rgba(30,91,176,.28);color:#fff;border-inline-end-color:#60A5FA;font-weight:500}
+.nav-a svg{flex:none;opacity:.85}
+.nav-a .pill{margin-inline-start:auto;background:rgba(255,255,255,.12);color:#E0EDF8;font-size:10.5px;padding:1px 7px;border-radius:20px;min-width:20px;text-align:center}
+.nav-a.on .pill{background:#3B82F6;color:#ffffff}
 .side-foot{padding:10px 14px;border-top:1px solid rgba(255,255,255,.07);font-size:10.5px;color:#61788F;display:flex;justify-content:space-between;gap:8px}
 .main{grid-column:2; min-width:0; display:flex; flex-direction:column}
 
@@ -128,25 +128,43 @@ input,select,textarea{font:inherit; color:inherit}
 
 /* ---------- buttons ---------- */
 .btn{
-  display:inline-flex;align-items:center;gap:6px;border-radius:var(--r-m);border:1px solid var(--line-strong);
-  background:#fff;padding:6px 12px;font-size:12.5px;cursor:pointer;white-space:nowrap;color:var(--text);
-  transition:background .12s,border-color .12s
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  border-radius:var(--r-m);border:1px solid var(--line-strong);
+  background:#fff;padding:8px 14px;font-size:13px;font-weight:500;
+  cursor:pointer;white-space:nowrap;color:var(--text);
+  box-shadow:0 1px 2px rgba(16,32,48,.05);
+  transition:all .14s ease;
+  user-select:none;
 }
-.btn:hover{background:var(--surface-3)}
-.btn svg{opacity:.75}
-.btn-pri{background:var(--primary);border-color:var(--primary);color:#fff}
-.btn-pri:hover{background:var(--primary-600)}
+.btn:hover{background:var(--surface-2);border-color:var(--primary-200);color:var(--primary-700)}
+.btn:active{transform:translateY(1px);box-shadow:none}
+.btn svg{opacity:.85;transition:opacity .14s;flex:none}
+.btn-pri{
+  background:linear-gradient(180deg, #2563EB 0%, #1D4ED8 100%);
+  border-color:#1D4ED8;color:#fff !important;font-weight:600;
+  box-shadow:0 2px 6px rgba(29,78,216,.28), 0 1px 2px rgba(29,78,216,.18);
+}
+.btn-pri:hover{
+  background:linear-gradient(180deg, #1D4ED8 0%, #1E40AF 100%);
+  border-color:#1E40AF;color:#fff !important;
+  box-shadow:0 4px 14px rgba(29,78,216,.38);
+}
 .btn-pri svg{opacity:1}
-.btn-way{background:var(--way);border-color:var(--way);color:#fff}
-.btn-way:hover{filter:brightness(.93)}
-.btn-ghost{border-color:transparent;background:transparent}
-.btn-ghost:hover{background:var(--surface-3);border-color:var(--line)}
-.btn-sm{padding:3px 9px;font-size:11.5px}
-.btn-danger{color:var(--stop);border-color:#E6C4C0}
-.btn-danger:hover{background:var(--stop-050)}
-.btn[disabled]{opacity:.45;cursor:not-allowed}
-.link{color:var(--primary);cursor:pointer}
-.link:hover{text-decoration:underline}
+.btn-way{background:var(--way);border-color:var(--way);color:#fff;box-shadow:0 2px 6px rgba(91,68,214,.24)}
+.btn-way:hover{filter:brightness(.92);box-shadow:0 4px 12px rgba(91,68,214,.32)}
+.btn-ghost{border-color:transparent;background:transparent;box-shadow:none;color:var(--text-2)}
+.btn-ghost:hover{background:var(--surface-3);border-color:var(--line);color:var(--text)}
+.btn-sm{padding:4px 10px;font-size:11.8px;border-radius:6px}
+.btn-lg{padding:11px 20px;font-size:14px;font-weight:600;border-radius:9px}
+.btn-danger{color:var(--stop);border-color:#F2B8B5;background:#FFF}
+.btn-danger:hover{background:var(--stop-050);border-color:var(--stop)}
+.btn:disabled, .btn[disabled]{
+  opacity:.55 !important;cursor:not-allowed !important;pointer-events:none !important;
+  background:#E2E8F0 !important;color:#64748B !important;border-color:#CBD5E1 !important;
+  box-shadow:none !important;transform:none !important;
+}
+.link{color:var(--primary);cursor:pointer;font-weight:500}
+.link:hover{text-decoration:underline;color:var(--primary-600)}
 
 /* ---------- badges ---------- */
 .bdg{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;padding:1px 8px;border-radius:20px;border:1px solid;white-space:nowrap;line-height:1.7}
@@ -297,6 +315,18 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
   font-size:10px;font-weight:700;padding:1px 6px;border-radius:12px;
   background:#FEE2E2;color:#DC2626;border:1px solid #FECACA;margin-inline-start:4px;
 }
+.study-step-link.step-locked{
+  color:#94A3B8;background:#FEF2F2;border-color:#FEE2E2;
+}
+.study-step-link.step-locked:hover{
+  background:#FEE2E2;color:#B91C1C;border-color:#FECACA;
+}
+.study-step-link.step-locked .step-num-badge{
+  background:#FEE2E2;border-color:#FCA5A5;color:#DC2626;font-size:10px;
+}
+.study-step-link.active.step-locked{
+  background:#FEF2F2;border-color:#F87171;color:#991B1B;
+}
 .study-step-sep{color:#CBD5E1;font-size:12px;user-select:none;padding:0 1px;flex-shrink:0}
 
 /* ---------- states ---------- */
@@ -423,16 +453,205 @@ textarea.f-in{resize:vertical;font-family:inherit;line-height:1.7}
 .pal-row .k{font-size:11px;color:var(--text-3);margin-inline-start:auto}
 
 /* ---------- login ---------- */
-.login{min-height:100vh;height:100vh;display:grid;grid-template-columns:minmax(420px,520px) 1fr}
-@media(max-width:900px){.login{grid-template-columns:1fr}.login .art{display:none}}
-.login .pane{background:var(--surface);display:flex;flex-direction:column;justify-content:center;padding:36px 40px;border-inline-end:1px solid var(--line);overflow-y:auto;max-height:100vh}
-.login .art{background:var(--ink-900);position:relative;overflow:hidden;display:grid;place-items:center}
-.login .art .cap{position:absolute;inset-block-end:28px;inset-inline:32px;color:#8FA6BD;font-size:11.5px;display:flex;justify-content:space-between;gap:16px;align-items:flex-end}
-.login .art .cap b{color:#E7EEF5;font-weight:500;font-size:15px;display:block;letter-spacing:-.01em}
-.f-lbl{font-size:12px;color:var(--text-2);margin-bottom:5px;display:block}
-.f-in{width:100%;border:1px solid var(--line-strong);border-radius:var(--r-m);padding:8px 11px;background:var(--surface-2);outline:none}
-.f-in:focus{border-color:var(--primary);background:#fff}
-.f-row{margin-bottom:13px}
+.login{
+  min-height:100vh;height:100vh;display:grid;grid-template-columns:minmax(420px,500px) 1fr;
+  background:#F8FAFC;overflow:hidden;
+}
+@media(max-width:960px){
+  .login{grid-template-columns:1fr;overflow-y:auto;height:auto;min-height:100vh}
+  .login .art{display:none}
+  .login .pane{max-width:540px;margin:0 auto;border-inline-end:none;padding:20px 16px;height:auto;min-height:100vh}
+}
+.login .pane{
+  background:#FFFFFF;display:flex;flex-direction:column;justify-content:flex-start;
+  padding:24px 32px 36px;border-inline-end:1px solid var(--line);
+  overflow-y:auto;height:100vh;box-shadow:0 4px 24px rgba(15,23,42,.03);
+}
+.login-brand{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #EDF2F7}
+.login-brand-text{display:flex;flex-direction:column;gap:1px}
+.login-brand-sub{font-size:11.5px;color:var(--text-3);font-weight:500;line-height:1.4}
+.login-brand-title{font-size:14.5px;font-weight:700;color:var(--text);letter-spacing:-.01em;line-height:1.4}
+
+.login-tabs{
+  display:flex;gap:6px;margin-bottom:16px;background:#F1F5F9;
+  padding:4px;border-radius:10px;border:1px solid #E2E8F0;
+}
+.login-tab-btn{
+  flex:1;display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:8px 10px;font-size:12px;font-weight:500;border-radius:7px;
+  border:1px solid transparent;background:transparent;color:#475569;
+  cursor:pointer;transition:all .15s ease;white-space:nowrap;
+}
+.login-tab-btn:hover{color:#0F172A;background:rgba(255,255,255,.65)}
+.login-tab-btn.active{
+  background:#FFFFFF;color:var(--primary);font-weight:600;
+  border-color:#CBD5E1;box-shadow:0 2px 6px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+}
+.login-tab-btn .tab-badge{
+  font-size:10px;padding:2px 7px;border-radius:12px;background:#EFF6FF;color:#1D4ED8;font-weight:600;
+}
+
+.quick-acct-card{
+  display:flex;align-items:center;gap:10px;padding:8px 12px;
+  background:#F8FAFC;border:1px solid #E2E8F0;border-radius:9px;
+  cursor:pointer;transition:all .14s ease;text-align:start;width:100%;
+  font:inherit;text-decoration:none;
+}
+.quick-acct-card:hover{
+  background:#EFF6FF;border-color:#93C5FD;transform:translateY(-1px);
+  box-shadow:0 3px 8px rgba(37,99,235,.08);
+}
+.quick-acct-card .av{
+  width:28px;height:28px;border-radius:8px;background:#DBEAFE;color:#1E40AF;
+  font-weight:600;font-size:10.5px;display:grid;place-items:center;flex:none;
+}
+.quick-acct-card .meta{flex:1;min-width:0;line-height:1.35}
+.quick-acct-card .nm{font-weight:600;font-size:12.5px;color:#0F172A;display:flex;align-items:center;gap:6px}
+.quick-acct-card .desc{font-size:11px;color:#64748B;margin-top:1px}
+.quick-acct-card .chip{
+  font-size:10.5px;font-weight:500;color:#2563EB;background:#EFF6FF;
+  border:1px solid #BFDBFE;padding:2px 7px;border-radius:6px;white-space:nowrap;flex:none;
+}
+
+.login .art{background:linear-gradient(135deg, #070F1B 0%, #0D1D33 50%, #081424 100%);position:relative;overflow:hidden;display:grid;place-items:center;height:100vh}
+.login .art .cap{
+  position:absolute;inset-block-end:16px;inset-inline:20px;
+  background:rgba(8,19,34,.88);backdrop-filter:blur(10px);
+  border:1px solid rgba(147,197,253,.25);border-radius:12px;
+  padding:12px 16px;color:#94A3B8;font-size:11.5px;
+  display:flex;justify-content:space-between;gap:14px;align-items:center;
+  box-shadow:0 12px 32px rgba(0,0,0,.35);z-index:10;
+}
+.login .art .cap b{color:#F1F5F9;font-weight:600;font-size:13px;display:block;margin-bottom:2px}
+.login .art-top-hud{
+  position:absolute;inset-block-start:16px;inset-inline:20px;
+  display:flex;justify-content:space-between;align-items:center;gap:12px;width:calc(100% - 40px);
+  z-index:10;
+}
+.login .art-hud-chip{
+  display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:20px;
+  background:rgba(8,19,34,.88);backdrop-filter:blur(10px);
+  border:1px solid rgba(147,197,253,.25);color:#F1F5F9;font-size:11.5px;
+  box-shadow:0 4px 16px rgba(0,0,0,.35);
+}
+.login .art-hud-chip b{color:#FFFFFF;font-weight:600;font-size:12px}
+
+/* ---------- login motion & animations ---------- */
+@keyframes radarSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes sonarPulse1 {
+  0% { r: 10px; opacity: 0.95; stroke-width: 2.2px; }
+  60% { opacity: 0.35; }
+  100% { r: 90px; opacity: 0; stroke-width: 0.6px; }
+}
+@keyframes sonarPulse2 {
+  0% { r: 10px; opacity: 0; stroke-width: 2px; }
+  25% { opacity: 0.85; }
+  100% { r: 130px; opacity: 0; stroke-width: 0.5px; }
+}
+@keyframes flowDash {
+  to { stroke-dashoffset: -48; }
+}
+@keyframes flowDashRev {
+  to { stroke-dashoffset: 48; }
+}
+@keyframes miladBeaconGlow {
+  0%, 100% { opacity: 0.35; filter: drop-shadow(0 0 2px #F59E0B); }
+  50% { opacity: 1; filter: drop-shadow(0 0 8px #FBBF24); }
+}
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.35); opacity: 0.7; }
+}
+@keyframes loginFadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes tabSlideActive {
+  from { transform: scale(0.97); }
+  to { transform: scale(1); }
+}
+
+.gis-radar-rotor {
+  transform-origin: 0 0;
+  animation: radarSpin 7.5s linear infinite;
+}
+.sonar-wave-1 {
+  animation: sonarPulse1 3.4s cubic-bezier(0.1, 0.4, 0.2, 1) infinite;
+}
+.sonar-wave-2 {
+  animation: sonarPulse2 3.4s cubic-bezier(0.1, 0.4, 0.2, 1) infinite 1.7s;
+}
+.flow-corridor-1 {
+  stroke-dasharray: 10 14;
+  animation: flowDash 2.4s linear infinite;
+}
+.flow-corridor-2 {
+  stroke-dasharray: 8 16;
+  animation: flowDashRev 2.8s linear infinite;
+}
+.flow-corridor-vert {
+  stroke-dasharray: 12 16;
+  animation: flowDash 3s linear infinite;
+}
+.flow-corridor-vert2 {
+  stroke-dasharray: 10 14;
+  animation: flowDashRev 3.4s linear infinite;
+}
+.milad-beacon-dot {
+  animation: miladBeaconGlow 1.6s ease-in-out infinite;
+}
+.hud-pulse-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 8px #10B981;
+  animation: pulseDot 2s ease-in-out infinite;
+  margin-inline-end: 4px;
+}
+
+.login-brand { animation: loginFadeUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.login-tabs { animation: loginFadeUp 0.36s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.login-form-box { animation: loginFadeUp 0.42s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.login-quick-section { animation: loginFadeUp 0.48s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.login-tab-btn.active { animation: tabSlideActive 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .gis-radar-rotor,
+  .sonar-wave-1,
+  .sonar-wave-2,
+  .flow-corridor-1,
+  .flow-corridor-2,
+  .flow-corridor-vert,
+  .flow-corridor-vert2,
+  .milad-beacon-dot,
+  .hud-pulse-dot,
+  .login-brand,
+  .login-tabs,
+  .login-form-box,
+  .login-quick-section,
+  .quick-acct-card {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+.f-lbl{font-size:12.3px;font-weight:500;color:var(--text);margin-bottom:6px;display:block}
+.f-in{
+  width:100%;border:1px solid #CBD5E1;border-radius:var(--r-m);
+  padding:9px 12px;background:#F8FAFC;outline:none;font-size:13px;
+  transition:border-color .14s,box-shadow .14s,background-color .14s;
+}
+.f-in:focus{
+  border-color:var(--primary);background:#fff;
+  box-shadow:0 0 0 3px rgba(37,99,235,.12);
+}
+.f-row{margin-bottom:14px}
 .roles{display:grid;gap:7px}
 .role{display:flex;gap:9px;align-items:flex-start;border:1px solid var(--line);border-radius:var(--r-m);padding:8px 10px;cursor:pointer;background:var(--surface-2)}
 .role:hover{border-color:var(--line-strong);background:#fff}
@@ -675,10 +894,16 @@ const STUDY_TABS = [
 
 /* ---------- 4. components ---------- */
 const Mark = (sz=30)=>`<svg class="mark" width="${sz}" height="${sz}" viewBox="0 0 32 32" fill="none">
-  <rect x="1" y="1" width="30" height="30" rx="7" fill="#0B5A63"/>
-  <path d="M6 22.5 13 9l6 8 3-4.5 4 10z" stroke="#7FD2D8" stroke-width="1.4" stroke-linejoin="round"/>
-  <path d="M6 26h20" stroke="#3E9AA1" stroke-width="1.4"/>
-  <circle cx="13" cy="9" r="1.8" fill="#E6B455"/></svg>`;
+  <defs>
+    <linearGradient id="markG" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#1E40AF"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="30" height="30" rx="8" fill="url(#markG)"/>
+  <path d="M6 22.5 13 9l6 8 3-4.5 4 10z" stroke="#DBEAFE" stroke-width="1.6" stroke-linejoin="round"/>
+  <path d="M6 26h20" stroke="#93C5FD" stroke-width="1.5" stroke-linecap="round"/>
+  <circle cx="13" cy="9" r="2.2" fill="#F59E0B"/></svg>`;
 
 const Crumb = items => `<nav class="crumb">${items.map((x,i)=>
   (i?'<span class="s">/</span>':'')+(x.h?`<a href="${x.h}">${esc(x.t)}</a>`:`<span>${esc(x.t)}</span>`)).join('')}</nav>`;
@@ -732,60 +957,126 @@ const Top = () => `<header class="top">
 
 const Shell = (inner,rail='') => `<div class="shell">${Side()}<div class="main">${Top()}${rail}<div class="page">${inner}</div></div></div>`;
 
-/* ---------- 5a. login ---------- */
+/* ---------- 5a. login art ---------- */
 function ArtSVG(){
-  let s='', rnd=(a=>()=>((a=a*16807%2147483647)/2147483647))(7);
-  // parcel-plan motif: city blocks, one highlighted study boundary
+  let s='', rnd=(a=>()=>((a=a*16807%2147483647)/2147483647))(42);
+  // Tehran urban grid parcels
   for(let y=0;y<7;y++) for(let x=0;x<6;x++){
-    const bx=40+x*96, by=40+y*76, w=76, h=56;
-    s+=`<rect x="${bx}" y="${by}" width="${w}" height="${h}" fill="#0F1F31" stroke="#1B3350"/>`;
+    const bx=36+x*96, by=90+y*72, w=78, h=52;
+    s+=`<rect x="${bx}" y="${by}" width="${w}" height="${h}" rx="3" fill="#0C1B2E" stroke="#1E385B" stroke-width="1"/>`;
     const n=2+Math.floor(rnd()*4);
     for(let i=0;i<n;i++){
-      const pw=8+rnd()*16, ph=8+rnd()*20;
-      s+=`<rect x="${bx+4+rnd()*(w-pw-8)}" y="${by+4+rnd()*(h-ph-8)}" width="${pw}" height="${ph}" fill="#16293F" stroke="#22405F" stroke-width=".8"/>`;
+      const pw=8+rnd()*18, ph=8+rnd()*16;
+      s+=`<rect x="${bx+4+rnd()*(w-pw-8)}" y="${by+4+rnd()*(h-ph-8)}" rx="1.5" width="${pw}" height="${ph}" fill="#132B47" stroke="#1D436D" stroke-width=".7"/>`;
     }
   }
-  s+=`<path d="M136 116 h192 v152 h-96 v76 h-96 z" fill="rgba(91,68,214,.10)" stroke="#8878F0" stroke-width="2" stroke-dasharray="7 5"/>`;
-  s+=`<circle cx="232" cy="192" r="5" fill="#E6B455"/><circle cx="232" cy="192" r="13" fill="none" stroke="#E6B455" stroke-opacity=".5"/>`;
-  return `<svg viewBox="0 0 620 600" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style="opacity:.95">
-    <rect width="620" height="600" fill="#08111C"/>${s}
-    <g stroke="#0B5A63" stroke-width="8" opacity=".42"><path d="M0 116h620M0 344h620M328 0v600"/></g>
-    <g stroke="#2C9AA5" stroke-width="1" opacity=".35"><path d="M0 116h620M0 344h620M328 0v600"/></g></svg>`;
-}
-function LoginPage(){
-  return `<div class="login">
-    <div class="pane">
-      <div style="display:flex;gap:10px;align-items:center;margin-bottom:22px">${Mark(34)}
-        <div><b style="font-size:14px">سامانه هوشمند برنامه‌ریزی شهری تهران</b>
-        <div class="muted" style="font-size:11.5px">ورود کاربران سازمانی</div></div></div>
-      <h1 style="margin-bottom:4px">ورود به حساب سازمانی</h1>
-      <p class="t2" style="font-size:12.5px;margin-bottom:18px">دسترسی این سامانه محدود به کاربران احراز هویت‌شده شهرداری و دستگاه‌های همکار است.</p>
-      <div class="f-row"><label class="f-lbl" for="lg-u">نام کاربری سازمانی</label>
-        <input class="f-in" id="lg-u" value="z.kazemi" dir="ltr" spellcheck="false"></div>
-      <div class="f-row"><label class="f-lbl" for="lg-p">گذرواژه</label>
-        <input class="f-in" id="lg-p" type="password" value="demo-mode" dir="ltr"></div>
-      <div class="f-row"><span class="f-lbl">نقش کاری در این نشست</span>
-        <div class="roles" id="lg-roles" style="grid-template-columns:1fr 1fr">${ROLES.map((r,i)=>`<label class="role ${i===0?'on':''}" data-role="${r.id}">
-          <span class="rk"></span><span><b>${r.t}</b><span>${r.d}</span></span></label>`).join('')}</div></div>
-      <button class="btn btn-pri" id="lg-go" style="width:100%;justify-content:center;padding:9px">ورود به سامانه</button>
-      <div class="notice n-demo" style="margin-top:14px">${ico.lock}<div>
-        <b>محیط نمایشی</b> — در این نمونه گذرواژه بررسی نمی‌شود. همه داده‌ها ساختگی است و هیچ ضابطه یا آمار رسمی شهرداری را نشان نمی‌دهد.</div></div>
-      <div class="muted" style="font-size:11px;margin-top:14px;display:flex;gap:14px">
-        <a class="link" href="#/">ورود با حساب یکپارچه سازمانی</a><span>پشتیبانی: داخلی ۲۴۱۸</span></div>
-    </div>
-    <div class="art">${ArtSVG()}
-      <div class="cap"><div><b>پهنه مرکزی منطقه ۶ — محدوده مطالعه نمونه</b>
-        <span>مرز مطالعه، بلوک‌های شهری و پلاک‌ها؛ نمایش ساختگی</span></div>
-        <span class="code">EPSG:32639</span></div></div>
-  </div>`;
-}
-function bindLogin(){
-  els('.role').forEach(r=>r.onclick=()=>{els('.role').forEach(x=>x.classList.remove('on'));r.classList.add('on')});
-  el('#lg-go').onclick=()=>{
-    const role = el('.role.on').dataset.role;
-    STATE.user={name:ROLE_NAMES[role],role}; save(); go('#/');
-  };
-  el('#lg-p').onkeydown=e=>{ if(e.key==='Enter') el('#lg-go').click(); };
+
+  // Central Study Boundary (District 6 / Tehran University quadrant)
+  s+=`<polygon points="132,162 324,162 324,306 228,306 228,378 132,378" fill="rgba(37,99,235,0.12)" stroke="#3B82F6" stroke-width="2.5" stroke-dasharray="6 4"/>`;
+  
+  // Glowing municipal focal nodes
+  s+=`<circle cx="228" cy="234" r="6" fill="#F59E0B"/><circle cx="228" cy="234" r="14" fill="none" stroke="#F59E0B" stroke-opacity=".4" stroke-width="1.5"/>`;
+  s+=`<circle cx="160" cy="200" r="4" fill="#38BDF8"/><circle cx="160" cy="200" r="10" fill="none" stroke="#38BDF8" stroke-opacity=".4"/>`;
+  s+=`<circle cx="290" cy="280" r="4" fill="#60A5FA"/><circle cx="290" cy="280" r="10" fill="none" stroke="#60A5FA" stroke-opacity=".4"/>`;
+
+  return `<svg viewBox="0 0 620 600" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style="opacity:.98">
+    <defs>
+      <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="600" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#070D17"/>
+        <stop offset="50%" stop-color="#0B1A2F"/>
+        <stop offset="100%" stop-color="#081322"/>
+      </linearGradient>
+      <linearGradient id="mountainGrad" x1="0" y1="0" x2="0" y2="100" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#1E3A5F" stop-opacity=".75"/>
+        <stop offset="100%" stop-color="#0B1A2F" stop-opacity=".1"/>
+      </linearGradient>
+      <linearGradient id="miladGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#93C5FD"/>
+        <stop offset="100%" stop-color="#1E40AF"/>
+      </linearGradient>
+      <linearGradient id="glowLineH" x1="0" y1="0" x2="620" y2="0" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#2563EB" stop-opacity="0"/>
+        <stop offset="50%" stop-color="#38BDF8" stop-opacity=".8"/>
+        <stop offset="100%" stop-color="#2563EB" stop-opacity="0"/>
+      </linearGradient>
+      <radialGradient id="radarFan" cx="0" cy="0" r="140" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.32"/>
+        <stop offset="55%" stop-color="#2563EB" stop-opacity="0.14"/>
+        <stop offset="100%" stop-color="#1D4ED8" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="radarLine" x1="0" y1="0" x2="140" y2="0" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.95"/>
+        <stop offset="100%" stop-color="#38BDF8" stop-opacity="0.05"/>
+      </linearGradient>
+    </defs>
+    
+    <!-- Background -->
+    <rect width="620" height="600" fill="url(#skyGrad)"/>
+
+    <!-- Alborz Mountain Skyline Silhouette in northern backdrop -->
+    <path d="M0,95 Q70,55 140,82 T280,48 T420,80 T540,40 T620,75 L620,130 L0,130 Z" fill="url(#mountainGrad)"/>
+    <path d="M260,54 L280,48 L300,58 Z" fill="#E2E8F0" opacity=".35"/> <!-- Snow peak -->
+    <path d="M520,46 L540,40 L558,49 Z" fill="#E2E8F0" opacity=".35"/>
+
+    <!-- Milad Tower silhouette on horizon -->
+    <g transform="translate(480, 22) scale(0.68)">
+      <!-- Antenna mast -->
+      <line x1="20" y1="0" x2="20" y2="40" stroke="#E2E8F0" stroke-width="1.8"/>
+      <circle class="milad-beacon-dot" cx="20" cy="2" r="3.5" fill="#F59E0B"/>
+      <!-- Top pod structure -->
+      <polygon points="12,40 28,40 32,56 8,56" fill="#38BDF8" opacity=".85"/>
+      <polygon points="8,56 32,56 26,72 14,72" fill="#1D4ED8"/>
+      <line x1="7" y1="52" x2="33" y2="52" stroke="#BFDBFE" stroke-width="1.5"/>
+      <!-- Shaft legs -->
+      <polygon points="15,72 25,72 27,150 13,150" fill="#1E3A5F" stroke="#2563EB" stroke-width="1"/>
+      <!-- Base structure -->
+      <polygon points="6,150 34,150 38,168 2,168" fill="#0F243E" stroke="#1D4ED8" stroke-width="1"/>
+    </g>
+
+    <!-- Street parcels & blocks -->
+    ${s}
+
+    <!-- Major arterial glowing highway corridors (Hemat, Hakim, Chamran, Enghelab) -->
+    <g stroke="url(#glowLineH)" stroke-width="3.5" stroke-linecap="round">
+      <path d="M0 162h620"/>
+      <path d="M0 378h620"/>
+    </g>
+    <g stroke="#1D4ED8" stroke-width="2.5" stroke-linecap="round">
+      <path d="M228 0v600"/>
+      <path d="M420 0v600"/>
+    </g>
+
+    <!-- Animated live highway traffic pulses -->
+    <g stroke="#93C5FD" stroke-width="1.8" stroke-linecap="round">
+      <path class="flow-corridor-1" d="M0 162h620"/>
+      <path class="flow-corridor-2" d="M620 378H0"/>
+      <path class="flow-corridor-vert" d="M228 0v600"/>
+      <path class="flow-corridor-vert2" d="M420 600V0"/>
+    </g>
+
+    <!-- Radar / GIS Coordinate rings -->
+    <circle cx="228" cy="234" r="85" fill="none" stroke="#2563EB" stroke-width="1" stroke-dasharray="4 6" opacity=".5"/>
+    <circle cx="228" cy="234" r="140" fill="none" stroke="#1D4ED8" stroke-width=".8" stroke-dasharray="3 8" opacity=".35"/>
+
+    <!-- Expanding Sonar Wave Pulses from Central Tehran GIS node -->
+    <g transform="translate(228, 234)">
+      <circle class="sonar-wave-1" cx="0" cy="0" r="10" fill="none" stroke="#38BDF8"/>
+      <circle class="sonar-wave-2" cx="0" cy="0" r="10" fill="none" stroke="#60A5FA"/>
+      <!-- Sweeping Radar Beam -->
+      <g class="gis-radar-rotor">
+        <polygon points="0,0 140,-40 140,0" fill="url(#radarFan)"/>
+        <line x1="0" y1="0" x2="140" y2="0" stroke="url(#radarLine)" stroke-width="1.8"/>
+        <circle cx="140" cy="0" r="2.5" fill="#38BDF8" opacity=".8"/>
+      </g>
+    </g>
+
+    <!-- Subtle geo grid marks -->
+    <g fill="#60A5FA" opacity=".55" font-family="monospace" font-size="8">
+      <text x="140" y="156">35°42'48"N</text>
+      <text x="236" y="244">51°23'24"E</text>
+      <text x="332" y="156">ZONE 39N</text>
+    </g>
+  </svg>`;
 }
 
 /* ---------- 5b. My Work ---------- */
@@ -1206,6 +1497,154 @@ function openStudyBlockersDrawer(studyId){
 }
 window.openStudyBlockersDrawer = openStudyBlockersDrawer;
 
+function isChapterZeroComplete(id){
+  const s = byId(id);
+  if(!s) return false;
+  if(isStudyLocked(id)) return true;
+
+  // Sync with Study Case if linked
+  const sc = (window.DB?.studyCases || []).find(c => c.study_id === id);
+  if(sc && window.syncStudyCaseWithChapterZero) {
+    try { window.syncStudyCaseWithChapterZero(sc.id); } catch(e){}
+  }
+
+  const sum = czSummary(id);
+  // If there are blocking items, chapter zero is incomplete
+  if(sum.blockers && sum.blockers.length > 0) return false;
+
+  const cs = czState(id);
+  const isSigned = !!(cs && (cs.signed || cs.sealed || (cs.snapshots && cs.snapshots.length > 0)));
+  if(isSigned) return true;
+
+  if(sc && (sc.status === 'READY_FOR_NEXT_STEP' || sc.status === 'COMPLETED' || (sc.workflow_step && sc.workflow_step >= 6))) {
+    return true;
+  }
+
+  return false;
+}
+window.isChapterZeroComplete = isChapterZeroComplete;
+
+function StudyIncompleteDataError(id, activeTab){
+  const s = byId(id) || { id, name: 'مطالعه شهری', region: 'منطقه ۶' };
+  const sum = czSummary(id);
+  const cs = czState(id);
+  const blockers = sum.blockers || [];
+  const tabTitles = {
+    baseline: 'وضع موجود (Baseline)',
+    data: 'مجموعه‌های داده پین‌شده وضع موجود',
+    scenarios: 'تدوین سناریوهای مداخله کالبدی',
+    precheck: 'پیش‌بررسی و آزمون مدل‌ها',
+    runs: 'اجرا و شبیه‌سازی ماژول‌های ۱۲گانه',
+    indicators: 'نتایج و شاخص‌های ۱۲گانه اثر',
+    comparison: 'مقایسه چندمعیاره سناریوها',
+    evidence: 'شواهد و زنجیره اصالت داده‌ها',
+    reports: 'گزارش رسمی و فصول مطالعه',
+    review: 'بررسی، تصویب و کنترل نهایی',
+    models: 'مدل‌های تحلیلی ۱۲گانه',
+    rules: 'قوانین و ضوابط حاکم',
+    map: 'میز نقشه و تحلیل مکانی',
+    tasks: 'وظایف مطالعه'
+  };
+  const tabTitle = tabTitles[activeTab] || activeTab || 'این پنل';
+
+  return `
+  <div style="margin-top:16px">
+    <div class="card" style="border:2px solid #EF4444;background:#FEF2F2;border-radius:var(--r-l);padding:24px 28px;margin-bottom:18px;box-shadow:0 4px 14px rgba(239,68,68,0.08)">
+      <div style="display:flex;align-items:flex-start;gap:16px">
+        <div style="width:48px;height:48px;border-radius:50%;background:#FEE2E2;display:flex;align-items:center;justify-content:center;color:#DC2626;font-size:24px;flex-shrink:0;border:1px solid #FCA5A5">
+          ${ico.block}
+        </div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+            <span class="bdg b-stop plain" style="font-size:12px;font-weight:700;padding:4px 10px;background:#DC2626;color:#FFF">
+              ⛔ خطا: داده‌ها ناقص هستند
+            </span>
+            <span class="code" style="font-size:12px;color:#991B1B">${s.id} · ${s.region}</span>
+          </div>
+
+          <h2 style="font-size:17px;font-weight:800;color:#991B1B;margin:10px 0 6px 0">
+            عدم امکان نمایش پنل «${esc(tabTitle)}» — فصل صفر مطالعه هنوز تکمیل نشده است
+          </h2>
+
+          <p style="font-size:13px;color:#7F1D1D;line-height:1.7;margin:0 0 14px 0">
+            بر اساس چارچوب تحلیل اثرات شهری، داده‌های ورودی و پایه‌ای مطالعه باید در <b>فصل صفر</b> ارزیابی و تأمین شوند، موانع مسدودکننده برطرف گردند و وضعیت موجود با امضای رسمی تحلیلگر شهری پین و تثبیت شود. تا زمان تکمیل فصل صفر، داده‌های این بخش فاقد اعتبار است و به منظور جلوگیری از خطای محاسباتی مسدود می‌باشد.
+          </p>
+
+          <div style="background:#FFF;border:1px solid #FECACA;border-radius:var(--r-m);padding:14px 18px;margin-bottom:18px">
+            <div style="font-weight:700;font-size:13px;color:#991B1B;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+              ${ico.alert} وضعیت داده‌ها و آمادگی فصل صفر:
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;font-size:12.5px">
+              <div style="background:#FEF2F2;padding:10px 12px;border-radius:6px;border:1px solid #FEE2E2">
+                <div class="muted" style="font-size:11px">وضعیت مسدودکننده‌ها (Blockers):</div>
+                <div style="font-weight:700;font-size:13.5px;color:${blockers.length ? '#DC2626' : '#059669'};margin-top:2px">
+                  ${blockers.length ? `${fa(blockers.length)} مورد مسدودکننده فعال` : 'بدون مسدودکننده'}
+                </div>
+              </div>
+              <div style="background:#FEF2F2;padding:10px 12px;border-radius:6px;border:1px solid #FEE2E2">
+                <div class="muted" style="font-size:11px">امضای رسمی فصل صفر:</div>
+                <div style="font-weight:700;font-size:13.5px;color:${cs.signed ? '#059669' : '#DC2626'};margin-top:2px">
+                  ${cs.signed ? 'امضا و تثبیت شده' : 'امضا نشده (در انتظار اقدام)'}
+                </div>
+              </div>
+              <div style="background:#FEF2F2;padding:10px 12px;border-radius:6px;border:1px solid #FEE2E2">
+                <div class="muted" style="font-size:11px">درصد آمادگی داده‌ها:</div>
+                <div style="font-weight:700;font-size:13.5px;color:${sum.pct >= 100 ? '#059669' : '#D97706'};margin-top:2px">
+                  ${fa(sum.pct)}٪ (${fa(sum.ok)} از ${fa(sum.total)} وابستگی)
+                </div>
+              </div>
+            </div>
+
+            ${blockers.length ? `
+              <div style="margin-top:14px;padding-top:12px;border-top:1px dashed #FECACA">
+                <div style="font-weight:600;font-size:12px;color:#991B1B;margin-bottom:8px">
+                  نیازمندی‌های مسدودکننده که مانع نمایش این پنل هستند:
+                </div>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  ${blockers.map(b => `
+                    <div style="display:flex;justify-content:space-between;align-items:center;background:#FFF5F5;border:1px solid #FED7D7;padding:7px 12px;border-radius:6px;font-size:12px">
+                      <div style="display:flex;align-items:center;gap:8px">
+                        <span class="bdg b-stop plain" style="font-size:10px">مسدودکننده</span>
+                        <b>${esc(b.t)}</b>
+                        <span class="muted">(${esc(b.sub || b.issue || '')})</span>
+                      </div>
+                      <a class="link" href="#/study/${id}/chapter0" style="font-weight:600;font-size:11.5px">اقدام در فصل صفر ←</a>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : `
+              <div style="margin-top:12px;font-size:12.5px;color:#047857;display:flex;align-items:center;gap:6px">
+                ${ico.check} <b>تمامی داده‌های مسدودکننده تأمین شده‌اند؛</b> جهت بازگشایی این پنل و نمایش اطلاعات، لطفاً فصل صفر را امضا نمایید.
+              </div>
+            `}
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <a class="btn btn-pri" href="#/study/${id}/chapter0" style="background:#DC2626;border-color:#DC2626;font-weight:700;padding:9px 18px">
+              ${ico.spark} ورود به فصل صفر جهت رفع نواقص داده‌ها ←
+            </a>
+            ${blockers.length ? `
+              <button class="btn" id="btn-err-open-blockers" style="font-weight:600;padding:9px 16px">
+                ${ico.alert} رفع سریع داده‌های مسدودکننده
+              </button>
+            ` : `
+              <button class="btn btn-pri" id="btn-err-sign-now" style="background:#059669;border-color:#059669;font-weight:700;padding:9px 18px">
+                ${ico.check} امضای رسمی فصل صفر و بازگشایی آنی
+              </button>
+            `}
+            <a class="btn btn-ghost" href="#/study/${id}">
+              بازگشت به نمای کلی مطالعه
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  `;
+}
+window.StudyIncompleteDataError = StudyIncompleteDataError;
+
 function StudyTabsBar(id, activeTab){
   const s = byId(id) || { id, stage: 2 };
   const sum = czSummary(id);
@@ -1215,6 +1654,7 @@ function StudyTabsBar(id, activeTab){
   const isSigned = !!(cs && (cs.signed || (cs.snapshots && cs.snapshots.length > 0)));
   const isCaseReady = (window.DB?.studyCases || []).some(c => (c.study_id === id) && (c.status === 'READY_FOR_NEXT_STEP' || c.status === 'COMPLETED' || (c.workflow_step && c.workflow_step >= 6)));
   const isAnDone = isLocked || (stAn && stAn.done) || isCaseReady;
+  const czComplete = isChapterZeroComplete(id);
 
   const steps = [
     { k: 'overview',   t: 'نمای کلی',             stageIdx: 1, n: 1 },
@@ -1240,6 +1680,7 @@ function StudyTabsBar(id, activeTab){
     <div style="display:flex;align-items:center;gap:3px;overflow-x:auto">
       ${steps.map((step, idx) => {
         const isActive = step.k === activeTab;
+        const isLockedByCz = !czComplete && step.k !== 'overview' && step.k !== 'chapter0' && step.k !== 'history';
         let isDone = false;
         if (isLocked) {
           isDone = true;
@@ -1247,18 +1688,18 @@ function StudyTabsBar(id, activeTab){
           isDone = true;
         } else if (step.k === 'chapter0') {
           isDone = isSigned || (sum.blockers.length === 0 && (s.stage >= 2 || isAnDone));
-        } else if (step.k === 'baseline') {
-          isDone = isSigned || s.stage >= 3 || isAnDone;
-        } else if (step.k === 'scenarios') {
-          isDone = s.stage >= 4 || isAnDone;
-        } else if (['precheck','runs','indicators','comparison'].includes(step.k)) {
-          isDone = isAnDone || (s.stage >= step.stageIdx);
-        } else if (['evidence','reports'].includes(step.k)) {
-          isDone = isAnDone || (s.stage >= step.stageIdx);
-        } else if (step.k === 'review') {
-          isDone = isLocked || (s.stage >= 12);
-        } else if (step.k === 'history') {
-          isDone = false;
+        } else if (czComplete) {
+          if (step.k === 'baseline') {
+            isDone = isSigned || s.stage >= 3 || isAnDone;
+          } else if (step.k === 'scenarios') {
+            isDone = s.stage >= 4 || isAnDone;
+          } else if (['precheck','runs','indicators','comparison'].includes(step.k)) {
+            isDone = isAnDone || (s.stage >= step.stageIdx);
+          } else if (['evidence','reports'].includes(step.k)) {
+            isDone = isAnDone || (s.stage >= step.stageIdx);
+          } else if (step.k === 'review') {
+            isDone = isLocked || (s.stage >= 12);
+          }
         }
 
         const showBlockers = step.k === 'chapter0' && sum.blockers.length > 0 && !isSigned;
@@ -1266,11 +1707,12 @@ function StudyTabsBar(id, activeTab){
 
         return `
           ${divider}
-          <a class="study-step-link ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}"
+          <a class="study-step-link ${isActive ? 'active' : ''} ${isDone ? 'done' : ''} ${isLockedByCz ? 'step-locked' : ''}"
              href="#/study/${id}/${step.k}"
-             title="${step.t}">
-            <span class="step-num-badge">${isDone ? '✓' : fa(step.n)}</span>
+             title="${isLockedByCz ? step.t + ' (قفل — نیازمند تکمیل فصل صفر)' : step.t}">
+            <span class="step-num-badge">${isLockedByCz ? '🔒' : isDone ? '✓' : fa(step.n)}</span>
             <span class="step-title-txt">${step.t}</span>
+            ${isLockedByCz ? `<span class="bdg b-stop plain" style="font-size:9.5px;padding:1px 5px;margin-inline-start:4px">ناقص</span>` : ''}
             ${showBlockers ? `<span class="step-blocker-pill">${fa(sum.blockers.length)} مسدودکننده</span>` : ''}
           </a>
         `;
@@ -1282,6 +1724,7 @@ function StudyTabsBar(id, activeTab){
 
 /* ---------- Study Baseline (وضع موجود) ---------- */
 function StudyBaseline(id){
+  if(!isChapterZeroComplete(id)) return StudyIncompleteDataError(id, 'baseline');
   const s = byId(id) || { id, name: 'مطالعه شهری', region: 'منطقه ۶' };
   const a = (STATE.studyAn && STATE.studyAn[id]) || { done: isStudyLocked(id) };
   const isDone = a.done || isStudyLocked(id);
@@ -1482,6 +1925,7 @@ function StudyBaseline(id){
 
 /* ---------- Study Precheck (پیش‌بررسی) ---------- */
 function StudyPrecheck(id){
+  if(!isChapterZeroComplete(id)) return StudyIncompleteDataError(id, 'precheck');
   const s = byId(id) || { id, name: 'مطالعه شهری' };
   const a = (STATE.studyAn && STATE.studyAn[id]) || { done: isStudyLocked(id) };
   const isDone = a.done || isStudyLocked(id);
@@ -1549,6 +1993,7 @@ function StudyPrecheck(id){
 
 /* ---------- Study Comparison (مقایسه سناریوها با وضع موجود) ---------- */
 function StudyComparison(id){
+  if(!isChapterZeroComplete(id)) return StudyIncompleteDataError(id, 'comparison');
   const s = byId(id) || { id, name: 'مطالعه شهری' };
   const a = (STATE.studyAn && STATE.studyAn[id]) || { done: isStudyLocked(id) };
 
@@ -1614,6 +2059,7 @@ function StudyComparison(id){
 }
 
 function StudyMap(id){
+  if(!isChapterZeroComplete(id)) return StudyIncompleteDataError(id, 'map');
   const s = byId(id);
   const a = (STATE.studyAn && STATE.studyAn[id]) || { done: isStudyLocked(id) };
   const isDone = a.done || isStudyLocked(id);
@@ -1809,6 +2255,7 @@ function StudyMap(id){
 }
 
 function StudyScenarios(id){
+  if(!isChapterZeroComplete(id)) return StudyIncompleteDataError(id, 'scenarios');
   const s = byId(id);
   return `
   <div style="margin-top:14px">
@@ -2031,6 +2478,7 @@ function StudyScenarios(id){
 }
 
 function StudyModels(id){
+  if(!isChapterZeroComplete(id)) return StudyIncompleteDataError(id, 'models');
   const s = byId(id);
   const a = (STATE.studyAn && STATE.studyAn[id]) || { done: isStudyLocked(id) };
   const isDone = a.done || isStudyLocked(id);
@@ -2087,6 +2535,7 @@ function StudyModels(id){
 }
 
 function StudyRuns(id){
+  if(!isChapterZeroComplete(id)) return StudyIncompleteDataError(id, 'runs');
   const s = byId(id);
   const a = (STATE.studyAn && STATE.studyAn[id]) || { runId: 'RUN-ST-5201', done: true };
   const runId = a.runId || 'RUN-ST-5201';
@@ -2158,6 +2607,7 @@ function StudyRuns(id){
 }
 
 function StudyIndicators(id){
+  if(!isChapterZeroComplete(id)) return StudyIncompleteDataError(id, 'indicators');
   const s = byId(id);
   const indList = [
     { code: 'IN-01', name: 'تراکم ناخالص ساختمانی (FAR)', base: '۲٫۴', target: '۳٫۲', unit: 'نسبت', status: 'منطبق با سقف ضابطه', cls: 'b-ok', cat: 'کالبدی' },
@@ -2210,6 +2660,7 @@ function StudyIndicators(id){
 }
 
 function StudyRules(id){
+  if(!isChapterZeroComplete(id)) return StudyIncompleteDataError(id, 'rules');
   const s = byId(id);
   const rules = [
     { id: 'RL-01', t: 'سقف تراکم ساختمانی پهنه مسکونی (R122)', art: 'ماده ۴ ضوابط طرح تفصیلی تهران', ceiling: 'حداکثر ۳۰۰٪', res: '۳۰۰٪', st: 'منطبق', cls: 'b-ok' },
@@ -2262,6 +2713,7 @@ function StudyRules(id){
 }
 
 function StudyEvidence(id){
+  if(!isChapterZeroComplete(id)) return StudyIncompleteDataError(id, 'evidence');
   const s = byId(id);
   const a = (STATE.studyAn && STATE.studyAn[id]) || { runId: 'RUN-ST-5201', done: true };
   const runId = a.runId || 'RUN-ST-5201';
@@ -2319,6 +2771,7 @@ function StudyEvidence(id){
 }
 
 function StudyReports(id){
+  if(!isChapterZeroComplete(id)) return StudyIncompleteDataError(id, 'reports');
   const s = byId(id);
   const sc = (window.DB?.studyCases || []).find(c => c.study_id === id);
   const a = (STATE.studyAn && STATE.studyAn[id]) || { runId: 'RUN-ST-5201', done: true };
@@ -2430,6 +2883,7 @@ function StudyReports(id){
 }
 
 function StudyReview(id){
+  if(!isChapterZeroComplete(id)) return StudyIncompleteDataError(id, 'review');
   const s = byId(id);
   const a = (STATE.studyAn && STATE.studyAn[id]) || { done: true };
   const isLocked = isStudyLocked(s);
@@ -2510,6 +2964,7 @@ function StudyReview(id){
 }
 
 function StudyTasks(id){
+  if(!isChapterZeroComplete(id)) return StudyIncompleteDataError(id, 'tasks');
   const s = byId(id);
   const tasks = (DB.tasks || []).filter(t => t.studyId === id);
   return `
@@ -2618,6 +3073,11 @@ function bindStudyPage(id, tab){
   toggleLayer('chk-ly-parcels', 'layer-parcels');
   toggleLayer('chk-ly-roads', 'layer-roads');
   toggleLayer('chk-ly-proposal', 'layer-proposal');
+
+  const errOpenBlk = el('#btn-err-open-blockers');
+  if(errOpenBlk) errOpenBlk.onclick = () => openStudyBlockersDrawer(id);
+  const errSignNow = el('#btn-err-sign-now');
+  if(errSignNow) errSignNow.onclick = () => czSignModal(id);
 }
 window.bindStudyPage = bindStudyPage;
 
@@ -2697,9 +3157,25 @@ function StudyPage(id,tab='overview'){
   const cs = czState(id);
   const isSigned = !!(cs && (cs.signed || (cs.snapshots && cs.snapshots.length > 0)));
   const isAnalyzed = !!(stAn && stAn.done) || isLocked;
+  const czComplete = isChapterZeroComplete(id);
 
   let body;
   if(tab==='overview'){
+    const incompleteOverviewNotice = !czComplete ? `
+      <div class="notice n-stop" style="margin-bottom:14px;border:1.5px solid #EF4444;background:#FEF2F2">
+        ${ico.block}
+        <div style="flex:1">
+          <div style="font-weight:700;color:#991B1B">خطا: داده‌های این مطالعه ناقص هستند — فصل صفر هنوز تکمیل نشده است</div>
+          <div style="font-size:12px;color:#7F1D1D;margin-top:2px">
+            تا زمان تأمین و رفع نیازمندی‌های مسدودکننده و امضای رسمی فصل صفر، دسترسی به پنل وضع موجود، تدوین سناریوها، اجرای مدل‌ها و گزارش‌ها مسدود بوده و داده‌ای نمایش داده نمی‌شود.
+          </div>
+        </div>
+        <a class="btn btn-sm btn-pri" href="#/study/${id}/chapter0" style="background:#DC2626;border-color:#DC2626;color:#FFF;font-weight:700;margin-inline-start:auto">
+          تکمیل و رفع نواقص در فصل صفر ←
+        </a>
+      </div>
+    ` : '';
+
     const analyzedResultsCard = isAnalyzed ? `
       <div class="card" style="margin-bottom:18px;border:1px solid #A7F3D0">
         <div class="card-h" style="display:flex;justify-content:space-between;align-items:center">
@@ -2753,7 +3229,7 @@ function StudyPage(id,tab='overview'){
       </div>
     `;
 
-    body=`${analyzedResultsCard}${StudyStale(id)}<div class="split" style="margin-top:14px">
+    body=`${incompleteOverviewNotice}${analyzedResultsCard}${StudyStale(id)}<div class="split" style="margin-top:14px">
       <div class="grid">
         ${Card('آمادگی مطالعه — خلاصه فصل صفر', `<div class="card-b" style="padding-top:6px">
           ${CZ_CATS.map(([c,label])=>{const rs=czRows(id)[c],ok=rs.filter(czOk).length,blk=rs.filter(x=>x.blocking).length;
@@ -2799,6 +3275,8 @@ function StudyPage(id,tab='overview'){
       ${overviewNextStepCard}`;
   } else if(activeTab==='chapter0'){
     body=ChapterZeroBody(id);
+  } else if(!czComplete){
+    body=StudyIncompleteDataError(id, activeTab);
   } else if(activeTab==='baseline' || activeTab==='data'){
     body=StudyBaseline(id);
   } else if(activeTab==='precheck'){
@@ -3674,6 +4152,7 @@ function bindChapterZero(id){
 
 /* ---------- 14. study → data tab ---------- */
 function StudyData(id){
+  if(!isChapterZeroComplete(id)) return StudyIncompleteDataError(id, 'data');
   const s=byId(id); const rows=czRows(id).data.filter(r=>r.ds);
   return `<div style="margin-top:14px">
     <div class="notice n-demo" style="margin-bottom:12px">${ico.data}<div>
@@ -5325,7 +5804,7 @@ function mapSVG(layer){
       const pw=8+rnd()*14,ph=7+rnd()*16;
       const h=layer==='proposal'||layer==='diff';
       blocks+=`<rect x="${bx+3+rnd()*(62-pw-6)}" y="${by+3+rnd()*(42-ph-6)}" width="${pw}" height="${ph}"
-        fill="${h?'#0B5A63':'#C9D5DF'}" fill-opacity="${h?.35:1}" stroke="${h?'#0B5A63':'#AFBCC9'}" stroke-width=".7"/>`;
+        fill="${h?'#1E5BB0':'#C9D5DF'}" fill-opacity="${h?.35:1}" stroke="${h?'#1E5BB0':'#AFBCC9'}" stroke-width=".7"/>`;
     }
   }
   const roads=`<g stroke="#FFFFFF" stroke-width="9"><path d="M0 62h492M0 174h492M0 286h492M112 0v330M264 0v330M416 0v330"/></g>
@@ -5807,7 +6286,7 @@ function mapSVG(layer,domKey){
       const px=bx+3+rnd()*(64-pw-6), py=by+3+rnd()*(50-ph-6);
       const inside=layer!=='existing'&&px>PROPGEO.x&&px<PROPGEO.x+PROPGEO.w&&py>PROPGEO.y&&py<PROPGEO.y+PROPGEO.h;
       blocks+=`<rect x="${px}" y="${py}" width="${pw}" height="${ph}"
-        fill="${inside?'#0B5A63':'#C9D5DF'}" fill-opacity="${inside?.38:1}" stroke="${inside?'#0B5A63':'#AFBCC9'}" stroke-width=".7"/>`;
+        fill="${inside?'#1E5BB0':'#C9D5DF'}" fill-opacity="${inside?.38:1}" stroke="${inside?'#1E5BB0':'#AFBCC9'}" stroke-width=".7"/>`;
     }
   }
   const roads=`<g stroke="#FFFFFF" stroke-width="10"><path d="M0 104h620M0 174h620M0 244h620M0 314h620M104 0v420M186 0v420M268 0v420M350 0v420M432 0v420M514 0v420"/></g>
@@ -6911,6 +7390,7 @@ function roleNav(){
   const groups=ROLE_NAV[myRole()]||ROLE_NAV.analyst;
   const pill={'#/messages':unreadMsgs(),'#/review':reviewQueue().length,
     '#/cases':(DB.cases||[]).filter(c=>c.st!=='closed').length,
+    '#/study-cases':(DB.studyCases||[]).filter(c=>!c.owner_analyst||c.owner_analyst===ME()||c.owner_analyst.includes(ME())).length,
     '#/decisions':visibleProposals().filter(p=>p.status==='decision').length,
     '#/data/requests':(DB.dataRequests||[]).filter(r=>['open','in_progress'].includes(r.st)).length,
     '#/data/quarantine':DB.datasets.filter(d=>d.versions.some(v=>v.st==='quarantined')).length,
@@ -6996,51 +7476,7 @@ const CASE_ST={new:{t:'ثبت‌شده — در انتظار ارجاع',c:'b-wa
   inprogress:{t:'در حال بررسی',c:'b-run'},returned:{t:'برگشتی — نیازمند تکمیل',c:'b-stop'},
   ready:{t:'آماده ارجاع رسمی',c:'b-ok'},referred:{t:'ارجاع رسمی انجام شد',c:'b-ok'},closed:{t:'مختومه',c:'b-neu'}};
 
-/* ---------- 68. login with phone + password ---------- */
-function LoginPage(){
-  const err=STATE.loginErr;
-  return `<div class="login">
-    <div class="pane">
-      <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px">${Mark(34)}
-        <div><b style="font-size:14px">سامانه هوشمند برنامه‌ریزی شهری تهران</b>
-        <div class="muted" style="font-size:11.5px">ورود کاربران سازمانی</div></div></div>
-      <h1 style="margin-bottom:4px">ورود به حساب سازمانی</h1>
-      <p class="t2" style="font-size:12.5px;margin-bottom:16px">حساب کاربری شما نقش، سازمان، دسترسی‌ها و کارهای ارجاع‌شده را تعیین می‌کند. انتخاب نقش هنگام ورود ممکن نیست.</p>
-      ${err?`<div class="notice n-stop" style="margin-bottom:12px">${ico.alert}<div>${err}</div></div>`:''}
-      <div class="f-row"><label class="f-lbl" for="lg-u">شماره همراه</label>
-        <input class="f-in" id="lg-u" dir="ltr" inputmode="numeric" placeholder="09120000003" value="${esc(STATE.loginPhone||'')}"></div>
-      <div class="f-row"><label class="f-lbl" for="lg-p">رمز عبور</label>
-        <input class="f-in" id="lg-p" type="password" dir="ltr" placeholder="••••••••" value=""></div>
-      <button class="btn btn-pri" id="lg-go" style="width:100%;justify-content:center;padding:9px">ورود به سامانه</button>
-      <div class="notice n-demo" style="margin-top:14px">${ico.lock}<div>
-        <b>حساب‌های نمایشی</b> — این سازوکار فقط برای نمونه است و مدل امنیتی محصول نیست. رمز همه حساب‌ها: <span class="code">${DEMO_PASS}</span>. روی هر ردیف بزنید تا پر شود.</div></div>
-      <div class="acctlist">${USERS.map(u=>`<button class="acct" data-acct="${u.phone}">
-        <span class="code">${u.phone}</span><b>${roleT(u.role)}</b><span class="muted">${u.id}</span></button>`).join('')}</div>
-      <div class="muted" style="font-size:11px;margin-top:12px">پشتیبانی: داخلی ۲۴۱۸</div>
-    </div>
-    <div class="art">${ArtSVG()}
-      <div class="cap"><div><b>پهنه مرکزی منطقه ۶ — محدوده مطالعه نمونه</b>
-        <span>مرز مطالعه، بلوک‌های شهری و پلاک‌ها؛ نمایش ساختگی</span></div>
-        <span class="code">EPSG:32639</span></div></div>
-  </div>`;
-}
-function bindLogin(){
-  els('.acct').forEach(b=>b.onclick=()=>{el('#lg-u').value=b.dataset.acct; el('#lg-p').value=DEMO_PASS; el('#lg-p').focus();});
-  const go=()=>{
-    const ph=(el('#lg-u').value||'').trim(), pw=el('#lg-p').value||'';
-    const u=accountBy(ph);
-    STATE.loginPhone=ph;
-    if(!u){ STATE.loginErr='شماره همراه در سامانه ثبت نشده است.'; render(); return; }
-    if(pw!==DEMO_PASS){ STATE.loginErr='رمز عبور نادرست است.'; render(); return; }
-    STATE.loginErr=null;
-    STATE.user={name:u.id,role:u.role,phone:u.phone,org:u.org,title:u.title};
-    save(); go2();
-  };
-  const go2=()=>{ location.hash='#/'; render(); };
-  el('#lg-go').onclick=go;
-  el('#lg-p').onkeydown=e=>{ if(e.key==='Enter') go(); };
-  el('#lg-u').onkeydown=e=>{ if(e.key==='Enter') el('#lg-p').focus(); };
-}
+/* ---------- 68. login is handled in section 71 below ---------- */
 
 /* ---------- 69. account panel (no arbitrary role switching) ---------- */
 function userModal(){
@@ -7966,37 +8402,37 @@ function LoginPage(){
 
   // Scientific Pane: either Login mode (Phone / OTP) or Register mode
   const sciPane = `
-    ${err ? `<div class="notice n-stop" style="margin-bottom:12px">${ico.alert}<div>${err}</div></div>` : ''}
+    ${err ? `<div class="notice n-stop" style="margin-bottom:14px">${ico.alert}<div>${err}</div></div>` : ''}
 
     ${isReg ? `
       <!-- ================= REGISTRATION FORM ================= -->
-      <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-start">
+      <div style="margin-bottom:14px;display:flex;justify-content:space-between;align-items:flex-start">
         <div>
-          <h1 style="margin-bottom:4px;font-size:16px">ثبت‌نام نهاد علمی و دانشگاهی</h1>
-          <p class="t2" style="font-size:12px;margin-bottom:10px">
-            اساتید، پژوهشگران، دانشجویان تحصیلات تکمیلی و مهندسان مشاور طرف همکاری شهرداری تهران
+          <h2 style="margin-bottom:4px;font-size:16px;font-weight:700">ثبت‌نام نهاد علمی و دانشگاهی</h2>
+          <p class="t2" style="font-size:12px;margin-bottom:8px">
+            اساتید، پژوهشگران، دانشجویان تحصیلات تکمیلی و مهندسان مشاور همکار شهرداری تهران
           </p>
         </div>
         <button type="button" class="btn btn-sm btn-ghost" id="reg-back-top" style="font-size:12px;white-space:nowrap">
-          بازگشت به ورود
+          ${ico.chev} بازگشت به ورود
         </button>
       </div>
 
-      <div class="notice n-demo" style="margin-bottom:12px">
+      <div class="notice n-demo" style="margin-bottom:14px">
         ${ico.spark}
-        <div style="font-size:11.5px">
-          <b>توجه:</b> پس از ثبت مشخصات، شماره همراه شما در شبکه علمی سامانه فعال شده و در دفعات بعد با همان شماره و رمز یکبارمصرف (OTP) وارد می‌شوید.
+        <div style="font-size:11.8px;line-height:1.6">
+          <b>فعال‌سازی آنی:</b> پس از ثبت مشخصات، شماره همراه شما بلافاصله در شبکه علمی سامانه فعال شده و در مراجعات بعدی با پیامک یکبارمصرف (OTP) وارد می‌شوید.
         </div>
       </div>
 
-      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
+      <div style="display:flex;flex-direction:column;gap:11px;margin-bottom:16px">
         <div class="f-row">
           <label class="f-lbl" for="reg-phone">شماره تلفن همراه (شناسه ورود شما) *</label>
           <input class="f-in" id="reg-phone" dir="ltr" inputmode="numeric" placeholder="09127778899" value="${esc(STATE.regPhone || STATE.unregisteredNotice || '')}">
-          <span class="sub">این شماره در دفعات بعد برای ورود و دریافت کد پیامکی استفاده می‌شود.</span>
+          <span class="sub" style="font-size:11px;color:var(--text-3);margin-top:4px;display:block">این شماره در دفعات بعد برای دریافت پیامک رمز یکبارمصرف استفاده می‌شود.</span>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <div class="f-row">
             <label class="f-lbl" for="reg-fname">نام *</label>
             <input class="f-in" id="reg-fname" placeholder="مثال: دکتر علیرضا" value="${esc(STATE.regFName || '')}">
@@ -8007,7 +8443,7 @@ function LoginPage(){
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <div class="f-row">
             <label class="f-lbl" for="reg-nid">کد ملی (۱۰ رقم)</label>
             <input class="f-in" id="reg-nid" dir="ltr" inputmode="numeric" placeholder="0071829301" value="${esc(STATE.regNid || '')}">
@@ -8036,7 +8472,7 @@ function LoginPage(){
           <input class="f-in" id="reg-faculty" placeholder="مثال: دانشکده شهرسازی و معماری — گروه برنامه‌ریزی شهری" value="${esc(STATE.regFaculty || '')}">
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <div class="f-row">
             <label class="f-lbl" for="reg-profession">مرتبه علمی یا حرفه‌ای *</label>
             <select class="f-in" id="reg-profession">
@@ -8050,7 +8486,7 @@ function LoginPage(){
           </div>
           <div class="f-row">
             <label class="f-lbl" for="reg-field">رشته و گرایش تخصصی *</label>
-            <input class="f-in" id="reg-field" placeholder="مثال: برنامه‌ریزی شهری، حمل‌ونقل، محیط‌زیست" value="${esc(STATE.regField || 'برنامه‌ریزی شهری و منطقه‌ای')}">
+            <input class="f-in" id="reg-field" placeholder="مثال: برنامه‌ریزی شهری و منطقه‌ای" value="${esc(STATE.regField || 'برنامه‌ریزی شهری و منطقه‌ای')}">
           </div>
         </div>
 
@@ -8060,16 +8496,16 @@ function LoginPage(){
         </div>
       </div>
 
-      <button class="btn btn-pri" id="reg-submit-btn" style="width:100%;justify-content:center;padding:10px;margin-bottom:8px">
-        ${ico.check} تکمیل ثبت‌نام و فعال‌سازی حساب
+      <button class="btn btn-pri btn-lg" id="reg-submit-btn" style="width:100%;margin-bottom:10px">
+        ${ico.check} تکمیل ثبت‌نام و ورود به میز کار
       </button>
 
-      <button type="button" class="btn btn-sm btn-ghost" id="reg-demo-fill" style="width:100%;justify-content:center;margin-bottom:10px;font-size:11.5px">
-        ${ico.spark} تکمیل خودکار اطلاعات نمونه دانشگاهی (تست سریع)
+      <button type="button" class="btn btn-sm" id="reg-demo-fill" style="width:100%;justify-content:center;margin-bottom:12px;background:#EFF6FF;border-color:#BFDBFE;color:#1D4ED8">
+        ${ico.spark} پر کردن سریع با اطلاعات نمونه دانشگاهی (تست فوری)
       </button>
 
-      <div style="text-align:center;font-size:12px;margin-top:6px">
-        <button type="button" class="btn btn-sm btn-ghost" id="reg-cancel-btn">
+      <div style="text-align:center;font-size:12px">
+        <button type="button" class="link" id="reg-cancel-btn" style="background:none;border:none;padding:4px">
           قبلاً ثبت‌نام کرده‌اید؟ ورود با شماره همراه
         </button>
       </div>
@@ -8077,19 +8513,21 @@ function LoginPage(){
     ` : STATE.otpStep === 'verify' ? `
       <!-- ================= OTP VERIFY STEP ================= -->
       <div style="margin-bottom:14px">
-        <h1 style="margin-bottom:4px;font-size:16px">تأیید هویت پیامکی</h1>
+        <h2 style="margin-bottom:4px;font-size:16px;font-weight:700">تأیید هویت پیامکی (OTP)</h2>
         <p class="t2" style="font-size:12.5px;margin-bottom:12px">
-          کد ۶ رقمی ارسال‌شده به شماره همراه ثبت‌شده خود را وارد نمایید.
+          کد ۶ رقمی ارسال‌شده به شماره همراه زیر را وارد فرمایید:
         </p>
       </div>
 
       ${registeredAcc ? `
-        <div class="card" style="padding:10px 12px;margin-bottom:12px;background:#F8FAFC;border:1px solid var(--line);border-radius:var(--r-m)">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:2px">حساب کاربری ثبت‌شده:</div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span class="av" style="width:24px;height:24px;font-size:10px">${initials(registeredAcc.id)}</span>
-            <b style="font-size:13px">${esc(registeredAcc.id)}</b>
-            <span class="bdg b-ok" style="font-size:10.5px">${esc(registeredAcc.org || 'نهاد علمی')}</span>
+        <div style="padding:10px 12px;margin-bottom:14px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:var(--r-m)">
+          <div style="font-size:11px;color:#1E40AF;margin-bottom:4px;font-weight:500">حساب کاربری شناسایی‌شده:</div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="av" style="width:26px;height:26px;font-size:10px;background:#DBEAFE;color:#1E40AF">${initials(registeredAcc.id)}</span>
+              <b style="font-size:13px;color:#0F172A">${esc(registeredAcc.id)}</b>
+            </div>
+            <span class="bdg b-ok" style="font-size:10.5px">${esc(registeredAcc.org || 'دانشگاه تهران')}</span>
           </div>
         </div>
       ` : ''}
@@ -8097,31 +8535,31 @@ function LoginPage(){
       <div class="notice n-demo" style="margin-bottom:14px">
         ${ico.spark}
         <div>
-          کد ۶ رقمی پیامک‌شده به شماره <b>${fa(STATE.otpPhone)}</b>:<br>
-          <span style="font-size:12px;color:var(--brand)">کد معتبر محیط آزمایشی: <b class="code">123456</b></span>
+          کد ۶ رقمی ارسال‌شده به شماره <b>${fa(STATE.otpPhone)}</b>:<br>
+          <span style="font-size:12px;color:var(--primary);font-weight:500">کد معتبر آزمایشی: <b class="code" style="font-size:13px;color:#1D4ED8">123456</b></span>
         </div>
       </div>
 
-      <div class="f-row" style="margin-bottom:14px">
-        <label class="f-lbl" for="otp-code-input">کد تأیید ۶ رقمی *</label>
-        <input class="f-in code" id="otp-code-input" dir="ltr" maxlength="6" inputmode="numeric" placeholder="123456" autofocus style="font-size:18px;letter-spacing:6px;text-align:center">
+      <div class="f-row" style="margin-bottom:16px">
+        <label class="f-lbl" for="otp-code-input" style="text-align:center">کد تأیید ۶ رقمی</label>
+        <input class="f-in code" id="otp-code-input" dir="ltr" maxlength="6" inputmode="numeric" placeholder="123456" autofocus style="font-size:22px;letter-spacing:8px;text-align:center;font-weight:700">
       </div>
 
-      <button class="btn btn-pri" id="otp-verify-btn" style="width:100%;justify-content:center;padding:10px;margin-bottom:10px">
-        ${ico.check}تأیید و ورود به میز کار نهاد علمی
+      <button class="btn btn-pri btn-lg" id="otp-verify-btn" style="width:100%;margin-bottom:12px">
+        ${ico.check} تأیید و ورود به میز کار نهاد علمی
       </button>
 
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:12px">
-        <button type="button" class="btn btn-sm btn-ghost" id="otp-resend-btn">${ico.clock}ارسال مجدد کد</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12px">
+        <button type="button" class="btn btn-sm btn-ghost" id="otp-resend-btn">${ico.clock} ارسال مجدد کد پیامکی</button>
         <button type="button" class="btn btn-sm btn-ghost" id="otp-back-btn">ویرایش شماره همراه</button>
       </div>
 
     ` : `
       <!-- ================= PHONE ENTRY STEP (LOGIN) ================= -->
       <div style="margin-bottom:14px">
-        <h1 style="margin-bottom:4px;font-size:16px">ورود به سامانه نهاد علمی</h1>
-        <p class="t2" style="font-size:12.5px;margin-bottom:12px">
-          ویژه اساتید، پژوهشگران، متخصصان و مهندسان مشاور ثبت‌نام‌شده در سامانه شهر تهران
+        <h2 style="margin-bottom:4px;font-size:16px;font-weight:700">ورود اعضای هیئت علمی و پژوهشگران</h2>
+        <p class="t2" style="font-size:12.5px;margin-bottom:14px">
+          دسترسی مستقیم به کارتابل داوری مطالعات، ثبت بازخورد سناریوها و مشارکت علمی در طرح‌های شهری
         </p>
       </div>
 
@@ -8129,48 +8567,69 @@ function LoginPage(){
         <div class="notice n-stop" style="margin-bottom:14px">
           ${ico.alert}
           <div>
-            <b style="font-size:12.5px">شماره همراه ${fa(STATE.unregisteredNotice)} ثبت‌نام نشده است!</b><br>
-            <span style="font-size:11.5px">به عنوان نهاد علمی یا پژوهشگر، قبل از اولین ورود باید مشخصات خود را یک‌بار در سامانه ثبت فرمایید تا شماره همراه شما فعال شود.</span>
-            <div style="margin-top:8px">
+            <b style="font-size:12.5px;color:#991B1B">شماره همراه ${fa(STATE.unregisteredNotice)} در سامانه ثبت نشده است!</b><br>
+            <span style="font-size:11.8px">به عنوان نهاد علمی یا پژوهشگر، پیش از اولین ورود کافیست یک‌بار مشخصات خود را ثبت فرمایید تا شماره همراه شما در سامانه فعال گردد.</span>
+            <div style="margin-top:10px">
               <button type="button" class="btn btn-pri btn-sm" id="btn-switch-to-register">
-                ${ico.user} ثبت‌نام نهاد علمی با این شماره
+                ${ico.user} تکمیل ثبت‌نام نهاد علمی با این شماره
               </button>
             </div>
           </div>
         </div>
       ` : `
-        <div class="notice n-demo" style="margin-bottom:12px">
+        <div class="notice n-demo" style="margin-bottom:14px">
           ${ico.lock}
-          <div style="font-size:11.5px">
-            <b>توجه:</b> تنها شماره‌هایی که در سامانه ثبت‌نام کرده باشند امکان دریافت کد یکبارمصرف و ورود خواهند داشت.
+          <div style="font-size:11.8px;line-height:1.5">
+            <b>احراز هویت بدون رمز ثابت:</b> ورود از طریق ارسال کد یکبارمصرف پیامکی (OTP) انجام می‌پذیرد.
           </div>
         </div>
       `}
 
       <div class="f-row" style="margin-bottom:14px">
-        <label class="f-lbl" for="otp-phone-input">شماره تلفن همراه ثبت‌شده *</label>
-        <input class="f-in" id="otp-phone-input" dir="ltr" inputmode="numeric" placeholder="09123456789" value="${esc(STATE.otpPhone || '')}">
-        <span class="sub">شماره ۱۱ رقمی همراهی که هنگام ثبت‌نام وارد کرده‌اید.</span>
+        <label class="f-lbl" for="otp-phone-input">شماره تلفن همراه *</label>
+        <input class="f-in" id="otp-phone-input" dir="ltr" inputmode="numeric" placeholder="09123456789" value="${esc(STATE.otpPhone || '')}" style="font-size:14px">
+        <span class="sub" style="font-size:11px;color:var(--text-3);margin-top:4px;display:block">شماره ۱۱ رقمی همراه خود را وارد فرمایید.</span>
       </div>
 
-      <button class="btn btn-pri" id="otp-send-btn" style="width:100%;justify-content:center;padding:10px;margin-bottom:12px">
-        ${ico.spark}بررسی شماره و ارسال کد تأیید
+      <button class="btn btn-pri btn-lg" id="otp-send-btn" style="width:100%;margin-bottom:16px">
+        ${ico.spark} بررسی شماره و ارسال کد پیامکی (OTP)
       </button>
 
-      <div style="border-top:1px solid var(--line);padding-top:12px;margin-top:14px">
-        <span class="muted" style="font-size:11.5px;display:block;margin-bottom:8px">حساب‌های آزمایشی نهاد علمی (جهت آزمون سریع):</span>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <button type="button" class="btn btn-sm btn-ghost" data-quick-sci="09123456789" style="justify-content:flex-start;text-align:start">
-            <span class="av" style="width:20px;height:20px;font-size:9px">ف‌س</span>
-            <span><b>دکتر فریبرز سمیعی</b> — 09123456789 (حساب ثبت‌نام‌شده دانشگاه تهران)</span>
+      <div style="text-align:center;margin-bottom:16px">
+        <button type="button" class="link" id="link-need-register" style="background:none;border:none;font-size:12.5px">
+          عضو جدید هستید؟ ثبت‌نام پژوهشگر و نهاد علمی ←
+        </button>
+      </div>
+
+      <div style="border-top:1px solid var(--line);padding-top:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <b style="font-size:12px;color:var(--text)">حساب‌های آماده دانشگاهی (جهت آزمون سریع):</b>
+          <span style="font-size:10.5px;color:var(--text-3)">کلیک جهت انتخاب</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <button type="button" class="quick-acct-card" data-quick-sci="09123456789">
+            <div class="av">ف‌س</div>
+            <div class="meta">
+              <div class="nm">دکتر فریبرز سمیعی <span class="bdg b-ok" style="font-size:10px">ثبت‌شده</span></div>
+              <div class="desc">استاد تمام دانشکده شهرسازی دانشگاه تهران · <span class="code">09123456789</span></div>
+            </div>
+            <span class="chip">ورود سریع ←</span>
           </button>
-          <button type="button" class="btn btn-sm btn-ghost" data-quick-sci="09121112233" style="justify-content:flex-start;text-align:start">
-            <span class="av" style="width:20px;height:20px;font-size:9px">پ‌ش</span>
-            <span><b>مهندس پروانه شمس</b> — 09121112233 (حساب ثبت‌نام‌شده دانشگاه شهید بهشتی)</span>
+          <button type="button" class="quick-acct-card" data-quick-sci="09121112233">
+            <div class="av">پ‌ش</div>
+            <div class="meta">
+              <div class="nm">مهندس پروانه شمس <span class="bdg b-ok" style="font-size:10px">ثبت‌شده</span></div>
+              <div class="desc">پژوهشگر ارشد پژوهشکده محیط‌زیست دانشگاه شهید بهشتی · <span class="code">09121112233</span></div>
+            </div>
+            <span class="chip">ورود سریع ←</span>
           </button>
-          <button type="button" class="btn btn-sm btn-ghost" data-quick-sci="09129998877" style="justify-content:flex-start;text-align:start;color:var(--alert,#b91c1c)">
-            <span class="av" style="width:20px;height:20px;font-size:9px">!</span>
-            <span><b>شماره جدید 09129998877</b> (تست شماره ثبت‌نام‌نشده و بررسی خطای عدم ثبت‌نام)</span>
+          <button type="button" class="quick-acct-card" data-quick-sci="09129998877" style="border-color:#FCA5A5;background:#FFF5F5">
+            <div class="av" style="background:#FEE2E2;color:#DC2626">!</div>
+            <div class="meta">
+              <div class="nm" style="color:#991B1B">تست شماره جدید ثبت‌نام‌نشده</div>
+              <div class="desc" style="color:#B91C1C">شماره 09129998877 (جهت آزمایش اعتبارسنجی و هدایت هوشمند به فرم ثبت‌نام)</div>
+            </div>
+            <span class="chip" style="color:#DC2626;background:#FEE2E2;border-color:#FCA5A5">تست اعتبارسنجی</span>
           </button>
         </div>
       </div>
@@ -8181,70 +8640,162 @@ function LoginPage(){
   const list = L.role ? USERS.filter(u => u.role === L.role).filter(u => !L.q || (u.id + u.org + u.title + u.phone).includes(L.q)) : [];
   const picked = L.phone ? accountBy(L.phone) : null;
   const orgPane = `
-    <h1 style="margin-bottom:4px">ورود به حساب سازمانی</h1>
-    <p class="t2" style="font-size:12.5px;margin-bottom:14px">در محیط نمونه، ابتدا نقش و سپس کاربر را انتخاب کنید تا شماره همراه حساب پر شود؛ ورود با شماره و رمز انجام می‌شود.</p>
-    ${err ? `<div class="notice n-stop" style="margin-bottom:12px">${ico.alert}<div>${err}</div></div>` : ''}
+    <div style="margin-bottom:14px">
+      <h2 style="margin-bottom:4px;font-size:16px;font-weight:700">ورود کارکنان و مدیران سازمانی شهرداری</h2>
+      <p class="t2" style="font-size:12.5px;margin-bottom:14px">
+        دسترسی به میزهای کار تحلیلی، کارتابل مطالعات شهری، مدیریت داده‌های مکانی و چرخه تصویب طرح‌ها
+      </p>
+    </div>
 
-    <div class="f-row"><label class="f-lbl" for="lg-role">گام ۱ — نقش سازمانی</label>
-      <select class="f-in" id="lg-role">
-        <option value="">— انتخاب نقش —</option>
-        ${ROLES.map(r => `<option value="${r.id}" ${L.role === r.id ? 'selected' : ''}>${r.t} (${fa(USERS.filter(u => u.role === r.id).length)} کاربر)</option>`).join('')}
+    ${err ? `<div class="notice n-stop" style="margin-bottom:14px">${ico.alert}<div>${err}</div></div>` : ''}
+
+    <div class="f-row">
+      <label class="f-lbl" for="lg-role">گام ۱ — انتخاب نقش سازمانی</label>
+      <select class="f-in" id="lg-role" style="font-weight:500">
+        <option value="">— لطفاً نقش کاری را انتخاب فرمایید —</option>
+        ${ROLES.map(r => `<option value="${r.id}" ${L.role === r.id ? 'selected' : ''}>${r.t} (${fa(USERS.filter(u => u.role === r.id).length)} کاربر در سامانه)</option>`).join('')}
       </select>
-      ${L.role ? `<p class="muted" style="font-size:11px;margin-top:5px">${(ROLES.find(r => r.id === L.role) || {}).d}</p>` : ''}
+      ${L.role ? `<p style="font-size:11.5px;color:var(--primary-700);margin-top:6px;background:var(--primary-050);padding:6px 10px;border-radius:6px;border:1px solid var(--primary-100)">${(ROLES.find(r => r.id === L.role) || {}).d}</p>` : ''}
     </div>
 
-    <div class="f-row"><label class="f-lbl">گام ۲ — کاربر</label>
-      ${L.role ? `<div class="fld" style="width:100%;margin-bottom:7px">${ico.search}
-          <input id="lg-q" placeholder="جست‌وجوی نام، سازمان یا شماره" value="${esc(L.q)}" style="width:100%"></div>
-        <div class="pickbox">${list.length ? list.map(u => `<button class="pick ${L.phone === u.phone ? 'on' : ''}" data-pick="${u.phone}">
-            <span class="av" style="width:24px;height:24px;font-size:10px">${initials(u.id)}</span>
-            <span class="px"><b>${u.id}</b><span>${u.title} · ${u.org}</span></span>
-            <span class="code">${u.phone}</span></button>`).join('')
-          : `<div class="muted" style="padding:12px;font-size:12px;text-align:center">کاربری با این جست‌وجو در این نقش نیست</div>`}</div>`
-        : `<div class="pickbox empty"><div class="muted" style="padding:14px;font-size:12px;text-align:center">ابتدا نقش سازمانی را انتخاب کنید</div></div>`}
+    <div class="f-row">
+      <label class="f-lbl">گام ۲ — انتخاب کاربر سازمانی</label>
+      ${L.role ? `
+        <div class="fld" style="width:100%;margin-bottom:8px">
+          ${ico.search}
+          <input id="lg-q" placeholder="جست‌وجوی نام، سمت، سازمان یا شماره همراه..." value="${esc(L.q)}" style="width:100%">
+        </div>
+        <div class="pickbox">
+          ${list.length ? list.map(u => `
+            <button class="pick ${L.phone === u.phone ? 'on' : ''}" data-pick="${u.phone}">
+              <span class="av" style="width:28px;height:28px;font-size:10.5px;background:#DBEAFE;color:#1E40AF">${initials(u.id)}</span>
+              <span class="px"><b>${u.id}</b><span>${u.title} · ${u.org}</span></span>
+              <span class="code" style="font-size:11px">${u.phone}</span>
+            </button>
+          `).join('') : `<div class="muted" style="padding:14px;font-size:12px;text-align:center">کاربری با این مشخصات یافت نشد</div>`}
+        </div>
+      ` : `
+        <div class="pickbox empty" style="border:1.5px dashed #CBD5E1;background:#F8FAFC">
+          <div style="padding:16px;font-size:12px;text-align:center;color:#64748B">
+            ${ico.user}
+            <div style="margin-top:4px">ابتدا نقش سازمانی را از لیست بالا انتخاب کنید، یا از کارت‌های آماده زیر کلیک نمایید.</div>
+          </div>
+        </div>
+      `}
     </div>
 
-    <div class="f-row"><label class="f-lbl" for="lg-u">گام ۳ — شماره همراه</label>
-      <input class="f-in" id="lg-u" dir="ltr" inputmode="numeric" placeholder="09120000003" value="${esc(L.phone)}">
+    <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:10px">
+      <div class="f-row">
+        <label class="f-lbl" for="lg-u">گام ۳ — شماره همراه حساب</label>
+        <input class="f-in" id="lg-u" dir="ltr" inputmode="numeric" placeholder="09120000003" value="${esc(L.phone)}">
+      </div>
+      <div class="f-row">
+        <label class="f-lbl" for="lg-p">رمز عبور سازمانی</label>
+        <input class="f-in" id="lg-p" type="password" dir="ltr" placeholder="••••••••">
+      </div>
     </div>
-    <div class="f-row"><label class="f-lbl" for="lg-p">رمز عبور</label>
-      <input class="f-in" id="lg-p" type="password" dir="ltr" placeholder="••••••••">
-    </div>
-    <button class="btn btn-pri" id="lg-go" style="width:100%;justify-content:center;padding:9px" ${L.phone ? '' : 'disabled'}>
-      ${picked ? `ورود به‌عنوان ${esc(picked.id)}` : 'ورود به سامانه'}
+
+    <button class="btn btn-pri btn-lg" id="lg-go" style="width:100%;margin-top:4px" ${L.phone ? '' : 'disabled'}>
+      ${ico.check} <span>${picked ? `ورود به عنوان «${esc(picked.id)}» (${roleT(picked.role)})` : 'ورود به سامانه (ابتدا کاربر را انتخاب فرمایید)'}</span>
     </button>
-    <div class="notice n-demo" style="margin-top:14px">${ico.lock}<div>
-      <b>حساب‌های نمایشی</b> — رمز همه حساب‌های سازمانی: <span class="code">${DEMO_PASS}</span>
-    </div></div>
+
+    <div class="notice n-demo" style="margin-top:14px">
+      ${ico.lock}
+      <div style="font-size:11.8px">
+        <b>حساب‌های نمونه آزمایشی:</b> رمز همه کاربران سازمانی <span class="code" style="font-size:12px;font-weight:700">demo-mode</span> است.
+      </div>
+    </div>
+
+    <div style="border-top:1px solid var(--line);padding-top:14px;margin-top:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <b style="font-size:12px;color:var(--text)">ورود تک‌کلیک با حساب‌های کلیدی شهرداری:</b>
+        <span style="font-size:10.5px;color:var(--text-3)">انتخاب فوری</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <button type="button" class="quick-acct-card" data-quick-org="09120000003">
+          <div class="av">ز‌ک</div>
+          <div class="meta">
+            <div class="nm">مهندس زهرا کاظمی <span class="bdg b-ok" style="font-size:10px">مدیر مطالعات</span></div>
+            <div class="desc">اداره کل برنامه‌ریزی شهری · <span class="code">09120000003</span></div>
+          </div>
+          <span class="chip">ورود سریع ←</span>
+        </button>
+        <button type="button" class="quick-acct-card" data-quick-org="09120000004">
+          <div class="av">م‌ر</div>
+          <div class="meta">
+            <div class="nm">دکتر مرتضی رحیمی <span class="bdg b-run" style="font-size:10px">کارشناس ارشد تحلیل</span></div>
+            <div class="desc">مرکز مطالعات و برنامه‌ریزی شهر تهران · <span class="code">09120000004</span></div>
+          </div>
+          <span class="chip">ورود سریع ←</span>
+        </button>
+        <button type="button" class="quick-acct-card" data-quick-org="09120000002">
+          <div class="av">س‌ن</div>
+          <div class="meta">
+            <div class="nm">سارا نوروزی <span class="bdg b-warn" style="font-size:10px">مسئول داده مکانی (SDI)</span></div>
+            <div class="desc">سازمان فناوری اطلاعات شهرداری (فاوا) · <span class="code">09120000002</span></div>
+          </div>
+          <span class="chip">ورود سریع ←</span>
+        </button>
+      </div>
+    </div>
   `;
 
   return `<div class="login">
     <div class="pane">
-      <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px">${Mark(34)}
-        <div>
-          <b style="font-size:14px">سامانه هوشمند برنامه‌ریزی شهری تهران</b>
-          <div class="muted" style="font-size:11.5px">درگاه یکپارچه تصمیم‌سازی و مشارکت علمی</div>
+      <div class="login-brand">
+        ${Mark(38)}
+        <div class="login-brand-text">
+          <span class="login-brand-sub">شهرداری تهران · مرکز مطالعات و برنامه‌ریزی شهر تهران</span>
+          <span class="login-brand-title">سامانه هوشمند برنامه‌ریزی شهری تهران (TUIP)</span>
         </div>
       </div>
 
       <!-- Main role tabs -->
-      <div style="display:flex;gap:4px;margin-bottom:18px;background:#EEF2F6;padding:4px;border-radius:var(--r-m)">
-        <button type="button" class="btn btn-sm ${isSci ? 'btn-pri' : 'btn-ghost'}" id="login-tab-sci" style="flex:1;justify-content:center;font-size:12px">
-          ${ico.spark} نهاد علمی و دانشگاهی
+      <div class="login-tabs" role="tablist">
+        <button type="button" class="login-tab-btn ${isSci ? 'active' : ''}" id="login-tab-sci" role="tab" aria-selected="${isSci}">
+          ${ico.spark}
+          <span>نهاد علمی و دانشگاهی</span>
         </button>
-        <button type="button" class="btn btn-sm ${!isSci ? 'btn-pri' : 'btn-ghost'}" id="login-tab-org" style="flex:1;justify-content:center;font-size:12px">
-          ${ico.user} ورود سازمانی شهرداری
+        <button type="button" class="login-tab-btn ${!isSci ? 'active' : ''}" id="login-tab-org" role="tab" aria-selected="${!isSci}">
+          ${ico.user}
+          <span>کاربران سازمانی شهرداری</span>
         </button>
       </div>
 
-      ${isSci ? sciPane : orgPane}
+      <div class="login-form-box">
+        ${isSci ? sciPane : orgPane}
+      </div>
 
-      <div class="muted" style="font-size:11px;margin-top:14px">پشتیبانی سامانه: داخلی ۲۴۱۸ · مرکز مطالعات و برنامه‌ریزی شهر تهران</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--text-3);margin-top:16px;padding-top:12px;border-top:1px solid var(--line)">
+        <span>پشتیبانی فنی: داخلی ۲۴۱۸ (مرکز فناوری و نوآوری فاوا)</span>
+        <span class="code" style="font-size:10px">v3.4.0-civic</span>
+      </div>
     </div>
-    <div class="art">${ArtSVG()}
-      <div class="cap"><div><b>پهنه مرکزی منطقه ۶ — محدوده مطالعه نمونه</b>
-        <span>مرز مطالعه، بلوک‌های شهری و پلاک‌ها؛ نمایش ساختگی</span></div>
-        <span class="code">EPSG:32639</span></div></div>
+    
+    <div class="art">
+      <div class="art-top-hud">
+        <div class="art-hud-chip">
+          ${Mark(22)}
+          <b style="font-size:12px">سامانه رصد و مدل‌سازی شهری تهران</b>
+        </div>
+        <div class="art-hud-chip">
+          <span class="hud-pulse-dot"></span>
+          <span class="bdg b-ok" style="font-size:10px">پایگاه آنلاین ۲۲ منطقه</span>
+          <span style="font-size:11px;color:#93C5FD">پایگاه SDI زنده</span>
+        </div>
+      </div>
+      ${ArtSVG()}
+      <div class="cap">
+        <div>
+          <b>پهنه مرکزی تهران — محدوده مطالعاتی نمونه منطقه ۶</b>
+          <span>سامانه رصد داده‌های مکانی، تحلیل سناریوهای توسعه و پیش‌بینی تقاضای شهری</span>
+        </div>
+        <div style="text-align:left;flex:none">
+          <span class="code" style="color:#93C5FD;font-weight:600">EPSG:32639</span>
+          <div style="font-size:10px;color:#94A3B8;margin-top:2px">WGS 84 / UTM 39N</div>
+        </div>
+      </div>
+    </div>
   </div>`;
 }
 
@@ -8300,7 +8851,7 @@ function bindLogin(){
     const profIn = el('#reg-profession'); if (profIn) profIn.value = 'دانشیار';
     const fieldIn = el('#reg-field'); if (fieldIn) fieldIn.value = 'برنامه‌ریزی حمل‌ونقل و سیستم‌های شهری';
     const emIn = el('#reg-email'); if (emIn) emIn.value = 'mirzaei@aut.ac.ir';
-    toast('اطلاعات نمونه دانشگاهی درج شد؛ جهت تکمیل، دکمه فعال‌سازی حساب را بزنید.');
+    toast('اطلاعات نمونه دانشگاهی تکمیل شد؛ جهت فعال‌سازی، دکمه ورود را بزنید.');
   };
 
   // Submit registration
@@ -8331,7 +8882,7 @@ function bindLogin(){
     }
 
     regSubmitBtn.disabled = true;
-    regSubmitBtn.innerHTML = `${ico.clock} در حال ثبت‌نام و فعال‌سازی...`;
+    regSubmitBtn.innerHTML = `${ico.clock} در حال فعال‌سازی حساب...`;
 
     try {
       if (window.SCI && window.SCI.registerUser) {
@@ -8382,7 +8933,7 @@ function bindLogin(){
     }
   };
 
-  // Scientific OTP flow bindings (Login mode)
+  // Scientific OTP quick account buttons
   const quickBtns = els('[data-quick-sci]');
   quickBtns.forEach(btn => {
     btn.onclick = () => {
@@ -8390,7 +8941,24 @@ function bindLogin(){
       STATE.sciAuthMode = 'login';
       const phInput = el('#otp-phone-input');
       if (phInput) phInput.value = STATE.otpPhone;
-      el('#otp-send-btn').click();
+      const sendBtn = el('#otp-send-btn');
+      if (sendBtn) sendBtn.click();
+    };
+  });
+
+  // Organizational quick account buttons (instant 1-click test login)
+  els('[data-quick-org]').forEach(btn => {
+    btn.onclick = () => {
+      const ph = btn.dataset.quickOrg;
+      const acc = accountBy(ph);
+      if (acc) {
+        STATE.login.role = acc.role;
+        STATE.login.phone = acc.phone;
+        STATE.loginErr = null;
+        render();
+        const pIn = el('#lg-p'); if (pIn) pIn.value = DEMO_PASS;
+        toast(`حساب ${acc.id} انتخاب شد. جهت ورود روی دکمه ورود کلیک نمایید.`);
+      }
     };
   });
 
@@ -8462,7 +9030,6 @@ function bindLogin(){
     let acc = accountBy(ph) || USERS.find(u => u.phone === ph);
 
     if (!acc) {
-      // Safety fallback if not found in USERS
       acc = {
         id: 'پژوهشگر نهاد علمی',
         role: 'scientific',
@@ -8499,7 +9066,7 @@ function bindLogin(){
   if(role) role.onchange = e => { L.role = e.target.value; L.q = ''; L.phone = ''; STATE.loginErr = null; render(); };
   const q = el('#lg-q');
   if(q) q.oninput = e => { L.q = e.target.value; render(); setTimeout(() => { const n = el('#lg-q'); if(n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } }, 0); };
-  els('[data-pick]').forEach(b => b.onclick = () => { L.phone = b.dataset.pick; STATE.loginErr = null; render(); setTimeout(() => { const n = el('#lg-p'); if(n) n.focus(); }, 0); });
+  els('[data-pick]').forEach(b => b.onclick = () => { L.phone = b.dataset.pick; STATE.loginErr = null; render(); setTimeout(() => { const n = el('#lg-p'); if(n) { n.value = DEMO_PASS; n.focus(); } }, 0); });
   const u = el('#lg-u'); if(u) u.oninput = e => { L.phone = e.target.value.trim(); const g = el('#lg-go'); if(g) g.disabled = !L.phone; };
 
   const submitOrg = () => {
@@ -9006,6 +9573,30 @@ window.saveDB = saveDB;
 window.render = render;
 window.ME = ME;
 window.startAnalysis = startAnalysis;
+window.czAll = czAll;
+window.czRows = czRows;
+window.czState = czState;
+window.byId = byId;
+window.fa = fa;
+window.esc = esc;
+window.MODULES = MODULES;
+window.ico = ico;
+window.logAct = logAct;
+window.nid = nid;
+window.go = go;
+window.el = el;
+window.els = els;
+window.bindRows = bindRows;
+
+window.handleStudyCaseRoute = function(h) {
+  if (window._studyCaseRouteHandler) return window._studyCaseRouteHandler(h);
+  return {
+    p: Shell(`<div style="padding:48px 24px;text-align:center"><div class="spin" style="margin:0 auto 12px auto"></div><b style="font-size:14px;color:var(--text)">در حال بارگذاری پرونده‌های مطالعه...</b></div>`),
+    b: () => {
+      setTimeout(() => { if (window._studyCaseRouteHandler && window.render) window.render(); }, 30);
+    }
+  };
+};
 
 load();
 if(!STATE.user && location.hash!=='#/login') location.replace('#/login');
@@ -9013,5 +9604,10 @@ render();
 </script>
 <script src="/scientific.js"></script>
 <script src="/studyCase.js"></script>
+<script>
+  if (window.render && location.hash && (location.hash.startsWith('#/study-case') || location.hash.startsWith('#/scientific') || location.hash.startsWith('#/analyst/scientific-proposals'))) {
+    window.render();
+  }
+</script>
 </body>
 </html>
