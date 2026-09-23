@@ -160,6 +160,12 @@ export interface Proposal {
   scientific_basis: string;
   expected_impacts: ExpectedImpacts;
   attachments: ProposalAttachment[];
+  assigned_analyst?: string;
+  assigned_analyst_name?: string;
+  assigned_analyst_title?: string;
+  assigned_analyst_org?: string;
+  assigned_analyst_phone?: string;
+  assigned_at?: string;
   status: ProposalStatus;
   status_history: ProposalStatusHistory[];
   review_requests: ProposalReviewRequest[];
@@ -182,4 +188,70 @@ export interface Scenario {
   modules: string[];
   kpis: { [key: string]: { b: number | null; s: number | null; unit: string } };
   notes: string;
+}
+
+export type StudyCaseStatus = 'DRAFT' | 'BLOCKED' | 'READY_FOR_NEXT_STEP' | 'IN_ANALYSIS' | 'COMPLETED';
+export type RequirementStatus = 'MISSING' | 'REQUESTED' | 'IN_REVIEW' | 'SATISFIED' | 'BLOCKED';
+export type DataRequestStatus = 'REQUESTED' | 'IN_PROGRESS' | 'FULFILLED' | 'REJECTED' | 'CANCELLED';
+
+export interface DataRequirement {
+  id: string;
+  study_case_id: string;
+  name: string;
+  category: string;
+  reason: string;
+  module_code: string;
+  scope: string;
+  time_period: string;
+  required: boolean;
+  blocking: boolean;
+  satisfied: boolean;
+  status: RequirementStatus;
+  blocker_reason?: string;
+  active_request_id?: string | null;
+  attached_dataset?: string | null;
+  attached_version?: number | null;
+}
+
+export interface DataRequest {
+  request_id: string;
+  study_case_id: string;
+  data_requirement_id: string;
+  requirement_name: string;
+  requested_by: string;
+  assigned_to: string;
+  reason: string;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  status: DataRequestStatus;
+  dataset_code?: string;
+  dataset_version?: number;
+  created_at: string;
+  updated_at: string;
+  fulfilled_at?: string;
+  note?: string;
+}
+
+export interface StudyCase {
+  id: string;
+  proposal_id: string;
+  study_id: string;
+  title: string;
+  region: string;
+  district: string;
+  scope: string;
+  owner_analyst: string;
+  status: StudyCaseStatus;
+  workflow_step: number; // 1 to 9
+  problem_statement?: string;
+  objective?: string;
+  blockers_count: number;
+  total_requirements: number;
+  satisfied_requirements: number;
+  baseline: {
+    status: 'BLOCKED' | 'READY' | 'COMPLETED';
+    pinned_datasets: { [req_id: string]: { dataset_code: string; version: number; approved_at: string } };
+  };
+  scenario_id?: string | null;
+  created_at: string;
+  updated_at: string;
 }

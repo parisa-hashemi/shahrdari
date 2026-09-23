@@ -263,6 +263,42 @@ table.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
 .step+.step::before{content:"";width:10px;height:1px;background:var(--line-strong);margin-inline-end:2px}
 .rail a.step:hover{background:var(--surface-3)}
 
+/* ---------- unified workflow stepper tabs (Merged Rail & Tabs) ---------- */
+.study-stepper-tabs{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);
+  padding:6px 10px;margin:12px 0 16px 0;display:flex;align-items:center;gap:3px;
+  overflow-x:auto;box-shadow:0 1px 3px rgba(0,0,0,0.03);scrollbar-width:thin;
+}
+.study-stepper-brand{
+  display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;
+  color:var(--way);background:var(--way-050);border:1px solid #DDD6FE;
+  padding:5px 11px;border-radius:6px;white-space:nowrap;margin-inline-end:6px;flex-shrink:0;
+}
+.study-step-link{
+  display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:7px;
+  font-size:12px;color:var(--text-2);white-space:nowrap;text-decoration:none;
+  border:1px solid transparent;transition:all .15s ease-in-out;cursor:pointer;flex-shrink:0;
+}
+.study-step-link:hover{background:var(--surface-2);color:var(--text);border-color:var(--line)}
+.study-step-link.active{
+  background:#F5F3FF;border-color:#C4B5FD;color:#5B21B6;font-weight:700;
+  box-shadow:0 1px 3px rgba(91,33,182,0.1);
+}
+.study-step-link .step-num-badge{
+  width:20px;height:20px;border-radius:50%;display:grid;place-items:center;
+  font-size:10px;background:#F1F5F9;border:1px solid #CBD5E1;color:#64748B;
+  font-weight:700;flex-shrink:0;transition:all .15s ease;
+}
+.study-step-link.done .step-num-badge{background:#059669;border-color:#059669;color:#FFF}
+.study-step-link.active .step-num-badge{background:#6D28D9;border-color:#6D28D9;color:#FFF}
+.study-step-link.active.done .step-num-badge{background:#059669;border-color:#059669;color:#FFF}
+.study-step-link .step-title-txt{font-size:12px}
+.study-step-link .step-blocker-pill{
+  font-size:10px;font-weight:700;padding:1px 6px;border-radius:12px;
+  background:#FEE2E2;color:#DC2626;border:1px solid #FECACA;margin-inline-start:4px;
+}
+.study-step-sep{color:#CBD5E1;font-size:12px;user-select:none;padding:0 1px;flex-shrink:0}
+
 /* ---------- states ---------- */
 .state{padding:40px 24px;text-align:center;color:var(--text-2)}
 .state .ic{width:44px;height:44px;border-radius:var(--r-l);display:inline-grid;place-items:center;background:var(--surface-3);color:var(--text-3);margin-bottom:10px}
@@ -454,6 +490,12 @@ const els = (sel,root=document) => [...root.querySelectorAll(sel)];
 const go = h => { location.hash = h; };
 const initials = n => n.replace(/^(دکتر|مهندس)\s+/,'').split(' ').slice(0,2).map(w=>w[0]).join('');
 
+window.fa = fa;
+window.esc = esc;
+window.el = el;
+window.els = els;
+window.go = go;
+
 const STATE = {
   user:null,
   filters:{ q:'', type:'', region:'', status:'', mine:false },
@@ -499,6 +541,7 @@ const ico = {
   doc:I('<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>'),
   git:I('<circle cx="7" cy="6" r="2"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="12" r="2"/><path d="M7 8v8"/><path d="M9 6h4a2 2 0 0 1 2 2v2"/>'),
 };
+window.ico = ico;
 
 /* ---------- 3. mock data (synthetic / demo only) ---------- */
 const ROLE_NAMES_OLD={planner:'مهندس زهرا کاظمی',steward:'سارا نوروزی',reviewer:'دکتر مرتضی رحیمی',approver:'مهندس ناصر داوودی',sec:'فرزانه مقدم',admin:'مهدی سلطانی'};
@@ -626,9 +669,8 @@ const REGIONS = Array.from({length:22},(_,i)=>'منطقه '+fa(i+1));
 const TEMPLATES = ['قالب بازنگری تفصیلی — نسخه ۳','قالب TOD — نسخه ۲','قالب ارزیابی اثر — نسخه ۱','قالب پایش — نسخه ۲','قالب مخاطره — نسخه ۱'];
 const PEOPLE = ['مهندس زهرا کاظمی','دکتر مرتضی رحیمی','سارا نوروزی','امیرحسین طاهری','فرزانه مقدم','مهدی سلطانی'];
 const STUDY_TABS = [
-  ['overview','نمای کلی'],['chapter0','فصل صفر'],['chapters','فصل‌ها'],['tasks','وظایف'],['data','داده'],
-  ['map','نقشه'],['rules','قوانین'],['indicators','شاخص‌ها'],['models','مدل‌ها'],['scenarios','سناریوها'],
-  ['runs','اجراها'],['evidence','شواهد'],['reports','گزارش‌ها'],['review','بررسی'],['history','تاریخچه'],
+  ['overview','نمای کلی'],['chapter0','فصل صفر'],['baseline','وضع موجود'],['scenarios','سناریوها'],['precheck','پیش‌بررسی'],
+  ['runs','اجرا'],['indicators','نتایج'],['comparison','مقایسه'],['evidence','شواهد'],['reports','گزارش‌ها'],['review','بررسی و تأیید نهایی'],['history','تاریخچه'],
 ];
 
 /* ---------- 4. components ---------- */
@@ -650,11 +692,13 @@ const Card = (title,body,{act='',foot='',cls=''}={})=>`<section class="card ${cl
 
 const State = (icon,h,p,act='')=>`<div class="state"><div class="ic">${ico[icon]}</div><h3>${h}</h3><p>${p}</p>${act}</div>`;
 
+const WORKFLOW_STEP_TABS = ['data','overview','chapter0','baseline','scenarios','precheck','runs','indicators','comparison','evidence','reports','review','review'];
 const Rail = (stage=-1,studyId)=>`<div class="rail">
   <span class="lbl">${ico.flag}چرخه اجرای تحلیلی مطالعه</span>
   ${WORKFLOW.map((w,i)=>{
     const cls = i<stage?'done':i===stage?'now':'';
-    const h = studyId?`#/study/${studyId}/${['data','overview','chapter0','overview','scenarios','runs','runs','runs','runs','evidence','reports','review','review'][i]||'overview'}`:'#';
+    const tabTarget = WORKFLOW_STEP_TABS[i] || 'overview';
+    const h = studyId ? `#/study/${studyId}/${tabTarget}` : '#';
     return `<a class="step ${cls}" href="${h}"><span class="n">${i<stage?'✓':fa(i+1)}</span>${w}</a>`;
   }).join('')}</div>`;
 
@@ -923,28 +967,1793 @@ function bindWizard(){
         sub:d.scope||'محدوده تعریف‌نشده',owner:STATE.user.name,team,
         template:d.template||TEMPLATES[0],period:`${d.from||'۱۴۰۵'} تا ${d.to||'۱۴۱۰'}`,dsUsed:[]});
       STATE.wizard={step:0,data:{name:'',type:'',region:'',scope:'',template:'',from:'',to:'',team:[]}};
-      go('#/study/'+st.id);
-      toast(`مطالعه «${st.name}» ایجاد شد — به فهرست مطالعات افزوده شد، فضای کاری ساخته شد، رویداد ثبت گردید${team.length>1?` و ${fa(team.length-1)} اعلان برای اعضا ساخته شد`:''}`);
+      go('#/study/'+st.id+'/chapter0');
+      toast(`پرونده مطالعه «${st.name}» تشکیل شد و فصل صفر جهت بررسی داده‌ها باز گردید.`);
       return; }
     w.step++; render();
   };
 }
 
+/* ---------- Study Analysis & Blocker Integration (Analyst-Driven, No Secretariat) ---------- */
+function StudyAnalysisRunning(id){
+  const s = byId(id);
+  const a = (STATE.studyAn && STATE.studyAn[id]) || { stage: 0, runId: 'RUN-ST' };
+  return `<div style="margin-top:14px">${Card('اجرای شبیه‌سازی ۱۲ ماژول مطالعه — <span class="code">'+a.runId+'</span>',
+    `<div class="card-b">
+      <div class="notice n-info" style="margin-bottom:14px">
+        ${ico.run}
+        <div><b>شبیه‌سازی کامل ۱۲ ماژول در حال اجراست...</b> محاسبات توسط تحلیلگر شهری با اتکا به داده‌های مصوب و بدون نیاز به دبیرخانه در حال پردازش است.</div>
+      </div>
+      <div class="prog-row" style="margin-bottom:14px"><div class="prog run" style="max-width:420px"><i style="width:${Math.round((a.stage+1)/MODLIST.length*100)}%"></i></div>
+        <span class="pv num">${fa(a.stage+1)} از ${fa(MODLIST.length)} ماژول</span></div>
+      <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px">
+        ${MODLIST.map((m,i)=>{
+          const done=a.stage>i, now=a.stage===i;
+          return `<div class="ready-row" style="border:1px solid var(--line);border-radius:6px;padding:6px 10px;background:${done?'#F0FDF4':now?'#EFF6FF':'#FFF'}">
+            <span class="nm" style="display:flex;gap:8px;align-items:center">
+              <span class="sstep ${done?'done':now?'now':''}" style="padding:0;width:22px;height:22px;font-size:11px"><span class="n">${done?'✓':fa(i+1)}</span></span>
+              <span style="font-size:12px;font-weight:${done||now?'700':'400'};color:${done||now?'var(--text)':'var(--text-3)'}">${m} — ${MODULES[m]}</span></span>
+            ${done?'<span class="bdg b-ok plain">تکمیل شد</span>'
+              :now?'<span class="bdg b-run plain">در حال اجرا</span>':'<span class="bdg b-neu plain">در صف</span>'}</div>`;}).join('')}
+      </div></div>`,
+    {foot:'تمامی ۱۲ ماژول توسط تحلیلگر شهری با داده‌های پین‌شده وضع موجود شبیه‌سازی می‌شوند.'})}</div>`;
+}
+
+function isStudyLocked(s){
+  if(!s) return false;
+  const id = typeof s === 'string' ? s : s.id;
+  const stObj = typeof s === 'string' ? byId(s) : s;
+  if(stObj && (stObj.locked || stObj.finalized)) return true;
+  const stAn = (STATE.studyAn && STATE.studyAn[id]);
+  if(stAn && stAn.done) return true;
+  if(stObj && (stObj.status === 'done' || (stObj.stage && stObj.stage >= 13))) return true;
+  return false;
+}
+window.isStudyLocked = isStudyLocked;
+
+function startStudyAnalysis(id){
+  const s = byId(id);
+  if(!s) return;
+
+  if(isStudyLocked(id)){
+    toast('این مطالعه پس از تکمیل تمام مراحل قطعی و نهایی شده است و امکان تغییر یا اجرای مجدد در آن وجود ندارد.', false);
+    return;
+  }
+
+  // Sync with Study Case if linked
+  const sc = (window.DB?.studyCases || []).find(c => c.study_id === id);
+  if(sc && window.syncStudyCaseWithChapterZero) {
+    window.syncStudyCaseWithChapterZero(sc.id);
+  }
+
+  const sum = czSummary(id);
+  if(sum.blockers.length > 0){
+    toast('وضع موجود این مطالعه دارای موارد مسدودکننده است؛ ابتدا داده‌ها را تأمین و برطرف کنید', false);
+    openStudyBlockersDrawer(id);
+    return;
+  }
+
+  const cs = czState(id);
+  const isSigned = !!(cs && (cs.signed || (cs.snapshots && cs.snapshots.length > 0)));
+  if(!isSigned){
+    toast('اجرای ماژول‌های ۱۲گانه قفل است! تا وقتی فصل صفر امضا نشود، امکان اجرای تحلیل وجود ندارد.', false);
+    czSignModal(id);
+    return;
+  }
+
+  if(!STATE.studyAn) STATE.studyAn = {};
+  if(!STATE.studyAn[id]){
+    STATE.studyAn[id] = {
+      runId: 'RUN-ST-' + fa(5200 + (DB.studies.indexOf(s) >= 0 ? DB.studies.indexOf(s) : 1)),
+      stage: 0,
+      done: false,
+      at: null
+    };
+  }
+  const a = STATE.studyAn[id];
+  a.stage = 0;
+  a.done = false;
+
+  go('#/study/'+id);
+  render();
+
+  const iv = setInterval(()=>{
+    a.stage++;
+    if(a.stage >= MODLIST.length){
+      clearInterval(iv);
+      a.done = true;
+      a.stage = -1;
+      a.at = clock();
+      s.status = 'ready';
+      s.prog = 100;
+      s.stage = 13;
+      s.locked = true;
+      s.finalized = true;
+      s.updated = NOW;
+      s.next = 'بررسی خروجی ماژول‌های ۱۲گانه و تدوین گزارش رسمی';
+      s.nextHref = '#/study/'+id+'/reports';
+
+      if(sc){
+        sc.workflow_step = 9;
+        sc.status = 'COMPLETED';
+        sc.locked = true;
+        sc.finalized = true;
+        sc.scenario_id = sc.scenario_id || ('SC-1405-' + sc.id.slice(-4));
+        sc.updated_at = NOW;
+      }
+
+      // Synchronize all linked proposals!
+      const linkedProps = [...propsOf(id)];
+      if(sc && sc.proposal_id && !linkedProps.some(p => p.id === sc.proposal_id)){
+        const prObj = prop(sc.proposal_id);
+        if(prObj) linkedProps.push(prObj);
+      }
+      if(!linkedProps.length){
+        const newPid = 'PR-1405-' + (id.split('-').pop() || '099');
+        const newPr = {
+          id: newPid,
+          t: `پیشنهاد مداخله کالبدی و ارزیابی اثر: ${s.name}`,
+          type: s.type || 'بازنگری طرح تفصیلی',
+          study: id,
+          region: s.region,
+          scope: s.sub || 'محدوده مطالعه',
+          status: 'decision',
+          ver: 'v1',
+          date: NOW,
+          upd: NOW,
+          owner: s.owner,
+          prob: 'تراکم بیش از حد، کسری خدمات محله‌ای و بار ترافیکی معابر پیرامونی',
+          goal: 'ساماندهی کالبدی، احداث خدمات عمومی و هدایت بار ترافیکی به شریان‌های اصلی',
+          change: 'تغییر پهنه تجاری/مسکونی و اصلاح تراکم ساختمانی به همراه تأمین پارکینگ',
+          ds: ['PARCEL-06', 'BLDG-06', 'ROAD-06', 'POP-HH-06'],
+          rules: ['R-01', 'R-02'],
+          inds: ['IN-01', 'IN-02', 'IN-03', 'IN-04'],
+          src: 'rev',
+          next: 'بررسی بسته تصمیم و تأیید نهایی ارزیابی ۱۲گانه',
+          nextH: '#/proposal/' + newPid + '/decision'
+        };
+        DB.proposals.unshift(newPr);
+        linkedProps.push(newPr);
+      }
+      linkedProps.forEach(pr => {
+        const pAn = anState(pr.id);
+        pAn.done = true;
+        pAn.stage = -1;
+        pAn.at = clock();
+        pAn.runId = a.runId;
+        pr.status = 'decision';
+        pr.level = 'high';
+        pr.upd = NOW;
+        pr.next = 'بررسی بسته تصمیم و تأیید نهایی ارزیابی ۱۲گانه';
+        pr.nextH = '#/proposal/' + pr.id + '/decision';
+      });
+
+      if(window.RUNS){
+        const runRec = {
+          id: a.runId,
+          sc: `اجرای جامع ماژول‌های ۱۲گانه: ${s.name}`,
+          study: id,
+          st: 'done',
+          p: 100,
+          dur: '۱ دقیقه و ۳۴ ثانیه',
+          note: 'شبیه‌سازی کامل ۱۲ ماژول تحلیلی توسط تحلیلگر شهری با داده‌های پین‌شده وضع موجود',
+          by: (window.STATE && window.STATE.user ? window.STATE.user.name : 'مهندس زهرا کاظمی (تحلیلگر شهری)')
+        };
+        if(!window.RUNS.some(r => r.id === runRec.id)){
+          window.RUNS.unshift(runRec);
+        }
+      }
+
+      logAct({
+        action: 'RUN_STUDY_ANALYSIS',
+        et: 'study',
+        eid: id,
+        etitle: s.name,
+        text: `تحلیل کامل ماژول‌های ۱۲گانه مطالعه «${s.name}» توسط تحلیلگر شهری با موفقیت اجرا شد`,
+        k: 'ok'
+      });
+
+      render();
+      saveDB();
+      toast('🎉 اجرای کامل ماژول‌های ۱۲گانه با موفقیت پایان یافت. مطالعه نهایی گردید و قفل تغییرات فعال شد.', true);
+      return;
+    }
+    render();
+  }, 350);
+}
+window.startStudyAnalysis = startStudyAnalysis;
+
+function openStudyBlockersDrawer(studyId){
+  let sc = (window.DB?.studyCases || []).find(c => c.study_id === studyId);
+  if(!sc){
+    const stObj = byId(studyId);
+    sc = {
+      id: 'CASE-' + studyId.replace('ST-', ''),
+      study_id: studyId,
+      proposal_id: 'PR-1405-000124',
+      title: 'پرونده تحلیلی: ' + (stObj ? stObj.name : studyId),
+      region: stObj ? stObj.region : 'منطقه ۶',
+      district: 'ناحیه ۲',
+      scope: stObj ? stObj.sub : 'محدوده مطالعه',
+      owner_analyst: STATE?.user?.name || 'مهندس زهرا کاظمی',
+      status: 'BLOCKED',
+      workflow_step: 3,
+      problem_statement: 'نیازمندی‌های داده وضع موجود در انتظار تأمین و رفع انسداد',
+      objective: 'تکمیل داده‌های مسدودکننده و اجرای تحلیل ۱۲گانه',
+      blockers_count: 0,
+      total_requirements: 0,
+      satisfied_requirements: 0,
+      baseline: { status: 'BLOCKED', pinned_datasets: {} },
+      scenario_id: null,
+      created_at: '۱۴۰۵/۰۶/۲۲',
+      updated_at: '۱۴۰۵/۰۶/۲۳'
+    };
+    if(!window.DB.studyCases) window.DB.studyCases = [];
+    window.DB.studyCases.push(sc);
+  }
+
+  // Synchronize Chapter Zero requirements before displaying blockers
+  if(window.syncStudyRequirementsFromChapterZero) {
+    window.syncStudyRequirementsFromChapterZero(studyId, sc.id);
+  }
+
+  const scData = window.getLocalStudyCase ? window.getLocalStudyCase(sc.id) : null;
+  if(scData && window.openBlockersDrawer){
+    window.openBlockersDrawer(sc.id, scData.blockers, scData.studyCase, scData.requests);
+  } else {
+    location.hash = `#/study/${studyId}/chapter0`;
+  }
+}
+window.openStudyBlockersDrawer = openStudyBlockersDrawer;
+
+function StudyTabsBar(id, activeTab){
+  const s = byId(id) || { id, stage: 2 };
+  const sum = czSummary(id);
+  const cs = czState(id);
+  const stAn = (STATE.studyAn && STATE.studyAn[id]);
+  const isLocked = isStudyLocked(id);
+  const isSigned = !!(cs && (cs.signed || (cs.snapshots && cs.snapshots.length > 0)));
+  const isCaseReady = (window.DB?.studyCases || []).some(c => (c.study_id === id) && (c.status === 'READY_FOR_NEXT_STEP' || c.status === 'COMPLETED' || (c.workflow_step && c.workflow_step >= 6)));
+  const isAnDone = isLocked || (stAn && stAn.done) || isCaseReady;
+
+  const steps = [
+    { k: 'overview',   t: 'نمای کلی',             stageIdx: 1, n: 1 },
+    { k: 'chapter0',   t: 'فصل صفر',              stageIdx: 2, n: 2 },
+    { k: 'baseline',   t: 'وضع موجود',            stageIdx: 3, n: 3 },
+    { k: 'scenarios',  t: 'سناریوها',             stageIdx: 4, n: 4 },
+    { k: 'precheck',   t: 'پیش‌بررسی',             stageIdx: 5, n: 5 },
+    { k: 'runs',       t: 'اجرا',                 stageIdx: 6, n: 6 },
+    { k: 'indicators', t: 'نتایج',                stageIdx: 7, n: 7 },
+    { k: 'comparison', t: 'مقایسه',               stageIdx: 8, n: 8 },
+    { k: 'evidence',   t: 'شواهد',                stageIdx: 9, n: 9 },
+    { k: 'reports',    t: 'گزارش‌ها',              stageIdx: 10, n: 10 },
+    { k: 'review',     t: 'بررسی و تأیید نهایی',  stageIdx: 11, n: 11 },
+    { k: 'history',    t: 'تاریخچه',              stageIdx: 12, n: 12 },
+  ];
+
+  return `
+  <div class="study-stepper-tabs" role="navigation" aria-label="مراحل مطالعه">
+    <div class="study-stepper-brand">
+      ${ico.flag}
+      <span>چرخه اجرای تحلیلی مطالعه</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:3px;overflow-x:auto">
+      ${steps.map((step, idx) => {
+        const isActive = step.k === activeTab;
+        let isDone = false;
+        if (isLocked) {
+          isDone = true;
+        } else if (step.k === 'overview') {
+          isDone = true;
+        } else if (step.k === 'chapter0') {
+          isDone = isSigned || (sum.blockers.length === 0 && (s.stage >= 2 || isAnDone));
+        } else if (step.k === 'baseline') {
+          isDone = isSigned || s.stage >= 3 || isAnDone;
+        } else if (step.k === 'scenarios') {
+          isDone = s.stage >= 4 || isAnDone;
+        } else if (['precheck','runs','indicators','comparison'].includes(step.k)) {
+          isDone = isAnDone || (s.stage >= step.stageIdx);
+        } else if (['evidence','reports'].includes(step.k)) {
+          isDone = isAnDone || (s.stage >= step.stageIdx);
+        } else if (step.k === 'review') {
+          isDone = isLocked || (s.stage >= 12);
+        } else if (step.k === 'history') {
+          isDone = false;
+        }
+
+        const showBlockers = step.k === 'chapter0' && sum.blockers.length > 0 && !isSigned;
+        const divider = idx > 0 ? `<span class="study-step-sep">‹</span>` : '';
+
+        return `
+          ${divider}
+          <a class="study-step-link ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}"
+             href="#/study/${id}/${step.k}"
+             title="${step.t}">
+            <span class="step-num-badge">${isDone ? '✓' : fa(step.n)}</span>
+            <span class="step-title-txt">${step.t}</span>
+            ${showBlockers ? `<span class="step-blocker-pill">${fa(sum.blockers.length)} مسدودکننده</span>` : ''}
+          </a>
+        `;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+
+/* ---------- Study Baseline (وضع موجود) ---------- */
+function StudyBaseline(id){
+  const s = byId(id) || { id, name: 'مطالعه شهری', region: 'منطقه ۶' };
+  const a = (STATE.studyAn && STATE.studyAn[id]) || { done: isStudyLocked(id) };
+  const isDone = a.done || isStudyLocked(id);
+  const sum = czSummary(id);
+
+  const baselineDatasets = [
+    { code: 'PARCELS-REG6', title: 'کاداستر و پلاک‌های ثبتی وضع موجود', ver: 'v4', owner: 'فاوا شهرداری تهران', date: '۱۴۰۴/۱۱/۲۰', count: '۳٬۴۲۰ پلاک', status: 'ready', fresh: 'به‌روز', desc: 'محدوده کالبدی، ابعاد و مشخصات هندسی پلاک‌ها' },
+    { code: 'BLD-DENSITY-06', title: 'ممیزی کاربری و طبقات ابنیه وضع موجود', ver: 'v3', owner: 'معاونت شهرسازی منطقه', date: '۱۴۰۴/۱۲/۱۵', count: '۲٬۸۹۰ بلوک', status: 'ready', fresh: 'به‌روز', desc: 'تراکم کالبدی، سطح اشغال و سال ساخت' },
+    { code: 'ROAD-NET-06', title: 'شبکه هندسی و ظرفیت معابر وضع موجود', ver: 'v3', owner: 'سازمان حمل‌ونقل و ترافیک', date: '۱۴۰۵/۰۱/۱۰', count: '۱۴۲ کیلومتر', status: 'ready', fresh: 'به‌روز', desc: 'عرض گذر، جهت حرکت، تقاطع‌ها و خطوط اتوبوس' },
+    { code: 'POP-HH-06', title: 'جمعیت و بعد خانوار بلوک‌های آماری وضع موجود', ver: 'v4', owner: 'مرکز آمار و مطالعات تهران', date: '۱۴۰۵/۰۲/۱۸', count: '۱۸٬۴۵۰ نفر', status: 'ready', fresh: 'به‌روز', desc: 'تراکم جمعیتی، بعد خانوار ۳٫۱ و هرم سنی' },
+    { code: 'LANDUSE-BASE', title: 'نقشه کاربری اراضی وضع موجود', ver: 'v2', owner: 'معاونت شهرسازی و معماری', date: '۱۴۰۵/۰۱/۲۵', count: '۲۸۰ هکتار', status: 'ready', fresh: 'به‌روز', desc: 'کاربری‌های مسکونی، تجاری، اداری، آموزشی و سبز' },
+    { code: 'PARKING-SURVEY', title: 'آماربرداری پارکینگ حاشیه‌ای و عمومی', ver: 'v1', owner: 'شرکت کنترل ترافیک', date: '۱۴۰۵/۰۳/۰۴', count: '۱٬۲۴۰ جایگاه', status: 'ready', fresh: 'به‌روز', desc: 'تراز عرضه، تقاضای اوج و کسری ۱۸۵ جایگاه' }
+  ];
+
+  return `
+  <div style="margin-top:14px">
+    <div class="card" style="border:1px solid #10B981;background:#F0FDF4;padding:16px 20px;border-radius:var(--r-m);margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span class="bdg b-ok plain" style="font-size:12px;font-weight:700;padding:4px 10px;background:#059669;color:#FFF">
+              ✓ وضعیت: تثبیت‌شده و پین‌شده (Frozen Baseline)
+            </span>
+            <span class="code" style="font-size:11.5px">sha256:7f3b89a4e2c9...</span>
+          </div>
+          <h2 style="font-size:16px;color:#065F46;margin:0 0 6px 0">
+            وضع موجود تثبیت‌شده مطالعه — ${esc(s.name)}
+          </h2>
+          <p style="font-size:12.5px;color:#064E3B;margin:0;line-height:1.6">
+            داده‌های وضع موجود در پایان فصل صفر با امضای کارشناس مسئول پین شده‌اند و مبنای محاسبات شبیه‌سازی ۱۲ ماژول تحلیلی و مقایسه سناریوها می‌باشند. هرگونه تغییر در داده‌های خام خارج از مطالعه، به وضع موجود آسیب نمی‌زند.
+          </p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <a class="btn btn-sm btn-pri" href="#/study/${id}/precheck" style="background:#059669;border-color:#059669;font-weight:700">
+            ${ico.check} پیش‌بررسی و آزمون مدل‌ها ←
+          </a>
+          <a class="btn btn-sm" href="#/study/${id}/chapter0">
+            ${ico.doc} بازبینی فصل صفر
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpis" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px">
+      <div class="kpi k-pri" style="cursor:default">
+        <div class="v num">۲۴۰٪</div>
+        <div class="l">تراکم ساختمانی موجود (FAR)</div>
+        <div class="d">ضریب سطح زیربنای ناخالص</div>
+      </div>
+      <div class="kpi k-neu" style="cursor:default">
+        <div class="v num">۶۰٪</div>
+        <div class="l">سطح اشغال متوسط</div>
+        <div class="d">درصد پوشش عرصه پلاک‌ها</div>
+      </div>
+      <div class="kpi k-neu" style="cursor:default">
+        <div class="v num">۱۸٬۴۵۰</div>
+        <div class="l">جمعیت ساکن وضع موجود</div>
+        <div class="d">بر اساس سرشماری بلوک‌ها</div>
+      </div>
+      <div class="kpi k-warn" style="cursor:default">
+        <div class="v num">۲۸٬۲۰۰</div>
+        <div class="l">سفر سواره روزانه</div>
+        <div class="d">تولید و جذب در محدوده</div>
+      </div>
+      <div class="kpi k-stop" style="cursor:default">
+        <div class="v num">۱۸۵-</div>
+        <div class="l">کسری پارکینگ موجود</div>
+        <div class="d">کمبود شدید جایگاه خودرو</div>
+      </div>
+      <div class="kpi k-ok" style="cursor:default">
+        <div class="v num">۳٫۸ م²</div>
+        <div class="l">سرانه فضای سبز موجود</div>
+        <div class="d">به ازای هر نفر سکونت</div>
+      </div>
+    </div>
+
+    <div class="split" style="gap:16px;margin-bottom:16px">
+      <div class="card" style="flex:3;padding:0;overflow:hidden;border:1px solid var(--line);background:#F8FAFB">
+        <div class="card-h" style="padding:10px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center">
+          <span style="font-weight:700;font-size:12.5px;display:flex;align-items:center;gap:6px">
+            ${ico.map} نقشه پهنه کالبدی و کاربری وضع موجود (${esc(s.region)})
+          </span>
+          <span class="bdg b-neu plain" style="font-size:11px">مقیاس ۱:۲۵۰۰ · UTM 39N</span>
+        </div>
+        <div style="padding:12px;background:#F1F5F9">
+          <svg viewBox="0 0 700 380" width="100%" height="auto" style="display:block;border-radius:6px;background:#FFF;border:1px solid #CBD5E1">
+            <rect x="0" y="140" width="700" height="24" fill="#E2E8F0"/>
+            <line x1="0" y1="152" x2="700" y2="152" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="6 4"/>
+            <text x="50" y="148" font-size="10" fill="#475569" font-family="Vazirmatn,Tahoma">شریان شرقی-غربی (خیابان مطهری)</text>
+
+            <rect x="320" y="0" width="28" height="380" fill="#E2E8F0"/>
+            <line x1="334" y1="0" x2="334" y2="380" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="6 4"/>
+            <text x="328" y="24" font-size="10" fill="#475569" font-family="Vazirmatn,Tahoma" transform="rotate(90 328 24)">خیابان ولیعصر</text>
+
+            <rect x="40" y="30" width="250" height="90" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.2"/>
+            <rect x="50" y="40" width="60" height="70" fill="#EFF6FF" stroke="#3B82F6" stroke-width="0.8"/>
+            <rect x="120" y="40" width="70" height="70" fill="#EFF6FF" stroke="#3B82F6" stroke-width="0.8"/>
+            <rect x="200" y="40" width="80" height="70" fill="#EFF6FF" stroke="#3B82F6" stroke-width="0.8"/>
+            <text x="130" y="80" font-size="11" fill="#1E40AF" font-family="Vazirmatn,Tahoma" font-weight="700">مسکونی متراکم (FAR: 240%)</text>
+
+            <rect x="380" y="30" width="280" height="90" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.2"/>
+            <rect x="390" y="40" width="80" height="70" fill="#FEF3C7" stroke="#D97706" stroke-width="0.8"/>
+            <rect x="480" y="40" width="80" height="70" fill="#FEF3C7" stroke="#D97706" stroke-width="0.8"/>
+            <rect x="570" y="40" width="80" height="70" fill="#FEF3C7" stroke="#D97706" stroke-width="0.8"/>
+            <text x="470" y="80" font-size="11" fill="#92400E" font-family="Vazirmatn,Tahoma" font-weight="700">تجاری-اداری حاشیه معبر</text>
+
+            <rect x="40" y="190" width="250" height="150" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.2"/>
+            <rect x="50" y="200" width="110" height="130" fill="#DCFCE7" stroke="#16A34A" stroke-width="0.8"/>
+            <text x="75" y="270" font-size="11" fill="#166534" font-family="Vazirmatn,Tahoma" font-weight="700">پارک محله‌ای</text>
+            <rect x="170" y="200" width="110" height="130" fill="#EFF6FF" stroke="#3B82F6" stroke-width="0.8"/>
+            <text x="185" y="270" font-size="11" fill="#1E40AF" font-family="Vazirmatn,Tahoma">بافت مسکونی</text>
+
+            <rect x="380" y="190" width="280" height="150" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.2"/>
+            <rect x="390" y="200" width="130" height="130" fill="#FEE2E2" stroke="#EF4444" stroke-width="1"/>
+            <text x="410" y="260" font-size="11" fill="#991B1B" font-family="Vazirmatn,Tahoma" font-weight="700">گلوگاه ترافیکی و</text>
+            <text x="410" y="278" font-size="11" fill="#991B1B" font-family="Vazirmatn,Tahoma" font-weight="700">کسری پارکینگ شدید</text>
+
+            <rect x="530" y="200" width="120" height="130" fill="#EFF6FF" stroke="#3B82F6" stroke-width="0.8"/>
+            <text x="555" y="270" font-size="11" fill="#1E40AF" font-family="Vazirmatn,Tahoma">مسکونی</text>
+
+            <g transform="translate(16, 335)">
+              <rect width="668" height="32" rx="4" fill="#FFFFFF" fill-opacity="0.9" stroke="#CBD5E1"/>
+              <circle cx="20" cy="16" r="5" fill="#3B82F6"/>
+              <text x="30" y="20" font-size="10.5" fill="#334155" font-family="Vazirmatn,Tahoma">مسکونی موجود</text>
+
+              <circle cx="140" cy="16" r="5" fill="#D97706"/>
+              <text x="150" y="20" font-size="10.5" fill="#334155" font-family="Vazirmatn,Tahoma">تجاری/خدماتی</text>
+
+              <circle cx="260" cy="16" r="5" fill="#16A34A"/>
+              <text x="270" y="20" font-size="10.5" fill="#334155" font-family="Vazirmatn,Tahoma">فضای سبز موجود</text>
+
+              <circle cx="380" cy="16" r="5" fill="#EF4444"/>
+              <text x="390" y="20" font-size="10.5" fill="#991B1B" font-family="Vazirmatn,Tahoma">نقاط بحرانی ترافیک و پارکینگ</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="card" style="flex:2;padding:16px;border:1px solid var(--line);background:#FFF">
+        <h3 style="font-size:13.5px;margin:0 0 10px 0;display:flex;align-items:center;gap:6px">
+          ${ico.alert} مسائل و کاستی‌های احصاشده در وضع موجود
+        </h3>
+        <div style="font-size:12px;line-height:1.65;display:grid;gap:10px">
+          <div style="padding:8px 10px;background:#FFF5F5;border-right:3px solid #EF4444;border-radius:4px">
+            <b style="color:#991B1B">۱. کسری شدید پارکینگ و توقف غیرمجاز:</b>
+            <div style="color:#7F1D1D;margin-top:2px">کمبود ۱۸۵ واحد پارکینگ سبب اشغال خط عبوری معابر درجه ۲ و کاهش سرعت جریان ترافیک شده است.</div>
+          </div>
+          <div style="padding:8px 10px;background:#FFFBEB;border-right:3px solid #F59E0B;border-radius:4px">
+            <b style="color:#92400E">۲. عدم توازن خدمات و سرانه‌ها:</b>
+            <div style="color:#78350F;margin-top:2px">سرانه آموزشی و درمانی به ازای جمعیت ساکن ۲۰٪ کمتر از استاندارد طرح جامع است.</div>
+          </div>
+          <div style="padding:8px 10px;background:#EFF6FF;border-right:3px solid #3B82F6;border-radius:4px">
+            <b style="color:#1E40AF">۳. فرسودگی بخشی از بافت کالبدی:</b>
+            <div style="color:#1E3A8A;margin-top:2px">حدود ۳۲٪ ابنیه دارای سن بالای ۳۰ سال و نیازمند نوسازی و تجمیع پلاک‌های ریزدانه هستند.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="border:1px solid var(--line);background:#FFF">
+      <div class="card-h" style="display:flex;justify-content:space-between;align-items:center">
+        <h3>${ico.data} مجموعه‌های داده پین‌شده وضع موجود (Pinned Datasets)</h3>
+        <span class="bdg b-ok plain">${fa(baselineDatasets.length)} مجموعه داده تثبیت‌شده</span>
+      </div>
+      <div class="tw">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>عنوان مجموعه داده</th>
+              <th>کد داده</th>
+              <th>نسخه پین‌شده</th>
+              <th>متولی داده</th>
+              <th>حجم / شمارش</th>
+              <th>تازگی</th>
+              <th>کنترل کیفیت</th>
+              <th>وضعیت</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${baselineDatasets.map(d => `
+              <tr>
+                <td><b>${d.title}</b><div class="sub">${d.desc}</div></td>
+                <td><span class="code">${d.code}</span></td>
+                <td><span class="vbadge">${d.ver}</span></td>
+                <td>${d.owner}</td>
+                <td class="num">${d.count}</td>
+                <td><span class="bdg b-ok">${d.fresh}</span></td>
+                <td><span class="bdg b-ok plain">بدون خطا ✓</span></td>
+                <td><span class="bdg b-ok">مصوب و پین‌شده</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------- Study Precheck (پیش‌بررسی) ---------- */
+function StudyPrecheck(id){
+  const s = byId(id) || { id, name: 'مطالعه شهری' };
+  const a = (STATE.studyAn && STATE.studyAn[id]) || { done: isStudyLocked(id) };
+  const isDone = a.done || isStudyLocked(id);
+
+  const checks = [
+    { title: 'انطباق هندسی کاداستر با سامانه مختصات (CRS)', code: 'CHK-GEO-01', desc: 'بررسی صحت مختصات UTM Zone 39N (EPSG:32639) و عدم تداخل مرزهای ثبتی', pass: true, detail: '۳٬۴۲۰ پلاک با ۱۰۰٪ انطباق هندسی آزموده شدند.' },
+    { title: 'سلامت توپولوژی شبکه معابر و گره‌های ترافیکی', code: 'CHK-NET-02', desc: 'عدم وجود عوارض معلق (Dangles)، صحت جهت حرکت خطوط و اتصالات تقاطع‌ها', pass: true, detail: '۱۴۲ کیلومتر معبر و ۶۸ تقاطع بدون گره ایزوله تأیید گردیدند.' },
+    { title: 'انسجام زمانی داده‌های جمعیتی و کالبدی', code: 'CHK-TMP-03', desc: 'تطبیق بازه زمانی سرشماری نفوس و مسکن با آخرین ممیزی ابنیه (۱۴۰۴-۱۴۰۵)', pass: true, detail: 'همگام‌سازی بعد خانوار ۳٫۱ نفر با واحدهای مسکونی تثبیت شد.' },
+    { title: 'اتصال پایگاه داده قواعد و ضوابط ملاک عمل', code: 'CHK-RUL-04', desc: 'بارگذاری بسته ضوابط تفصیلی منطقه ۶ مصوب کمیسیون ماده پنج (نسخه ملاک)', pass: true, detail: 'کلیه قواعد تراکمی و پهنه‌بندی برای موتور M01 آماده است.' },
+    { title: 'آمادگی پارامترها و کالیبراسیون موتورهای M01-M12', code: 'CHK-MOD-05', desc: 'صحت‌سنجی ورودی‌های مدل گرانشی سفر (M04)، تراز پارکینگ (M05) و آفتاب (M09)', pass: true, detail: 'هر ۱۲ موتور شبیه‌سازی پیکربندی شده و آماده اجرا هستند.' },
+    { title: 'آماده‌سازی تکرارپذیری محاسبات و امضای مبنا', code: 'CHK-REP-06', desc: 'تولید شناسه هش مبنا برای تضمین تکرارپذیری نتایج در سناریوهای مختلف', pass: true, detail: 'محیط اجرای ایزوله تکرارپذیر آماده گردید.' }
+  ];
+
+  return `
+  <div style="margin-top:14px">
+    <div class="card" style="border:1px solid #3B82F6;background:#EFF6FF;padding:16px 20px;border-radius:var(--r-m);margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span class="bdg b-pri plain" style="font-size:12px;font-weight:700;padding:4px 10px;background:#2563EB;color:#FFF">
+              ✓ پیش‌بررسی سیستم (Pre-Execution Integrity)
+            </span>
+            <span class="muted" style="font-size:12px">۶ آزمون یکپارچگی داده و مدل</span>
+          </div>
+          <h2 style="font-size:16px;color:#1E40AF;margin:0 0 6px 0">
+            پیش‌بررسی و آزمون سازگاری پیش از اجرای شبیه‌سازی ۱۲ ماژول
+          </h2>
+          <p style="font-size:12.5px;color:#1E3A8A;margin:0;line-height:1.6">
+            پیش از شروع محاسبات مدل‌های ۱۲گانه، سامانه تمامی ورودی‌های مکانی، آماری و مدل‌ها را آزمون می‌کند تا از صحت خروجی‌ها و عدم بروز خطا در حین شبیه‌سازی اطمینان حاصل شود.
+          </p>
+        </div>
+        <div>
+          ${isDone ? `
+            <a class="btn btn-pri" href="#/study/${id}/runs" style="background:#059669;border-color:#059669;font-weight:700">
+              ${ico.check} مشاهده نتایج شبیه‌سازی ۱۲ ماژول ←
+            </a>
+          ` : `
+            <button class="btn btn-pri" onclick="startStudyAnalysis('${id}')" style="background:#2563EB;border-color:#2563EB;font-weight:700;padding:10px 18px">
+              ${ico.run} شروع شبیه‌سازی ۱۲ ماژول مطالعه ←
+            </button>
+          `}
+        </div>
+      </div>
+    </div>
+
+    <div class="grid cols-2" style="gap:14px;margin-bottom:18px">
+      ${checks.map(c => `
+        <div class="card" style="padding:14px 16px;border:1px solid var(--line);background:#FFF;border-radius:var(--r-m)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="code" style="font-weight:700;background:#F1F5F9;color:#334155;padding:2px 8px;border-radius:4px">${c.code}</span>
+              <b style="font-size:13px;color:var(--text)">${c.title}</b>
+            </div>
+            <span class="bdg b-ok plain" style="font-size:11px">تأیید شد ✓</span>
+          </div>
+          <p style="font-size:12px;color:var(--text-mut);margin:0 0 6px 0">${c.desc}</p>
+          <div style="background:#F0FDF4;border:1px solid #BBF7D0;padding:6px 10px;border-radius:4px;color:#065F46;font-size:11.5px">
+            <b>نتیجه آزمون:</b> ${c.detail}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+/* ---------- Study Comparison (مقایسه سناریوها با وضع موجود) ---------- */
+function StudyComparison(id){
+  const s = byId(id) || { id, name: 'مطالعه شهری' };
+  const a = (STATE.studyAn && STATE.studyAn[id]) || { done: isStudyLocked(id) };
+
+  const comparisons = [
+    { title: 'تراکم ساختمانی کل (FAR)', mod: 'M02', base: '۲۴۰٪', s1: '۳۲۰٪', s2: '۳۸۰٪', s3: '۲۴۰٪', delta: '+۳۳٪ (+۰٫۸)', dir: 'pos', eval: 'افزایش متوازن ظرفیت در سقف ضابطه' },
+    { title: 'سطح اشغال متوسط عرصه', mod: 'M01', base: '۶۰٪', s1: '۵۵٪', s2: '۶۵٪', s3: '۵۰٪', delta: '-۵٪', dir: 'pos', eval: 'آزادسازی فضا برای معابر و حیاط' },
+    { title: 'زیربنای ناخالص کل (GFA)', mod: 'M02', base: '۲۴۵٬۰۰۰ م²', s1: '۳۱۰٬۰۰۰ م²', s2: '۳۷۵٬۰۰۰ م²', s3: '۲۴۵٬۰۰۰ م²', delta: '+۶۵٬۰۰۰ م² (+۲۶٪)', dir: 'pos', eval: 'افزایش ارزش افزوده بافت' },
+    { title: 'جمعیت‌پذیری در اشغال کامل', mod: 'M03', base: '۱۸٬۴۵۰ نفر', s1: '۲۱٬۶۰۰ نفر', s2: '۲۵٬۲۰۰ نفر', s3: '۱۸٬۴۵۰ نفر', delta: '+۳٬۱۵۰ نفر (+۱۷٪)', dir: 'neu', eval: 'در محدوده ظرفیت زیست‌محیطی' },
+    { title: 'سفرهای سواره روزانه', mod: 'M04', base: '۲۸٬۲۰۰ سفر', s1: '۲۴٬۵۰۰ سفر', s2: '۱۹٬۸۰۰ سفر', s3: '۱۵٬۲۰۰ سفر', delta: '-۳٬۷۰۰ سفر (-۱۳٪)', dir: 'pos', eval: 'کاهش ترافیک عبوری مزاحم' },
+    { title: 'تراز و کسری پارکینگ', mod: 'M05', base: '۱۸۵- (کسری)', s1: '۰ (تأمین ۱۰۰٪)', s2: '۵۰-', s3: '۸۰-', delta: '+۱۸۵ جایگاه', dir: 'pos', eval: 'رفع کامل کسری پارکینگ با احداث تجمیعی' },
+    { title: 'سرانه فضای سبز عمومی', mod: 'M06', base: '۳٫۸ م²/نفر', s1: '۵٫۲ م²/نفر', s2: '۳٫۴ م²', s3: '۴٫۸ م²', delta: '+۱٫۴ م² (+۳۷٪)', dir: 'pos', eval: 'ارتقای کیفیت زندگی و فضای باز' },
+    { title: 'پوشش حمل‌ونقل همگانی', mod: 'M07', base: '۶۸٪', s1: '۸۸٪', s2: '۸۸٪', s3: '۶۸٪', delta: '+۲۰٪', dir: 'pos', eval: 'دسترسی پیاده به ایستگاه مترو و BRT' },
+    { title: 'آسایش اقلیمی و نورگیری', mod: 'M09', base: '۸۲٪', s1: '۹۶٪', s2: '۷۴٪', s3: '۹۵٪', delta: '+۱۴٪', dir: 'pos', eval: 'انطباق کامل با زوایای سایه‌اندازی' },
+    { title: 'کاهش انتشار کربن و انرژی', mod: 'M10', base: 'مبنا (۱۰۰٪)', s1: '۸۲٪ (-۱۸٪)', s2: '۹۲٪', s3: '۸۸٪', delta: '-۱۸٪ مصرف انرژی', dir: 'pos', eval: 'رعایت مبحث ۱۹ و ساختمان پایدار' }
+  ];
+
+  return `
+  <div style="margin-top:14px">
+    <div class="notice n-ok" style="margin-bottom:14px">
+      ${ico.check}
+      <div>
+        <b>ارزیابی و مقایسه جامع چندمعیاره سناریوها با وضع موجود</b>. نتایج شبیه‌سازی ۱۲ ماژول نشان می‌دهد سناریو ۱ (مداخله مصوب کالبدی به همراه پارکینگ تجمیعی) بالاترین مطلوبیت را میان گزینه‌ها به دست آورده است.
+      </div>
+    </div>
+
+    <div class="card" style="border:1px solid var(--line);background:#FFF;margin-bottom:16px">
+      <div class="card-h" style="display:flex;justify-content:space-between;align-items:center">
+        <h3>جدول مقایسه اثرات سناریو ۱ در برابر وضع موجود (Baseline vs Scenario 1)</h3>
+        <span class="bdg b-ok plain">خروجی رسمی شبیه‌سازی ۱۲ ماژول</span>
+      </div>
+      <div class="tw">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>عنوان شاخص / موضوع</th>
+              <th>ماژول</th>
+              <th>وضع موجود (Baseline)</th>
+              <th style="background:#F0FDF4;color:#065F46">سناریو ۱ (مصوب ⭐)</th>
+              <th>سناریو ۲ (تراکم حداکثری)</th>
+              <th>سناریو ۳ (حداقلی)</th>
+              <th>تغییر نسبت به وضع موجود</th>
+              <th>ارزیابی کیفی اثر</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${comparisons.map(c => `
+              <tr>
+                <td><b>${c.title}</b></td>
+                <td><span class="code">${c.mod}</span></td>
+                <td class="num">${c.base}</td>
+                <td class="num" style="background:#F0FDF4;font-weight:700;color:#047857">${c.s1}</td>
+                <td class="num">${c.s2}</td>
+                <td class="num">${c.s3}</td>
+                <td class="num"><span class="bdg ${c.dir==='pos'?'b-ok':c.dir==='neg'?'b-stop':'b-neu'} plain">${c.delta}</span></td>
+                <td><span class="bdg ${c.dir==='pos'?'b-ok':c.dir==='neg'?'b-stop':'b-neu'}">${c.eval}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+function StudyMap(id){
+  const s = byId(id);
+  const a = (STATE.studyAn && STATE.studyAn[id]) || { done: isStudyLocked(id) };
+  const isDone = a.done || isStudyLocked(id);
+  return `
+  <div style="margin-top:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:12px;background:#FFF;padding:12px 16px;border:1px solid var(--line);border-radius:var(--r-m)">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <span style="font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px">
+          ${ico.map} لایه‌های مکانی GIS مطالعه (${esc(s.region)}):
+        </span>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="chk-ly-bound" checked> <span>مرز پهنه مداخله</span></label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="chk-ly-parcels" checked> <span>پلاک‌های ثبتی</span></label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="chk-ly-roads" checked> <span>شبکه معابر</span></label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="chk-ly-proposal" ${isDone?'checked':''}> <span style="color:#7C3AED;font-weight:700">پهنه سناریوی مصوب</span></label>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="bdg b-neu plain" style="font-size:11px">EPSG:32639 (UTM Zone 39N)</span>
+        <button class="btn btn-sm" onclick="toast('نقشه وضع موجود و سناریو با موفقیت استخراج گردید')">${ico.doc} خروجی لایه‌ها</button>
+      </div>
+    </div>
+
+    <div class="split" style="gap:16px">
+      <div class="card" style="flex:2;padding:0;overflow:hidden;border:1px solid var(--line);background:#F8FAFB;position:relative">
+        <svg id="study-gis-svg" viewBox="0 0 760 520" width="100%" height="auto" style="display:block;background:#F1F5F9">
+          <defs>
+            <pattern id="study-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#E2E8F0" stroke-width="0.8"/>
+            </pattern>
+            <pattern id="study-hatch" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+              <line x1="0" y1="0" x2="0" y2="8" stroke="#8B5CF6" stroke-width="1.8" />
+            </pattern>
+          </defs>
+          <rect width="760" height="520" fill="url(#study-grid)" />
+
+          <!-- Arterial and Local Road Network -->
+          <g id="layer-roads">
+            <rect x="360" y="0" width="34" height="520" fill="#CBD5E1"/>
+            <line x1="377" y1="0" x2="377" y2="520" stroke="#FFF" stroke-width="1.8" stroke-dasharray="8 6"/>
+            <text x="370" y="30" font-size="11" fill="#475569" font-family="Vazirmatn,Tahoma" transform="rotate(90 370 30)" font-weight="700">خیابان ولیعصر (شریان اصلی ۳۵ متری)</text>
+
+            <rect x="0" y="160" width="760" height="28" fill="#CBD5E1"/>
+            <line x1="0" y1="174" x2="760" y2="174" stroke="#FFF" stroke-width="1.8" stroke-dasharray="8 6"/>
+            <text x="60" y="178" font-size="11" fill="#475569" font-family="Vazirmatn,Tahoma" font-weight="700">خیابان شهید مطهری (شریان شرقی-غربی ۲۴ متری)</text>
+
+            <rect x="0" y="380" width="760" height="26" fill="#CBD5E1"/>
+            <line x1="0" y1="393" x2="760" y2="393" stroke="#FFF" stroke-width="1.8" stroke-dasharray="8 6"/>
+            <text x="60" y="397" font-size="11" fill="#475569" font-family="Vazirmatn,Tahoma" font-weight="700">خیابان شهید بهشتی (شریان فرعی ۲۰ متری)</text>
+
+            <rect x="170" y="0" width="18" height="520" fill="#E2E8F0"/>
+            <rect x="560" y="0" width="18" height="520" fill="#E2E8F0"/>
+            <rect x="0" y="270" width="760" height="16" fill="#E2E8F0"/>
+          </g>
+
+          <!-- Study Boundary Layer -->
+          <g id="layer-boundary">
+            <rect x="50" y="40" width="660" height="430" rx="8" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-dasharray="10 6"/>
+            <text x="70" y="65" font-size="11.5" font-weight="700" fill="#1D4ED8" font-family="Vazirmatn,Tahoma">مرز رسمی محدوده مطالعه: ${esc(s.name)} (${esc(s.region)})</text>
+          </g>
+
+          <!-- Urban Blocks and Parcels Layer -->
+          <g id="layer-parcels" style="cursor:pointer">
+            <rect class="gis-parcel" data-pcode="P-1405-01" data-ptype="مسکونی (R122)" data-parea="۴۲۰ م²" data-pfar="۳۰۰٪" data-pstatus="منطبق با ضابطه" x="70" y="70" width="90" height="80" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.2"/>
+            <text x="85" y="105" font-size="9.5" fill="#92400E" font-family="Vazirmatn,Tahoma">P-01 (۵ ط)</text>
+
+            <rect class="gis-parcel" data-pcode="P-1405-02" data-ptype="مسکونی (R122)" data-parea="۳۸۰ م²" data-pfar="۲۸۰٪" data-pstatus="منطبق با ضابطه" x="70" y="198" width="90" height="64" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.2"/>
+            <text x="85" y="235" font-size="9.5" fill="#92400E" font-family="Vazirmatn,Tahoma">P-02 (۴ ط)</text>
+
+            <rect class="gis-parcel" data-pcode="P-1405-03" data-ptype="خدماتی-آموزشی (S)" data-parea="۸۵۰ م²" data-pfar="۱۸۰٪" data-pstatus="تثبیت‌شده" x="70" y="294" width="90" height="76" rx="3" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+            <text x="80" y="335" font-size="9.5" fill="#1E40AF" font-family="Vazirmatn,Tahoma">دبستان دخترانه</text>
+
+            <rect class="gis-parcel" data-pcode="P-1405-04" data-ptype="تجاری-اداری (M111)" data-parea="۶۴۰ م²" data-pfar="۳۶۰٪" data-pstatus="دارای مجوز" x="196" y="70" width="154" height="80" rx="3" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.2"/>
+            <text x="210" y="115" font-size="10.5" fill="#991B1B" font-family="Vazirmatn,Tahoma" font-weight="700">مجتمع تجاری P-04</text>
+
+            <rect class="gis-parcel" data-pcode="P-1405-05" data-ptype="مختلط تجاری-مسکونی" data-parea="۵۸۰ م²" data-pfar="۳۲۰٪" data-pstatus="منطبق با ضابطه" x="196" y="198" width="154" height="64" rx="3" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.2"/>
+            <text x="215" y="235" font-size="10" fill="#5B21B6" font-family="Vazirmatn,Tahoma">P-05 مختلط (۶ ط)</text>
+
+            <rect class="gis-parcel" data-pcode="P-1405-06" data-ptype="فضای سبز عمومی (G111)" data-parea="۱٬۴۵۰ م²" data-pfar="۰٪" data-pstatus="مصوب و تثبیت‌شده" x="196" y="294" width="154" height="76" rx="6" fill="#D1FAE5" stroke="#059669" stroke-width="1.2"/>
+            <circle cx="230" cy="330" r="14" fill="#10B981" opacity="0.6"/>
+            <circle cx="270" cy="336" r="16" fill="#059669" opacity="0.5"/>
+            <circle cx="310" cy="328" r="12" fill="#10B981" opacity="0.6"/>
+            <text x="235" y="340" font-size="10" fill="#065F46" font-family="Vazirmatn,Tahoma" font-weight="700">بوستان محله‌ای لاله</text>
+
+            <rect class="gis-parcel" data-pcode="P-1405-07" data-ptype="مسکونی با بافت متراکم" data-parea="۴۹۰ م²" data-pfar="۳۲۰٪" data-pstatus="منطبق با ضابطه" x="404" y="70" width="146" height="80" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.2"/>
+            <text x="430" y="115" font-size="10" fill="#92400E" font-family="Vazirmatn,Tahoma">P-07 مسکونی متراکم</text>
+
+            <rect class="gis-parcel" data-pcode="P-1405-08" data-ptype="پهنه مداخله کالبدی مصوب" data-parea="۱٬۱۲۰ م²" data-pfar="۳۴۰٪" data-pstatus="سناریوی مداخله" x="404" y="198" width="146" height="64" rx="3" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.5"/>
+            <text x="415" y="235" font-size="10" fill="#6D28D9" font-family="Vazirmatn,Tahoma" font-weight="700">⭐ هسته اصلی مداخله P-08</text>
+
+            <rect class="gis-parcel" data-pcode="P-1405-09" data-ptype="پارکینگ طبقاتی عمومی تجمیعی" data-parea="۸۲۰ م²" data-pfar="۲۴۰٪" data-pstatus="مصوب رفع کسری" x="404" y="294" width="146" height="76" rx="3" fill="#DBEAFE" stroke="#2563EB" stroke-width="1.2"/>
+            <text x="420" y="335" font-size="10" fill="#1D4ED8" font-family="Vazirmatn,Tahoma" font-weight="700">🅿️ پارکینگ تجمیعی ۴۲۰ واحد</text>
+
+            <rect class="gis-parcel" data-pcode="P-1405-10" data-ptype="تجاری خدماتی (S)" data-parea="۷۵۰ م²" data-pfar="۳۵۰٪" data-pstatus="منطبق با ضابطه" x="586" y="70" width="114" height="80" rx="3" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.2"/>
+            <text x="600" y="115" font-size="10" fill="#991B1B" font-family="Vazirmatn,Tahoma">P-10 تجاری</text>
+
+            <rect class="gis-parcel" data-pcode="P-1405-11" data-ptype="مسکونی با تراکم متوسط" data-parea="۶۸۰ م²" data-pfar="۲۴۰٪" data-pstatus="منطبق با ضابطه" x="586" y="198" width="114" height="64" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1.2"/>
+            <text x="605" y="235" font-size="10" fill="#92400E" font-family="Vazirmatn,Tahoma">P-11 مسکونی</text>
+
+            <rect class="gis-parcel" data-pcode="P-1405-12" data-ptype="پایانه اتوبوس و ایستگاه مترو" data-parea="۹۲۰ م²" data-pfar="۱۰۰٪" data-pstatus="تثبیت‌شده" x="586" y="294" width="114" height="76" rx="3" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.2"/>
+            <text x="595" y="335" font-size="10" fill="#5B21B6" font-family="Vazirmatn,Tahoma" font-weight="700">🚇 ایستگاه مترو میدان جهاد</text>
+          </g>
+
+          <g id="layer-proposal" style="display:${isDone?'inline':'none'}">
+            <rect x="396" y="190" width="162" height="188" rx="8" fill="url(#study-hatch)" fill-opacity="0.3" stroke="#7C3AED" stroke-width="2.5" stroke-dasharray="6 4"/>
+            <rect x="400" y="166" width="154" height="22" rx="4" fill="#7C3AED"/>
+            <text x="410" y="181" font-size="10" fill="#FFF" font-family="Vazirmatn,Tahoma" font-weight="700">محدوده تأثیر سناریوی مصوب ۱۲گانه</text>
+          </g>
+
+          <g transform="translate(690, 430)">
+            <circle cx="20" cy="20" r="18" fill="#FFF" stroke="#94A3B8" stroke-width="1.2"/>
+            <path d="M 20 6 L 25 20 L 20 17 L 15 20 Z" fill="#DC2626"/>
+            <path d="M 20 34 L 25 20 L 20 17 L 15 20 Z" fill="#64748B"/>
+            <text x="17" y="12" font-size="8" font-weight="700" fill="#DC2626" font-family="Tahoma">N</text>
+          </g>
+          <g transform="translate(70, 480)">
+            <rect x="0" y="0" width="100" height="5" fill="#334155"/>
+            <rect x="50" y="0" width="50" height="5" fill="#FFF" stroke="#334155" stroke-width="0.5"/>
+            <text x="0" y="18" font-size="9" fill="#475569" font-family="Tahoma">0</text>
+            <text x="45" y="18" font-size="9" fill="#475569" font-family="Tahoma">50m</text>
+            <text x="90" y="18" font-size="9" fill="#475569" font-family="Tahoma">100m</text>
+          </g>
+        </svg>
+
+        <div id="gis-parcel-inspector" style="position:absolute;bottom:14px;left:14px;right:14px;background:rgba(255,255,255,0.96);backdrop-filter:blur(8px);border:1px solid var(--line-strong);border-radius:var(--r-m);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;box-shadow:0 4px 12px rgba(0,0,0,0.08)">
+          <div>
+            <div style="font-weight:700;font-size:13px;color:var(--text);display:flex;align-items:center;gap:8px">
+              <span id="gis-inspector-code" class="code" style="font-size:12px;background:#EFF6FF;color:#1D4ED8;padding:2px 8px;border-radius:4px">P-1405-08</span>
+              <span id="gis-inspector-type">هسته اصلی مداخله کالبدی (تجاری-مسکونی مختلط)</span>
+              <span id="gis-inspector-badge" class="bdg b-ok plain">منطبق با ضوابط M01</span>
+            </div>
+            <div class="muted" style="font-size:11.5px;margin-top:4px">
+              مساحت عرصه: <b id="gis-inspector-area">۱٬۱۲۰ متر مربع</b> · تراکم مصوب: <b id="gis-inspector-far">۳۴۰٪</b> · دسترسی شبکه: <span class="text-ok">مطلوب (شعاع ۵ دقیقه‌ای مترو)</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-sm btn-pri" onclick="toast('اطلاعات تفصیلی پلاک در ماژول M01 استخراج شد')">تحلیل ضابطه پلاک</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:1;min-width:280px;display:flex;flex-direction:column;gap:12px">
+        ${Card('راهنمای نقشه و کاربری اراضی', `
+          <div class="card-b" style="display:grid;gap:8px;font-size:12px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="display:inline-block;width:20px;height:14px;background:#FEF3C7;border:1px solid #D97706;border-radius:2px"></span>
+              <span>مسکونی (R122) — سطح اشغال ۶۰٪، حداکثر ۵ طبقه</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="display:inline-block;width:20px;height:14px;background:#FEE2E2;border:1px solid #DC2626;border-radius:2px"></span>
+              <span>تجاری و اداری (M111 / S214) — تراکم تجاری مصوب</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="display:inline-block;width:20px;height:14px;background:#EDE9FE;border:1px solid #7C3AED;border-radius:2px"></span>
+              <span>مختلط تجاری-مسکونی — پهنه TOD ایستگاهی</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="display:inline-block;width:20px;height:14px;background:#DBEAFE;border:1px solid #2563EB;border-radius:2px"></span>
+              <span>خدماتی، آموزشی و پارکینگ عمومی تجمیعی</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="display:inline-block;width:20px;height:14px;background:#D1FAE5;border:1px solid #059669;border-radius:2px"></span>
+              <span>فضای سبز و پارک محله‌ای (G111)</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="display:inline-block;width:20px;height:14px;background:#CBD5E1;border:1px solid #94A3B8;border-radius:2px"></span>
+              <span>شبکه معابر اصلی و فرعی (Valiasr, Motahari, Beheshti)</span>
+            </div>
+          </div>
+        `)}
+
+        ${Card('وضعیت داده‌های مکانی وضع موجود', `
+          <div class="card-b" style="font-size:12px;display:grid;gap:6px">
+            <div class="ready-row" style="padding:6px 0">
+              <span class="nm">لایه‌های برداری پلاک‌ها (Cadastre)</span>
+              <span class="bdg b-ok plain">پین‌شده v2</span>
+            </div>
+            <div class="ready-row" style="padding:6px 0">
+              <span class="nm">شبکه معابر و جریان ترافیک</span>
+              <span class="bdg b-ok plain">پین‌شده v3</span>
+            </div>
+            <div class="ready-row" style="padding:6px 0">
+              <span class="nm">آمار جمعیت و توزیع خانوار</span>
+              <span class="bdg b-ok plain">پین‌شده v4 مصوب</span>
+            </div>
+            <div class="ready-row" style="padding:6px 0">
+              <span class="nm">انطباق مدل رقومی زمین (DEM)</span>
+              <span class="bdg b-ok plain">پین‌شده v1</span>
+            </div>
+          </div>
+        `, { foot: 'کلیه لایه‌ها به تصویر تغییرناپذیر فصل صفر متصل‌اند.' })}
+      </div>
+    </div>
+  </div>`;
+}
+
+function StudyScenarios(id){
+  const s = byId(id);
+  return `
+  <div style="margin-top:14px">
+    <div class="notice n-info" style="margin-bottom:14px">
+      ${ico.spark}
+      <div>
+        <b>تدوین و مقایسه چندمعیاره سناریوهای مداخله کالبدی</b>. مقایسه جامع سناریوهای پیشنهادی در برابر وضع موجود تثبیت‌شده (Baseline) بر اساس خروجی ماژول‌های ۱۲گانه.
+      </div>
+    </div>
+
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:18px">
+      <div class="card" style="border:1px solid var(--line);background:#FFF;border-radius:var(--r-m);padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span class="bdg b-neu plain" style="font-weight:700">سناریو ۰ (Baseline)</span>
+          <span class="muted" style="font-size:11px">وضع موجود تثبیت‌شده</span>
+        </div>
+        <h3 style="font-size:14px;margin:0 0 8px 0;color:var(--text)">حفظ وضعیت فعلی بدون مداخله</h3>
+        <p class="muted" style="font-size:12px;line-height:1.5;margin-bottom:10px">تداوم بار ترافیکی معابر پیرامونی، کسری ۱۸۵ جایگاه پارکینگ و کمبود سرانه خدمات آموزشی.</p>
+        <div style="font-size:12px;display:grid;gap:4px">
+          <div>تراکم ساختمانی (FAR): <b>۲۴۰٪</b></div>
+          <div>جمعیت بالقوه: <b>۱۸٬۴۵۰ نفر</b></div>
+          <div>سفر سواره روزانه: <b>۲۸٬۲۰۰ سفر</b></div>
+          <div>کسری پارکینگ: <b class="text-stop">۱۸۵- جایگاه</b></div>
+          <div>سرانه فضای سبز: <b>۳٫۸ م²/نفر</b></div>
+        </div>
+      </div>
+
+      <div class="card" style="border:2px solid #059669;background:#F0FDF4;border-radius:var(--r-m);padding:14px;box-shadow:0 2px 8px rgba(5,150,105,0.08)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span class="bdg b-ok plain" style="font-weight:700;background:#059669;color:#FFF">⭐ سناریو ۱ (مصوب)</span>
+          <span class="bdg b-ok plain" style="font-size:11px">گزینه برتر تحلیلی</span>
+        </div>
+        <h3 style="font-size:14px;margin:0 0 8px 0;color:#065F46">مداخله کالبدی مصوب با پارکینگ تجمیعی</h3>
+        <p class="muted" style="font-size:12px;line-height:1.5;margin-bottom:10px">افزایش کنترل‌شده تراکم به همراه احداث پارکینگ تجمیعی و الحاق فضای سبز محله‌ای.</p>
+        <div style="font-size:12px;display:grid;gap:4px">
+          <div>تراکم ساختمانی (FAR): <b>۳۲۰٪</b> <span class="bdg b-ok plain" style="font-size:10px">+۳۳٪</span></div>
+          <div>جمعیت بالقوه: <b>۲۱٬۶۰۰ نفر</b> <span class="bdg b-neu plain" style="font-size:10px">+۱۷٪</span></div>
+          <div>سفر سواره روزانه: <b>۲۴٬۵۰۰ سفر</b> <span class="bdg b-ok plain" style="font-size:10px">-۱۳٪</span></div>
+          <div>کسری پارکینگ: <b class="text-ok">۰ جایگاه (تأمین ۱۰۰٪)</b></div>
+          <div>سرانه فضای سبز: <b class="text-ok">۵٫۲ م²/نفر (+۳۷٪)</b></div>
+        </div>
+      </div>
+
+      <div class="card" style="border:1px solid var(--line);background:#FFF;border-radius:var(--r-m);padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span class="bdg b-run plain" style="font-weight:700">سناریو ۲ (توسعه TOD)</span>
+          <span class="muted" style="font-size:11px">توسعه فشرده ایستگاهی</span>
+        </div>
+        <h3 style="font-size:14px;margin:0 0 8px 0;color:var(--text)">تمرکز کاربری مختلط پیرامون مترو</h3>
+        <p class="muted" style="font-size:12px;line-height:1.5;margin-bottom:10px">افزایش حداکثری تراکم پیرامون ایستگاه مترو، کاهش سهم خودروی شخصی و پیاده‌مداری.</p>
+        <div style="font-size:12px;display:grid;gap:4px">
+          <div>تراکم ساختمانی (FAR): <b>۳۸۰٪</b> <span class="bdg b-warn plain" style="font-size:10px">+۵۸٪</span></div>
+          <div>جمعیت بالقوه: <b>۲۵٬۲۰۰ نفر</b> <span class="bdg b-warn plain" style="font-size:10px">+۳۶٪</span></div>
+          <div>سفر سواره روزانه: <b>۱۹٬۸۰۰ سفر</b> <span class="bdg b-ok plain" style="font-size:10px">-۳۰٪</span></div>
+          <div>کسری پارکینگ: <b class="text-warn">۵۰- جایگاه (سقف TOD)</b></div>
+          <div>سرانه فضای سبز: <b>۴٫۵ م²/نفر</b></div>
+        </div>
+      </div>
+
+      <div class="card" style="border:1px solid var(--line);background:#FFF;border-radius:var(--r-m);padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span class="bdg b-neu plain" style="font-weight:700">سناریو ۳ (شبکه سبز)</span>
+          <span class="muted" style="font-size:11px">آرام‌سازی و محیط‌زیست</span>
+        </div>
+        <h3 style="font-size:14px;margin:0 0 8px 0;color:var(--text)">تثبیت کالبدی و آرام‌سازی معابر</h3>
+        <p class="muted" style="font-size:12px;line-height:1.5;margin-bottom:10px">تبدیل معابر فرعی به مسیرهای پیاده و دوچرخه و توسعه حداکثری پارک‌های خطی.</p>
+        <div style="font-size:12px;display:grid;gap:4px">
+          <div>تراکم ساختمانی (FAR): <b>۲۴۰٪</b> (تثبیت)</div>
+          <div>جمعیت بالقوه: <b>۱۸٬۴۵۰ نفر</b></div>
+          <div>سفر سواره روزانه: <b>۱۵٬۲۰۰ سفر</b> <span class="bdg b-ok plain" style="font-size:10px">-۴۶٪</span></div>
+          <div>کسری پارکینگ: <b class="text-warn">۸۰- جایگاه</b></div>
+          <div>سرانه فضای سبز: <b class="text-ok">۶٫۸ م²/نفر (+۷۹٪)</b></div>
+        </div>
+      </div>
+    </div>
+
+    ${Card('جدول مقایسه تفصیلی شاخص‌های سناریوها با وضع موجود', `
+      <div class="tw">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>شاخص تحلیلی</th>
+              <th>ماژول محاسباتی</th>
+              <th>وضع موجود (S0)</th>
+              <th style="background:#ECFDF5;color:#065F46">سناریوی ۱ (مصوب)</th>
+              <th>سناریوی ۲ (TOD)</th>
+              <th>سناریوی ۳ (سبز)</th>
+              <th>تغییر سناریو ۱ نسبت به وضع موجود</th>
+              <th>ارزیابی اثر</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>ضریب سطح کل (FAR)</b><div class="sub">تراکم ناخالص کالبدی</div></td>
+              <td><span class="code">M01</span></td>
+              <td class="num">۲٫۴</td>
+              <td class="num" style="background:#F0FDF4;font-weight:700">۳٫۲</td>
+              <td class="num">۳٫۸</td>
+              <td class="num">۲٫۴</td>
+              <td class="num"><span class="bdg b-ok plain">+۳۳٪ (+۰٫۸)</span></td>
+              <td><span class="bdg b-ok">منطبق با سقف ضابطه</span></td>
+            </tr>
+            <tr>
+              <td><b>سطح اشغال متوسط</b><div class="sub">درصد پوشش عرصه</div></td>
+              <td><span class="code">M01</span></td>
+              <td class="num">۶۰٪</td>
+              <td class="num" style="background:#F0FDF4;font-weight:700">۵۵٪</td>
+              <td class="num">۶۵٪</td>
+              <td class="num">۵۰٪</td>
+              <td class="num"><span class="bdg b-ok plain">-۵٪ (آزادسازی معابر)</span></td>
+              <td><span class="bdg b-ok">اثر مثبت کالبدی</span></td>
+            </tr>
+            <tr>
+              <td><b>زیربنای ناخالص کل (GFA)</b><div class="sub">مساحت ساختمانی</div></td>
+              <td><span class="code">M02</span></td>
+              <td class="num">۲۴۵٬۰۰۰ م²</td>
+              <td class="num" style="background:#F0FDF4;font-weight:700">۳۱۰٬۰۰۰ م²</td>
+              <td class="num">۳۷۵٬۰۰۰ م²</td>
+              <td class="num">۲۴۵٬۰۰۰ م²</td>
+              <td class="num"><span class="bdg b-ok plain">+۶۵٬۰۰۰ م² (+۲۶٪)</span></td>
+              <td><span class="bdg b-ok">افزایش ارزش افزوده</span></td>
+            </tr>
+            <tr>
+              <td><b>جمعیت‌پذیری در اشغال کامل</b><div class="sub">جمعیت ساکن بالقوه</div></td>
+              <td><span class="code">M03</span></td>
+              <td class="num">۱۸٬۴۵۰ نفر</td>
+              <td class="num" style="background:#F0FDF4;font-weight:700">۲۱٬۶۰۰ نفر</td>
+              <td class="num">۲۵٬۲۰۰ نفر</td>
+              <td class="num">۱۸٬۴۵۰ نفر</td>
+              <td class="num"><span class="bdg b-neu plain">+۳٬۱۵۰ نفر (+۱۷٪)</span></td>
+              <td><span class="bdg b-neu">در حد آستانه ظرفیت</span></td>
+            </tr>
+            <tr>
+              <td><b>تولید سفر سواره روزانه</b><div class="sub">سفر خودرویی در روز</div></td>
+              <td><span class="code">M04</span></td>
+              <td class="num">۲۸٬۲۰۰ سفر</td>
+              <td class="num" style="background:#F0FDF4;font-weight:700">۲۴٬۵۰۰ سفر</td>
+              <td class="num">۱۹٬۸۰۰ سفر</td>
+              <td class="num">۱۵٬۲۰۰ سفر</td>
+              <td class="num"><span class="bdg b-ok plain">-۳٬۷۰۰ سفر (-۱۳٪)</span></td>
+              <td><span class="bdg b-ok">کاهش بار ترافیکی</span></td>
+            </tr>
+            <tr>
+              <td><b>تراز عرضه و کسری پارکینگ</b><div class="sub">تأمین جایگاه خودرو</div></td>
+              <td><span class="code">M05</span></td>
+              <td class="num text-stop">۱۸۵- (کسری)</td>
+              <td class="num" style="background:#F0FDF4;font-weight:700;color:#047857">۰ (تأمین ۱۰۰٪)</td>
+              <td class="num text-warn">۵۰-</td>
+              <td class="num text-warn">۸۰-</td>
+              <td class="num"><span class="bdg b-ok plain">+۱۸۵ جایگاه</span></td>
+              <td><span class="bdg b-ok">برطرف‌شدن کامل کسری</span></td>
+            </tr>
+            <tr>
+              <td><b>سرانه فضای سبز عمومی</b><div class="sub">متر مربع به ازای هر نفر</div></td>
+              <td><span class="code">M06</span></td>
+              <td class="num">۳٫۸ م²</td>
+              <td class="num" style="background:#F0FDF4;font-weight:700;color:#047857">۵٫۲ م²</td>
+              <td class="num">۴٫۵ م²</td>
+              <td class="num">۶٫۸ م²</td>
+              <td class="num"><span class="bdg b-ok plain">+۱٫۴ م² (+۳۷٪)</span></td>
+              <td><span class="bdg b-ok">رسیدن به سرانه استاندارد</span></td>
+            </tr>
+            <tr>
+              <td><b>سرانه خدمات آموزشی</b><div class="sub">دبستان و متوسطه</div></td>
+              <td><span class="code">M06</span></td>
+              <td class="num">۲٫۱ م²</td>
+              <td class="num" style="background:#F0FDF4;font-weight:700">۳٫۴ م²</td>
+              <td class="num">۲٫۹ م²</td>
+              <td class="num">۲٫۱ م²</td>
+              <td class="num"><span class="bdg b-ok plain">+۱٫۳ م² (+۶۲٪)</span></td>
+              <td><span class="bdg b-ok">تأمین مرکز جدید</span></td>
+            </tr>
+            <tr>
+              <td><b>پوشش شعاع ایستگاه‌های همگانی</b><div class="sub">پیمایش پیاده ۸۰۰ متری</div></td>
+              <td><span class="code">M07</span></td>
+              <td class="num">۶۴٪</td>
+              <td class="num" style="background:#F0FDF4;font-weight:700">۸۸٪</td>
+              <td class="num">۹۵٪</td>
+              <td class="num">۶۴٪</td>
+              <td class="num"><span class="bdg b-ok plain">+۲۴٪ افزایش پوشش</span></td>
+              <td><span class="bdg b-ok">بهبود شبکه پیاده</span></td>
+            </tr>
+            <tr>
+              <td><b>ضریب رواناب و هدایت آب سطحی</b><div class="sub">ضریب هیدرولوژیکی</div></td>
+              <td><span class="code">M08</span></td>
+              <td class="num">۰٫۷۸</td>
+              <td class="num" style="background:#F0FDF4;font-weight:700">۰٫۶۸</td>
+              <td class="num">۰٫۷۲</td>
+              <td class="num">۰٫۵۵</td>
+              <td class="num"><span class="bdg b-ok plain">-۰٫۱۰ بهبود نفوذ</span></td>
+              <td><span class="bdg b-ok">کاهش خطر آب‌گرفتگی</span></td>
+            </tr>
+            <tr>
+              <td><b>شدت مصرف انرژی ساختمانی</b><div class="sub">kWh / m² در سال</div></td>
+              <td><span class="code">M10</span></td>
+              <td class="num">۱۳۵</td>
+              <td class="num" style="background:#F0FDF4;font-weight:700">۱۱۰</td>
+              <td class="num">۱۱۵</td>
+              <td class="num:">۱۲۵</td>
+              <td class="num"><span class="bdg b-ok plain">-۲۵ kWh (-۱۸٪)</span></td>
+              <td><span class="bdg b-ok">انطباق مبحث ۱۹</span></td>
+            </tr>
+            <tr>
+              <td><b>شاخص زیست‌پذیری محله‌ای</b><div class="sub">ترکیب معیارها از ۱۰۰</div></td>
+              <td><span class="code">M11</span></td>
+              <td class="num">۷۰</td>
+              <td class="num" style="background:#F0FDF4;font-weight:700;color:#047857">۸۴</td>
+              <td class="num">۷۹</td>
+              <td class="num">۸۲</td>
+              <td class="num"><span class="bdg b-ok plain">+۱۴ امتیاز</span></td>
+              <td><span class="bdg b-ok">رشد چشمگیر کیفیت زندگی</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `, {
+      foot: 'محاسبات بر اساس مدل‌های M01 تا M12 با تکیه بر داده‌های پین‌شده وضع موجود انجام شده است.'
+    })}
+  </div>`;
+}
+
+function StudyModels(id){
+  const s = byId(id);
+  const a = (STATE.studyAn && STATE.studyAn[id]) || { done: isStudyLocked(id) };
+  const isDone = a.done || isStudyLocked(id);
+
+  const modules = [
+    { code: 'M01', name: 'انطباق ضوابط و مقررات شهرسازی', method: 'Rule Engine (تطبیق قطعی)', input: 'لایه‌های پهنه‌بندی طرح تفصیلی، Cadastre v2', out: '۹۶٫۴٪ انطباق هندسی و کالبدی پلاک‌ها با طرح تفصیلی', st: 'done' },
+    { code: 'M02', name: 'ظرفیت کالبدی و بار ساختمانی', method: 'Deterministic Formula', input: 'مساحت عرصه‌ها، ضریب سطح (FAR) مصوب', out: 'ظرفیت ناخالص ۳۱۰٬۰۰۰ متر مربع زیربنا با تراکم ۳۲۰٪', st: 'done' },
+    { code: 'M03', name: 'ظرفیت و تعادل جمعیتی', method: 'Demographic Cohort', input: 'داده‌های سرشماری POP-HH-06 v4 مصوب', out: 'جمعیت‌پذیری در اشغال کامل: ۲۱٬۶۰۰ نفر (افزایش کنترل‌شده)', st: 'done' },
+    { code: 'M04', name: 'تولید و جذب سفر شهری', method: 'Four-Step Gravity Model', input: 'شبکه معابر ROAD-06 v3، کاربری اراضی', out: '۲۴٬۵۰۰ سفر روزانه؛ کاهش ۱۳٪ سفرهای عبوری مزاحم', st: 'done' },
+    { code: 'M05', name: 'تراز و تقاضای پارکینگ', method: 'Space Allocation', input: 'واحدهای مسکونی و تجاری، پارکینگ تجمیعی', out: 'تراز صفر؛ تأمین کامل ۴۲۰ جایگاه پارکینگ تجمیعی', st: 'done' },
+    { code: 'M06', name: 'کفایت خدمات و سرانه‌های محله‌ای', method: 'Spatial Buffer', input: 'مراکز بهداشتی، آموزشی و فضای سبز', out: 'ارتقای سرانه فضای سبز به ۵٫۲ م²/نفر و سرانه آموزشی به ۳٫۴ م²', st: 'done' },
+    { code: 'M07', name: 'دسترسی و پوشش حمل‌ونقل همگانی', method: 'Isochrone Catchment', input: 'ایستگاه‌های مترو خط ۳ و خطوط اتوبوسرانی', out: '۸۸٪ پوشش پیاده شعاع ۴۰۰ متری ایستگاه‌های حمل‌ونقل عمومی', st: 'done' },
+    { code: 'M08', name: 'مخاطرات، شیب و رواناب سطحی', method: 'Rational Hydrology', input: 'مدل رقومی ارتفاع DEM، نقشه حریم مسیل‌ها', out: 'کاهش ضریب رواناب سطحی به ۰٫۶۸ و عدم تداخل با حریم مسیل', st: 'done' },
+    { code: 'M09', name: 'سایه‌اندازی و آسایش اقلیمی', method: 'Solar 3D Ray-Tracing', input: 'ارتفاع ابنیه و عرض معابر پیرامونی', out: 'انطباق ۱۰۰٪ با ضوابط نورگیری و تهویه طبیعی', st: 'done' },
+    { code: 'M10', name: 'انرژی، کربن و محیط‌زیست', method: 'Emissions Proxy', input: 'سطوح زیربنا و مصرف استاندارد مبحث ۱۹', out: 'کاهش ۱۸٪ انتشار گازهای گلخانه‌ای نسبت به وضع موجود', st: 'done' },
+    { code: 'M11', name: 'ارزیابی چندمعیاره و شاخص‌های ترکیبی', method: 'AHP & TOPSIS', input: 'ماتریس جامع ۱۹ شاخص کلیدی', out: 'امتیاز کلی ارزیابی مداخله: ۸۴ از ۱۰۰ (توصیه به تصویب)', st: 'done' },
+    { code: 'M12', name: 'بسته‌بندی شواهد و زنجیره اصالت', method: 'Cryptographic Ledger', input: 'امضای رقومی، نسخه‌های پین‌شده ورودی‌ها', out: 'ثبت شناسه تغییرناپذیر اصالت تحلیل با کد رهگیری رسمی', st: 'done' },
+  ];
+
+  return `
+  <div style="margin-top:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+      <div>
+        <h2 style="font-size:16px;margin:0 0 4px 0">ماژول‌های تحلیلی ۱۲گانه مطالعه (${fa(modules.length)} ماژول)</h2>
+        <span class="muted" style="font-size:12px">شبیه‌سازی کامل محاسبات بر مبنای داده‌های وضع موجود پین‌شده در فصل صفر</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <span class="bdg b-ok plain" style="font-weight:700">وضعیت اجرای ماژول‌ها: ۱۲ از ۱۲ تکمیل‌شده</span>
+        <button class="btn btn-sm" onclick="toast('لاگ محاسبات ماژول‌های ۱۲گانه دریافت شد')">${ico.doc} دریافت گزارش خام JSON</button>
+      </div>
+    </div>
+
+    <div class="grid cols-2" style="gap:14px">
+      ${modules.map(m => `
+        <div class="card" style="padding:14px 16px;border:1px solid var(--line);background:#FFF;border-radius:var(--r-m)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="code" style="font-weight:700;background:#EFF6FF;color:#1D4ED8;padding:2px 8px;border-radius:4px">${m.code}</span>
+              <b style="font-size:13.5px;color:var(--text)">${m.name}</b>
+            </div>
+            <span class="bdg b-ok plain" style="font-size:11px">تکمیل‌شده ✓</span>
+          </div>
+          <div style="font-size:12px;display:grid;gap:5px;line-height:1.5">
+            <div><span class="muted">روش محاسباتی:</span> <b>${m.method}</b></div>
+            <div><span class="muted">داده‌های ورودی:</span> <span>${m.input}</span></div>
+            <div style="background:#F0FDF4;border:1px solid #BBF7D0;padding:6px 10px;border-radius:4px;color:#065F46;margin-top:4px">
+              <b>خروجی کلیدی:</b> ${m.out}
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+function StudyRuns(id){
+  const s = byId(id);
+  const a = (STATE.studyAn && STATE.studyAn[id]) || { runId: 'RUN-ST-5201', done: true };
+  const runId = a.runId || 'RUN-ST-5201';
+
+  return `
+  <div style="margin-top:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+      <div>
+        <h2 style="font-size:16px;margin:0 0 4px 0">سوابق اجرا و تله‌متری ماژول‌ها</h2>
+        <span class="muted" style="font-size:12px">تاریخچه اجرای شبیه‌سازی‌ها، مدت زمان و لاگ محاسباتی</span>
+      </div>
+      <button class="btn btn-sm btn-pri" onclick="toast('لاگ کامل اجرا به کنسول ارسال شد')">${ico.spark} مشاهده لاگ سیستمی</button>
+    </div>
+
+    ${Card('فهرست اجراهای مطالعه', `
+      <div class="tw">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>شناسه اجرا</th>
+              <th>عنوان سناریو / ماژول‌ها</th>
+              <th>کاربر مجری</th>
+              <th>زمان اجرا</th>
+              <th>مدت</th>
+              <th>وضعیت</th>
+              <th>اقدام</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="code" style="font-weight:700">${runId}</span></td>
+              <td><b>اجرای جامع ماژول‌های ۱۲گانه مطالعه</b><div class="sub">سناریوی مداخله مصوب کالبدی</div></td>
+              <td>${s.owner || 'مهندس زهرا کاظمی'}</td>
+              <td class="num">${s.updated || '۱۴۰۵/۰۶/۲۳'}</td>
+              <td class="num">۱ دقیقه و ۲۴ ثانیه</td>
+              <td><span class="bdg b-ok">تکمیل موفق</span></td>
+              <td><button class="btn btn-sm" onclick="toast('جزئیات اجرا بارگذاری شد')">مشاهده تله‌متری</button></td>
+            </tr>
+            <tr>
+              <td><span class="code">RUN-ST-5198</span></td>
+              <td><b>پیش‌محاسبه ظرفیت کالبدی M01 و M02</b><div class="sub">آزمون اولیه داده‌های کاداستر</div></td>
+              <td>${s.owner || 'مهندس زهرا کاظمی'}</td>
+              <td class="num">۱۴۰۵/۰۶/۲۱</td>
+              <td class="num">۴۲ ثانیه</td>
+              <td><span class="bdg b-ok">تکمیل موفق</span></td>
+              <td><button class="btn btn-sm" onclick="toast('جزئیات اجرا بارگذاری شد')">مشاهده تله‌متری</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `)}
+
+    <div class="card" style="margin-top:16px;padding:16px;background:#0F172A;color:#E2E8F0;border-radius:var(--r-m);font-family:monospace;font-size:12px;line-height:1.7;direction:ltr;text-align:left">
+      <div style="color:#94A3B8;margin-bottom:8px;border-bottom:1px solid #334155;padding-bottom:4px;font-family:Vazirmatn,Tahoma;direction:rtl;text-align:right">
+        📋 گزارش زنده تله‌متری شبیه‌سازی (${runId}):
+      </div>
+      <div>[11:45:01 UTC] Initializing execution engine for Study ID: ${s.id}</div>
+      <div>[11:45:02 UTC] Loading pinned datasets: Cadastre (PARCEL-06 v2), Roads (ROAD-06 v3), Population (POP-HH-06 v4)</div>
+      <div>[11:45:06 UTC] Executing M01 (Zoning Compliance Engine)... 100% matched</div>
+      <div>[11:45:14 UTC] Executing M02 (Building Capacity)... GFA 310,000 sqm calculated</div>
+      <div>[11:45:22 UTC] Executing M03 (Demographic Balance)... Converged at 21,600 inhabitants</div>
+      <div>[11:45:31 UTC] Executing M04 (Trip Distribution Four-Step Model)... 24,500 daily trips generated</div>
+      <div>[11:45:38 UTC] Executing M05 (Parking Space Allocation)... Zero gap reached with 420-space collective parking</div>
+      <div>[11:45:47 UTC] Executing M06-M11 (Urban Services, Accessibility, Hydrology, Solar, Energy)... Complete</div>
+      <div>[11:45:54 UTC] Executing M12 (Evidence Ledger & Hash Cryptographic Packaging)... Hash verified: a4c89f10e4</div>
+      <div style="color:#4ADE80;font-weight:bold">[11:45:55 UTC] RUN COMPLETED SUCCESSFULLY. All 12 analytical models finalized.</div>
+    </div>
+  </div>`;
+}
+
+function StudyIndicators(id){
+  const s = byId(id);
+  const indList = [
+    { code: 'IN-01', name: 'تراکم ناخالص ساختمانی (FAR)', base: '۲٫۴', target: '۳٫۲', unit: 'نسبت', status: 'منطبق با سقف ضابطه', cls: 'b-ok', cat: 'کالبدی' },
+    { code: 'IN-02', name: 'سطح اشغال متوسط عرصه', base: '۶۰٪', target: '۵۵٪', unit: 'درصد', status: 'کاهش ۵٪ اشغال و بازگشایی معبر', cls: 'b-ok', cat: 'کالبدی' },
+    { code: 'IN-03', name: 'سرانه فضای سبز عمومی محله‌ای', base: '۳٫۸', target: '۵٫۲', unit: 'متر مربع / نفر', status: 'ارتقای ۳۷٪ و رسیدن به استاندارد', cls: 'b-ok', cat: 'خدمات' },
+    { code: 'IN-04', name: 'سرانه خدمات آموزشی دبستان', base: '۲٫۱', target: '۳٫۴', unit: 'متر مربع / نفر', status: 'احداث مرکز آموزشی جدید', cls: 'b-ok', cat: 'خدمات' },
+    { code: 'IN-05', name: 'بار سفر روزانه تولیدشده سواره', base: '۲۸٬۲۰۰', target: '۲۴٬۵۰۰', unit: 'سفر در روز', status: 'کاهش ۱۳٪ سفر با ارتقای پیاده‌مداری', cls: 'b-ok', cat: 'ترافیک' },
+    { code: 'IN-06', name: 'شکاف و کسری پارکینگ محله', base: '۱۸۵- (کسری)', target: '۰ (تأمین ۱۰۰٪)', unit: 'واحد جایگاه', status: 'برطرف‌شدن قطعی کسری', cls: 'b-ok', cat: 'ترافیک' },
+    { code: 'IN-07', name: 'پوشش شعاع ایستگاه‌های همگانی', base: '۶۴٪', target: '۸۸٪', unit: 'درصد جمعیت', status: 'دسترسی پیاده به ایستگاه مترو', cls: 'b-ok', cat: 'ترافیک' },
+    { code: 'IN-08', name: 'زمان دسترسی شبکه امداد و نجات', base: '۳٫۲', target: '۱٫۸', unit: 'دقیقه', status: 'بهبود مسیرهای دسترسی اضطراری', cls: 'b-ok', cat: 'ترافیک' },
+    { code: 'IN-09', name: 'ضریب رواناب سطحی محله', base: '۰٫۷۸', target: '۰٫۶۸', unit: 'ضریب نفوذ', status: 'افزایش نفوذپذیری آب باران', cls: 'b-ok', cat: 'محیط‌زیست' },
+    { code: 'IN-10', name: 'شدت مصرف انرژی ابنیه', base: '۱۳۵', target: '۱۱۰', unit: 'kWh / m²', status: 'کاهش ۱۸٪ مصرف با اجرای مبحث ۱۹', cls: 'b-ok', cat: 'محیط‌زیست' },
+    { code: 'IN-11', name: 'امتیاز جامع زیست‌پذیری محله', base: '۷۰', target: '۸۴', unit: 'از ۱۰۰', status: 'ارتقای چشمگیر کیفیت سکونت', cls: 'b-ok', cat: 'ترکیبی' },
+    { code: 'IN-12', name: 'نرخ انطباق طرح با طرح تفصیلی', base: '۸۵٪', target: '۹۶٫۴٪', unit: 'درصد انطباق', status: 'تأییدیه کامل مقررات کمیسیون', cls: 'b-ok', cat: 'کالبدی' },
+  ];
+
+  return `
+  <div style="margin-top:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+      <div>
+        <h2 style="font-size:16px;margin:0 0 4px 0">شاخص‌های عملکردی و شهری مطالعه (${fa(indList.length)} شاخص)</h2>
+        <span class="muted" style="font-size:12px">مقایسه مقادیر وضع موجود (Baseline) با سناریوی مصوب</span>
+      </div>
+      <button class="btn btn-sm" onclick="toast('گزارش شاخص‌ها استخراج گردید')">${ico.doc} دریافت جدول اکسل</button>
+    </div>
+
+    <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
+      ${indList.map(ind => `
+        <div class="card" style="padding:14px 16px;border:1px solid var(--line);background:#FFF;border-radius:var(--r-m)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span class="code" style="font-size:11.5px;color:var(--text-3)">${ind.code} · ${ind.cat}</span>
+            <span class="bdg ${ind.cls} plain" style="font-size:10.5px">${ind.status}</span>
+          </div>
+          <b style="font-size:13px;display:block;margin-bottom:8px;color:var(--text)">${ind.name}</b>
+          <div style="display:flex;justify-content:space-between;align-items:center;background:#F8FAFC;padding:8px 12px;border-radius:6px;border:1px solid var(--line)">
+            <div>
+              <span class="muted" style="font-size:11px;display:block">وضع موجود:</span>
+              <b style="font-size:13.5px">${ind.base}</b>
+            </div>
+            <span style="color:var(--text-3);font-size:14px">←</span>
+            <div style="text-align:left">
+              <span class="muted" style="font-size:11px;display:block">سناریوی مصوب:</span>
+              <b style="font-size:14px;color:#047857">${ind.target}</b> <span style="font-size:11px;color:var(--text-3)">${ind.unit}</span>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+function StudyRules(id){
+  const s = byId(id);
+  const rules = [
+    { id: 'RL-01', t: 'سقف تراکم ساختمانی پهنه مسکونی (R122)', art: 'ماده ۴ ضوابط طرح تفصیلی تهران', ceiling: 'حداکثر ۳۰۰٪', res: '۳۰۰٪', st: 'منطبق', cls: 'b-ok' },
+    { id: 'RL-02', t: 'حداکثر سطح اشغال مجاز ابنیه مسکونی', art: 'ماده ۵ ضوابط کالبدی شهرداری', ceiling: '۶۰٪ مساحت عرصه', res: '۵۵٪', st: 'منطبق و دارای عقب‌نشینی', cls: 'b-ok' },
+    { id: 'RL-03', t: 'رعایت بر اصلاحی و حریم معابر شریانی', art: 'طرح تفصیلی منطقه ۶ — خیابان ولیعصر', ceiling: 'حریم ۳۵ متری شریان اصلی', res: 'رعایت کامل عقب‌نشینی', st: 'منطبق', cls: 'b-ok' },
+    { id: 'RL-04', t: 'تأمین ۱۰۰٪ پارکینگ موردنیاز در محل یا تجمیعی', art: 'بند ۳ مصوبه ۵۲۸ کمیسیون ماده ۵', ceiling: '۱ واحد به ازای هر واحد مسکونی', res: 'تأمین در پارکینگ تجمیعی', st: 'منطبق و برطرف‌کننده کسری', cls: 'b-ok' },
+    { id: 'RL-05', t: 'حفظ حریم ایمنی خطوط انتقال نیرو و تأسیسات', art: 'آیین‌نامه ایمنی حریم خطوط شهری', ceiling: 'شعاع ۱۵ متری حریم کابل فشارقوی', res: 'فاصله ۲۵ متر از حریم', st: 'بدون تداخل', cls: 'b-ok' },
+    { id: 'RL-06', t: 'پخ تقاطع و مثلث دید تقاطع‌ها در معابر فرعی', art: 'دستورالعمل مهندسی ترافیک', ceiling: 'پخ ۵ متری تقاطع‌ها', res: 'اعمال در طرح اجرایی', st: 'منطبق', cls: 'b-ok' },
+  ];
+
+  return `
+  <div style="margin-top:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+      <div>
+        <h2 style="font-size:16px;margin:0 0 4px 0">ضوابط و مقررات شهرسازی ملاک‌عمل</h2>
+        <span class="muted" style="font-size:12px">ارزیابی انطباق طرح و سناریوها با مقررات طرح جامع و تفصیلی تهران</span>
+      </div>
+      <span class="bdg b-ok plain" style="font-weight:700">۱۰۰٪ ضوابط انطباق دارند</span>
+    </div>
+
+    ${Card('ماتریس انطباق ضوابط طرح', `
+      <div class="tw">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>کد ضابطه</th>
+              <th>عنوان ضابطه شهرسازی</th>
+              <th>مستند قانونی / مرجع</th>
+              <th>سقف یا حد آستانه ضابطه</th>
+              <th>مقدار پیشنهادی طرح</th>
+              <th>نتیجه تطبیق</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rules.map(r => `
+              <tr>
+                <td><span class="code">${r.id}</span></td>
+                <td><b>${r.t}</b></td>
+                <td class="muted">${r.art}</td>
+                <td class="num">${r.ceiling}</td>
+                <td class="num" style="font-weight:700">${r.res}</td>
+                <td><span class="bdg ${r.cls}">${r.st}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `)}
+  </div>`;
+}
+
+function StudyEvidence(id){
+  const s = byId(id);
+  const a = (STATE.studyAn && STATE.studyAn[id]) || { runId: 'RUN-ST-5201', done: true };
+  const runId = a.runId || 'RUN-ST-5201';
+
+  const ledger = [
+    { st: 'گزاره ۱: سقف تراکم ۳۲۰٪ با طرح تفصیلی منطبق است', ds: 'PARCEL-06 v2', rule: 'RL-01', mod: 'M01', hash: 'e3b0c44298fc1c149afbf4c8996fb924', aud: 'تأییدشده' },
+    { st: 'گزاره ۲: ظرفیت کالبدی ناخالص ۳۱۰٬۰۰۰ متر مربع برآورد شد', ds: 'BLDG-06 v2', rule: 'RL-02', mod: 'M02', hash: '8f434346648f6b96df89dda901c5176b', aud: 'تأییدشده' },
+    { st: 'گزاره ۳: جمعیت‌پذیری در اشغال کامل ۲۱٬۶۰۰ نفر همگرا گردید', ds: 'POP-HH-06 v4', rule: 'سرشماری رسمی', mod: 'M03', hash: '6ca13d52ca70c883e0f0bb101e425a89', aud: 'تأییدشده' },
+    { st: 'گزاره ۴: تولید سفر روزانه ۲۴٬۵۰۰ سفر با مهار خودرویی محاسبه شد', ds: 'ROAD-06 v3', rule: 'HCM 2020', mod: 'M04', hash: '9b71d224bd62f3785d96d46ad3ea3d73', aud: 'تأییدشده' },
+    { st: 'گزاره ۵: کسری ۱۸۵ جایگاه با احداث پارکینگ تجمیعی رفع شد', ds: 'PARKING-06 v2', rule: 'RL-04', mod: 'M05', hash: 'a591a6d40bf420404a011733cfb7b190', aud: 'تأییدشده' },
+    { st: 'گزاره ۶: سرانه فضای سبز به ۵٫۲ متر مربع بر نفر ارتقا یافت', ds: 'GREEN-06 v2', rule: 'طرح جامع', mod: 'M06', hash: '4355a46b19d348dc2f57c046f8ef63d4', aud: 'تأییدشده' },
+    { st: 'گزاره ۷: دسترسی به خطوط مترو و شبکه همگانی ۸۸٪ پوشش یافت', ds: 'TRANSIT-06 v1', rule: 'ضوابط TOD', mod: 'M07', hash: '2c26b46b68ffc68ff99b453c1d304134', aud: 'تأییدشده' },
+    { st: 'گزاره ۸: عدم تداخل با حریم خطوط انتقال نیرو و مسیل تأیید شد', ds: 'TERRAIN-06 v1', rule: 'RL-05', mod: 'M08', hash: '098f6bcd4621d373cade4e832627b4f6', aud: 'تأییدشده' },
+  ];
+
+  return `
+  <div style="margin-top:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+      <div>
+        <h2 style="font-size:16px;margin:0 0 4px 0">دفترکل شواهد و زنجیره اصالت تحلیلی (Evidence Ledger)</h2>
+        <span class="muted" style="font-size:12px">ردیابی کامل گزاره‌ها از داده‌های ورودی پین‌شده تا مدل و نتیجه</span>
+      </div>
+      <span class="bdg b-ok plain" style="font-weight:700">🔒 تمامی شواهد دارای هش رمزنگاری معتبر هستند</span>
+    </div>
+
+    ${Card('دفتر شواهد معتبر مطالعه — شناسه اجرا: ' + runId, `
+      <div class="tw">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>گزاره تحلیلی</th>
+              <th>مجموعه داده ورودی</th>
+              <th>ضابطه مبنا</th>
+              <th>ماژول محاسباتی</th>
+              <th>کد هش دیجیتال (SHA-256)</th>
+              <th>وضعیت داوری</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${ledger.map(row => `
+              <tr>
+                <td><b>${row.st}</b></td>
+                <td><span class="code">${row.ds}</span></td>
+                <td><span class="muted">${row.rule}</span></td>
+                <td><span class="code">${row.mod}</span></td>
+                <td><span class="code" style="font-size:10.5px">${row.hash.slice(0, 16)}...</span></td>
+                <td><span class="bdg b-ok">${row.aud}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `, { foot: 'هر گزاره به داده‌های پین‌شده فصل صفر متصل بوده و تغییرناپذیر است.' })}
+  </div>`;
+}
+
+function StudyReports(id){
+  const s = byId(id);
+  const sc = (window.DB?.studyCases || []).find(c => c.study_id === id);
+  const a = (STATE.studyAn && STATE.studyAn[id]) || { runId: 'RUN-ST-5201', done: true };
+  const runId = a.runId || 'RUN-ST-5201';
+
+  return `
+  <div style="margin-top:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+      <div>
+        <h2 style="font-size:16px;margin:0 0 4px 0">گزارش رسمی تحلیلی ۵ فصلی مطالعه مصوب</h2>
+        <span class="muted" style="font-size:12px">تدوین‌شده بر اساس شبیه‌سازی ۱۲ ماژول تحلیلی جهت ارائه به مراجع قانونی شهرسازی</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-pri" id="btn-print-study-report" style="font-weight:700">${ico.doc} چاپ و خروجی رسمی PDF</button>
+      </div>
+    </div>
+
+    <!-- Printable Official Report Card -->
+    <div class="card" style="padding:28px 36px;background:#FFF;border:1px solid var(--line);border-radius:var(--r-l);box-shadow:0 4px 16px rgba(0,0,0,0.06);line-height:1.8">
+      <!-- Report Header -->
+      <div style="text-align:center;border-bottom:2px solid var(--line-strong);padding-bottom:18px;margin-bottom:24px">
+        <div style="font-size:13px;font-weight:700;color:var(--text-3);margin-bottom:4px">جمهوری اسلامی ایران — شهرداری تهران</div>
+        <div style="font-size:12px;color:var(--text-3);margin-bottom:10px">معاونت شهرسازی و معماری — اداره‌کل تدوین ضوابط و نظارت بر طرح‌های توسعه شهری</div>
+        <h1 style="font-size:20px;color:var(--text);margin:0 0 8px 0;font-weight:800">گزارش تحلیلی ارزیابی اثر و پیشنهاد مصوبه کمیسیون ماده ۵</h1>
+        <div style="font-size:13.5px;color:var(--pri);font-weight:700">مطالعه: «${esc(s.name)}» (${esc(s.region)})</div>
+        <div style="display:flex;justify-content:center;gap:20px;margin-top:12px;font-size:11.5px;color:var(--text-3)">
+          <span>شناسه پرونده: <b class="code">${s.id}</b></span>
+          <span>شماره اجرا: <b class="code">${runId}</b></span>
+          <span>تاریخ تصویب نهایی: <b class="num">${s.updated || '۱۴۰۵/۰۶/۲۳'}</b></span>
+          <span>وضعیت پرونده: <span class="bdg b-ok plain">🔒 نهایی و مصوب</span></span>
+        </div>
+      </div>
+
+      <!-- Chapter 0 -->
+      <div style="margin-bottom:24px">
+        <h2 style="font-size:15px;color:var(--pri);border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:10px;font-weight:800">
+          فصل ۰: مبانی نظری، آمادگی داده‌ها و تثبیت وضع موجود (Baseline)
+        </h2>
+        <p style="font-size:12.5px;text-align:justify">
+          بر اساس فرآیند ارزیابی داده‌های ورودی، کلیه نیازمندی‌های داده‌ای شامل کاداستر پلاک‌ها (نسخه ۲)، شبکه معابر شهری (نسخه ۳) و آمار جمعیتی مصوب مرکز آمار (نسخه ۴) تثبیت و با تصویر تغییرناپذیر فصل صفر ثبت گردید. دروازه داده با رفع کلیه موارد مسدودکننده تأیید شد و صحت داده‌های ورودی توسط متولی داده صحه‌سنجی گردید.
+        </p>
+      </div>
+
+      <!-- Chapter 1 -->
+      <div style="margin-bottom:24px">
+        <h2 style="font-size:15px;color:var(--pri);border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:10px;font-weight:800">
+          فصل ۱: توصیف و آسیب‌شناسی وضع موجود محدوده
+        </h2>
+        <p style="font-size:12.5px;text-align:justify">
+          محدوده مورد بررسی در ${esc(s.region)} با مساحت ناخالص حدود ۳۵ هکتار و جمعیت ساکن ۱۸٬۴۵۰ نفر در حال حاضر با معضلاتی نظیر کسری ۱۸۵ واحد پارکینگ محله‌ای، سرانه پایین فضای سبز (۳٫۸ متر مربع بر نفر) و ایجاد گره‌های ترافیکی در شریان‌های شهید مطهری و ولیعصر مواجه است. نرخ فعلی انطباق ضوابط ۸۵٪ ارزیابی شده که لزوم بازنگری کالبدی را تبیین می‌نماید.
+        </p>
+      </div>
+
+      <!-- Chapter 2 -->
+      <div style="margin-bottom:24px">
+        <h2 style="font-size:15px;color:var(--pri);border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:10px;font-weight:800">
+          فصل ۲: ارزیابی ظرفیت‌ها و شبیه‌سازی ماژول‌های ۱۲گانه
+        </h2>
+        <p style="font-size:12.5px;text-align:justify">
+          محاسبات شبیه‌سازی ماژول‌های دوازده‌گانه (M01 تا M12) نشان می‌دهد که اعمال ضریب سطح ۳۲۰٪ به همراه سطح اشغال ۵۵٪، ظرفیت ناخالص کالبدی را به ۳۱۰٬۰۰۰ متر مربع ارتقا داده و جمعیت بالقوه را در مرز تعادل ۲۱٬۶۰۰ نفر نگه می‌دارد. تولید سفر سواره با کاهش ۱۳٪ به ۲۴٬۵۰۰ سفر در روز می‌رسد و شکاف تأمین پارکینگ با احداث مجتمع پارکینگ عمومی تجمیعی ۴۲۰ واحدی به صفر می‌رسد.
+        </p>
+      </div>
+
+      <!-- Chapter 3 -->
+      <div style="margin-bottom:24px">
+        <h2 style="font-size:15px;color:var(--pri);border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:10px;font-weight:800">
+          فصل ۳: تدوین گزینه‌ها و تحلیل سناریوهای مداخله کالبدی
+        </h2>
+        <p style="font-size:12.5px;text-align:justify">
+          چهار سناریو شامل سناریوی صفر (حفظ وضع موجود)، سناریوی ۱ (مداخله کالبدی مصوب با پارکینگ تجمیعی)، سناریوی ۲ (توسعه متراکم TOD) و سناریوی ۳ (شبکه سبز و آرام‌سازی) از حیث ۱۹ شاخص مقایسه گردیدند. سناریوی ۱ با کسب امتیاز ۸۴ از ۱۰۰ در ارزیابی چندمعیاره AHP به عنوان گزینه بهینه انتخاب گردید.
+        </p>
+      </div>
+
+      <!-- Chapter 4 -->
+      <div style="margin-bottom:28px">
+        <h2 style="font-size:15px;color:var(--pri);border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:10px;font-weight:800">
+          فصل ۴: جمع‌بندی و پیشنهاد مصوبه کمیسیون ماده ۵ شهرداری تهران
+        </h2>
+        <div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:var(--r-m);padding:14px 18px;font-size:12.5px;line-height:1.75;color:#065F46">
+          <b>پیشنهاد متن مصوبه:</b> با تغییر پهنه پلاک‌های هسته مرکزی به پهنه مختلط تجاری-مسکونی با سقف تراکم ۳۲۰٪، سطح اشغال ۵۵٪ و الزام به تأمین ۱۰۰٪ پارکینگ در محل یا در پارکینگ تجمیعی مصوب، به همراه الحاق عرصه بوستان محله‌ای لاله به فضای سبز عمومی موافقت می‌گردد.
+        </div>
+      </div>
+
+      <!-- Formal Signatures Box -->
+      <div style="border-top:2px solid var(--line-strong);padding-top:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;text-align:center;font-size:12px">
+        <div>
+          <div class="muted">تحلیلگر شهری پرونده:</div>
+          <b style="display:block;margin:8px 0 4px 0">${s.owner || 'مهندس زهرا کاظمی'}</b>
+          <span class="bdg b-ok plain" style="font-size:10px">امضا شده ✓</span>
+        </div>
+        <div>
+          <div class="muted">متولی داده و سامانه‌ها:</div>
+          <b style="display:block;margin:8px 0 4px 0">سارا نوروزی</b>
+          <span class="bdg b-ok plain" style="font-size:10px">امضا شده ✓</span>
+        </div>
+        <div>
+          <div class="muted">بازبین فنی و کارشناسی:</div>
+          <b style="display:block;margin:8px 0 4px 0">دکتر مرتضی رحیمی</b>
+          <span class="bdg b-ok plain" style="font-size:10px">تأیید رسمی ✓</span>
+        </div>
+        <div>
+          <div class="muted">دبیرخانه کمیسیون ماده ۵:</div>
+          <b style="display:block;margin:8px 0 4px 0">دکتر علیرضا زاکانی</b>
+          <span class="bdg b-ok plain" style="font-size:10px;background:#059669;color:#FFF">مصوب و ابلاغ‌شده 🔒</span>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function StudyReview(id){
+  const s = byId(id);
+  const a = (STATE.studyAn && STATE.studyAn[id]) || { done: true };
+  const isLocked = isStudyLocked(s);
+
+  return `
+  <div style="margin-top:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+      <div>
+        <h2 style="font-size:16px;margin:0 0 4px 0">میز داوری و بررسی فنی مطالعه</h2>
+        <span class="muted" style="font-size:12px">کنترل چک‌لیست مقررات، صحت‌سنجی خروجی‌ها و صدور تصمیم نهایی</span>
+      </div>
+      <div>
+        ${isLocked ? `
+          <span class="bdg b-ok plain" style="font-weight:700;padding:6px 14px;background:#059669;color:#FFF">
+            🔒 مصوب و نهایی‌شده
+          </span>
+        ` : `
+          <button class="btn btn-pri" id="btn-approve-study" style="background:#059669;border-color:#059669;font-weight:700">
+            ${ico.check} تأیید رسمی مطالعه و صدور مصوبه
+          </button>
+        `}
+      </div>
+    </div>
+
+    <div class="split" style="gap:16px">
+      <div style="flex:2;display:flex;flex-direction:column;gap:14px">
+        ${Card('چک‌لیست داوری فنی و کنترل الزامات مقرراتی', `
+          <div class="card-b" style="font-size:12.5px;display:grid;gap:10px">
+            <div style="display:flex;align-items:center;gap:10px;background:#F0FDF4;padding:8px 12px;border-radius:6px;border:1px solid #BBF7D0">
+              <span style="color:#059669;font-weight:700;font-size:14px">✓</span>
+              <div style="flex:1"><b>صحت هندسی و کاداستر پلاک‌ها:</b> توپولوژی شبکه و مرز پلاک‌ها فاقد تداخل است.</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;background:#F0FDF4;padding:8px 12px;border-radius:6px;border:1px solid #BBF7D0">
+              <span style="color:#059669;font-weight:700;font-size:14px">✓</span>
+              <div style="flex:1"><b>انطباق ضوابط پهنه‌بندی طرح تفصیلی:</b> سقف تراکم ۳۲۰٪ و سطح اشغال ۵۵٪ مورد تأیید است.</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;background:#F0FDF4;padding:8px 12px;border-radius:6px;border:1px solid #BBF7D0">
+              <span style="color:#059669;font-weight:700;font-size:14px">✓</span>
+              <div style="flex:1"><b>جبران کامل کسری پارکینگ:</b> پارکینگ عمومی تجمیعی ۴۲۰ واحدی تراز کسری را به صفر رسانده است.</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;background:#F0FDF4;padding:8px 12px;border-radius:6px;border:1px solid #BBF7D0">
+              <span style="color:#059669;font-weight:700;font-size:14px">✓</span>
+              <div style="flex:1"><b>کفایت سرانه‌های خدماتی و فضای سبز:</b> سرانه فضای سبز به ۵٫۲ متر مربع بر نفر ارتقا یافته است.</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;background:#F0FDF4;padding:8px 12px;border-radius:6px;border:1px solid #BBF7D0">
+              <span style="color:#059669;font-weight:700;font-size:14px">✓</span>
+              <div style="flex:1"><b>ایمنی ترافیکی و شبکه امداد:</b> زمان دسترسی اضطراری به ۱٫۸ دقیقه کاهش یافته است.</div>
+            </div>
+          </div>
+        `)}
+
+        ${Card('یادداشت‌ها و نظرات داوری کارشناسی اعضای تیم', `
+          <div class="card-b" style="font-size:12px;display:grid;gap:10px">
+            <div style="border-right:3px solid var(--pri);padding-right:10px">
+              <b>دکتر مرتضی رحیمی (بازبین فنی):</b> با توجه به نتایج ماژول M05 و جبران کامل کسری پارکینگ و الحاق فضای سبز، سناریوی ۱ کاملاً موجه و قابل تصویب در کمیسیون است.
+              <div class="muted" style="font-size:11px;margin-top:2px">۱۴۰۵/۰۶/۲۳</div>
+            </div>
+            <div style="border-right:3px solid #059669;padding-right:10px">
+              <b>مهندس پروانه شمس (کارشناس حمل‌ونقل):</b> شبکه معابر کشش بار ترافیکی جدید را داراست و احداث پارکینگ تجمیعی مانع پارک حاشیه‌ای در شریان مطهری خواهد شد.
+              <div class="muted" style="font-size:11px;margin-top:2px">۱۴۰۵/۰۶/۲۲</div>
+            </div>
+          </div>
+        `)}
+      </div>
+
+      <div style="flex:1;min-width:280px;display:flex;flex-direction:column;gap:14px">
+        ${Card('مشخصات مصوبه کمیسیون ماده ۵', `
+          <div class="card-b" style="font-size:12px;display:grid;gap:8px">
+            <div><span class="muted">وضعیت داوری:</span> <span class="bdg b-ok plain">تأیید کامل بدون قید</span></div>
+            <div><span class="muted">شماره مصوبه:</span> <b class="code">مصوبه ۱۲/۴۰۵ کمیسیون ماده ۵</b></div>
+            <div><span class="muted">تاریخ تشکیل جلسه:</span> <b class="num">۱۴۰۵/۰۶/۲۳</b></div>
+            <div><span class="muted">کد رهگیری سامانه شهرسازی:</span> <b class="code">TX-1405-99214</b></div>
+          </div>
+        `, { foot: 'مصوبه به صورت الکترونیکی در کارتابل شهرداری منطقه ۶ بارگذاری شد.' })}
+      </div>
+    </div>
+  </div>`;
+}
+
+function StudyTasks(id){
+  const s = byId(id);
+  const tasks = (DB.tasks || []).filter(t => t.studyId === id);
+  return `
+  <div style="margin-top:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+      <div>
+        <h2 style="font-size:16px;margin:0 0 4px 0">وظایف و پیگیری‌های مطالعه</h2>
+        <span class="muted" style="font-size:12px">وظایف محوله به اعضای تیم مطالعه</span>
+      </div>
+      <button class="btn btn-sm btn-pri" onclick="toast('وظیفه جدید ثبت شد')">${ico.plus} ثبت وظیفه جدید</button>
+    </div>
+
+    ${Card('فهرست اقدامات و وظایف', `
+      <div class="tw">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>عنوان اقدام</th>
+              <th>مسئول انجام</th>
+              <th>موعد تحویل</th>
+              <th>وضعیت</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${(tasks.length ? tasks : [
+              { t: 'تکمیل سیاهه فصل صفر و تثبیت داده‌ها', assignee: s.owner, due: '۱۴۰۵/۰۶/۲۰', st: 'done' },
+              { t: 'شبیه‌سازی کامل ماژول‌های ۱۲گانه', assignee: s.owner, due: '۱۴۰۵/۰۶/۲۳', st: 'done' },
+              { t: 'تدوین گزارش ۵ فصلی و مصوبه نهایی', assignee: s.owner, due: '۱۴۰۵/۰۶/۲۵', st: 'done' },
+            ]).map(t => `
+              <tr>
+                <td><b>${t.t}</b></td>
+                <td>${t.assignee}</td>
+                <td class="num">${t.due}</td>
+                <td><span class="bdg ${t.st==='done'?'b-ok':'b-run'}">${t.st==='done'?'انجام شد':'در حال انجام'}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `)}
+  </div>`;
+}
+
+function bindStudyPage(id, tab){
+  bindRows();
+  if(tab==='chapter0') bindChapterZero(id);
+  const ovNextRun = el('#btn-overview-next-run');
+  if(ovNextRun) ovNextRun.onclick = () => startStudyAnalysis(id);
+
+  const printBtn = el('#btn-print-study-report');
+  if(printBtn) printBtn.onclick = () => window.print();
+
+  const approveBtn = el('#btn-approve-study');
+  if(approveBtn) {
+    approveBtn.onclick = () => {
+      const s = byId(id);
+      if(s){
+        s.status = 'ready';
+        s.locked = true;
+        s.finalized = true;
+        s.prog = 100;
+        s.stage = 13;
+        saveDB();
+        render();
+        toast('✅ مطالعه با موفقیت تأیید رسمی شد و پرونده به سامانه مصوبات ابلاغ گردید.', true);
+      }
+    };
+  }
+
+  els('.gis-parcel').forEach(p => {
+    p.onclick = () => {
+      const pcode = p.dataset.pcode || 'P-1405-01';
+      const ptype = p.dataset.ptype || 'مسکونی';
+      const parea = p.dataset.parea || '۴۰۰ م²';
+      const pfar = p.dataset.pfar || '۳۰۰٪';
+      const pstatus = p.dataset.pstatus || 'منطبق';
+
+      const codeEl = el('#gis-inspector-code');
+      const typeEl = el('#gis-inspector-type');
+      const areaEl = el('#gis-inspector-area');
+      const farEl = el('#gis-inspector-far');
+      const badgeEl = el('#gis-inspector-badge');
+
+      if(codeEl) codeEl.textContent = pcode;
+      if(typeEl) typeEl.textContent = ptype;
+      if(areaEl) areaEl.textContent = parea;
+      if(farEl) farEl.textContent = pfar;
+      if(badgeEl) badgeEl.textContent = pstatus;
+
+      els('.gis-parcel').forEach(x => x.style.strokeWidth = '1.2');
+      p.style.strokeWidth = '3';
+      toast(`پلاک ثبتی ${pcode} انتخاب شد: ${ptype}`);
+    };
+  });
+
+  const toggleLayer = (chkId, layerId) => {
+    const chk = el('#' + chkId);
+    const layer = el('#' + layerId);
+    if(chk && layer){
+      chk.onchange = () => {
+        layer.style.display = chk.checked ? 'inline' : 'none';
+      };
+    }
+  };
+  toggleLayer('chk-ly-bound', 'layer-boundary');
+  toggleLayer('chk-ly-parcels', 'layer-parcels');
+  toggleLayer('chk-ly-roads', 'layer-roads');
+  toggleLayer('chk-ly-proposal', 'layer-proposal');
+}
+window.bindStudyPage = bindStudyPage;
+
 /* ---------- 5e. Study workspace ---------- */
 function StudyPage(id,tab='overview'){
   const s=byId(id); if(!s) return Shell(State('search','مطالعه یافت نشد','شناسه مطالعه معتبر نیست.',`<a class="btn btn-pri" href="#/studies">بازگشت به فهرست</a>`));
+
+  // Sync with Study Case if linked
+  const sc = (window.DB?.studyCases || []).find(c => c.study_id === id);
+  if(sc && window.syncStudyCaseWithChapterZero) {
+    window.syncStudyCaseWithChapterZero(sc.id);
+  }
+
   const r=s.ready;
   const readyRow=(nm,sub,st,cls,cta,href)=>`<div class="ready-row">
     <span class="nm">${nm}<span>${sub}</span></span>
     <span style="min-width:112px"><span class="bdg ${cls}">${st}</span></span>
     <a class="btn btn-sm" href="${href}" style="min-width:76px;justify-content:center">${cta}</a></div>`;
 
-  const tabs=`<div class="tabs">${STUDY_TABS.map(([k,t])=>
-    `<a class="tab ${k===tab?'on':''}" href="#/study/${id}/${k}">${t}${k==='chapter0'&&czSummary(id).blockers.length?`<span class="pill num" style="background:var(--stop-050);color:var(--stop)">${fa(czSummary(id).blockers.length)}</span>`:''}</a>`).join('')}</div>`;
+  const rawTab = (tab || 'overview').toLowerCase();
+  const tabAliases = {
+    overview: 'overview',
+    chapter0: 'chapter0',
+    precheck: 'precheck',
+    'پیش‌بررسی': 'precheck',
+    'پیش بررسی': 'precheck',
+    chapters: 'reports',
+    report: 'reports',
+    reports: 'reports',
+    'گزارش': 'reports',
+    'گزارش‌ها': 'reports',
+    tasks: 'tasks',
+    data: 'baseline',
+    baseline: 'baseline',
+    'وضع موجود': 'baseline',
+    map: 'map',
+    'نقشه': 'map',
+    rules: 'rules',
+    indicators: 'indicators',
+    results: 'indicators',
+    'نتایج': 'indicators',
+    'شاخص‌ها': 'indicators',
+    models: 'models',
+    scenarios: 'scenarios',
+    scenario: 'scenarios',
+    'سناریو': 'scenarios',
+    'سناریوها': 'scenarios',
+    compare: 'comparison',
+    comparison: 'comparison',
+    'مقایسه': 'comparison',
+    runs: 'runs',
+    run: 'runs',
+    execution: 'runs',
+    'اجرا': 'runs',
+    'اجراها': 'runs',
+    evidence: 'evidence',
+    'شواهد': 'evidence',
+    review: 'review',
+    approval: 'review',
+    'بررسی': 'review',
+    'تایید نهایی': 'review',
+    'تأیید نهایی': 'review',
+    'بررسی و تایید نهایی': 'review',
+    decision: 'review',
+    history: 'history'
+  };
+  const activeTab = tabAliases[rawTab] || rawTab;
+  const tabs = StudyTabsBar(id, activeTab);
+
+  const stAn = (STATE.studyAn && STATE.studyAn[id]) || null;
+  if(tab==='overview' && stAn && stAn.stage>=0){
+    return Shell(Crumb([{t:'داشبورد من',h:'#/'},{t:'مطالعات',h:'#/studies'},{t:s.region,h:'#/studies'},{t:s.name}])+tabs+StudyAnalysisRunning(id));
+  }
+
+  const isLocked = isStudyLocked(s);
+  const sum = czSummary(id);
+  const cs = czState(id);
+  const isSigned = !!(cs && (cs.signed || (cs.snapshots && cs.snapshots.length > 0)));
+  const isAnalyzed = !!(stAn && stAn.done) || isLocked;
 
   let body;
   if(tab==='overview'){
-    body=`${StudyStale(id)}<div class="split" style="margin-top:14px">
+    const analyzedResultsCard = isAnalyzed ? `
+      <div class="card" style="margin-bottom:18px;border:1px solid #A7F3D0">
+        <div class="card-h" style="display:flex;justify-content:space-between;align-items:center">
+          <h3>${ico.check} خروجی شبیه‌سازی ۱۲ ماژول مطالعه — <span class="code">${stAn ? stAn.runId : 'RUN-FINAL'}</span></h3>
+          <span class="bdg b-ok plain">اجرای کامل و مصوب</span>
+        </div>
+        <div class="card-b">
+          <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:12px">
+            ${MODLIST.map((m,i)=>`
+              <div style="background:#F9FAFB;border:1px solid var(--line);border-radius:6px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:12px;font-weight:600">${m} — ${MODULES[m]}</span>
+                <span class="bdg b-ok plain" style="font-size:11px">✓ انجام شد</span>
+              </div>
+            `).join('')}
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px dashed var(--line);font-size:12.5px">
+            <span class="muted">شبیه‌سازی کامل ماژول‌های ۱۲گانه با موفقیت ثبت گردید. پرونده این مطالعه نهایی و قفل شده است.</span>
+            <div style="display:flex;gap:8px">
+              <a class="btn btn-sm btn-pri" href="#/study/${id}/reports">مشاهده گزارش رسمی مطالعه</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    ` : '';
+
+    const overviewNextStepCard = `
+      <div class="card" style="margin-top:16px;padding:18px 22px;background:${isLocked ? '#F0FDF4' : isSigned ? '#F0FDF4' : '#EFF6FF'};border:1px solid ${isLocked ? '#86EFAC' : isSigned ? '#86EFAC' : '#BFDBFE'};border-radius:var(--r-l);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05)">
+        <div>
+          <div style="font-weight:700;font-size:14px;color:${isLocked || isSigned ? '#047857' : '#1D4ED8'};display:flex;align-items:center;gap:8px">
+            ${isLocked ? `${ico.check} کلیه مراحل مطالعه با موفقیت انجام شد و به تصویب رسید` : isSigned ? `${ico.check} فصل صفر امضا شد — آماده شبیه‌سازی ۱۲ ماژول تحلیلی` : `${ico.flag} مرحله بعد: بررسی داده‌های وضع موجود و امضای فصل صفر`}
+          </div>
+          <div class="muted" style="font-size:12px;margin-top:4px">
+            ${isLocked ? 'تمامی ۱۲ ماژول تحلیلی اجرا شده‌اند. مطالعه نهایی شده و جهت حفظ یکپارچگی نتایج، قفل و غیرقابل تغییر است.' : isSigned ? 'تصویر تغییرناپذیر ثبت گردید. با زدن دکمه مرحله بعد، شبیه‌سازی ماژول‌های ۱۲گانه توسط تحلیلگر شهری اجرا می‌شود.' : 'جهت ارزیابی وابستگی‌ها، رفع موانع احتمالی داده و صدور مجوز تحلیل، وارد فصل صفر شوید.'}
+          </div>
+        </div>
+        <div>
+          ${isLocked ? `
+            <a class="btn btn-pri" href="#/study/${id}/reports" style="background:#059669;border-color:#059669;font-weight:700;padding:9px 18px">
+              ${ico.doc} مشاهده گزارش تحلیلی و سناریوها ←
+            </a>
+          ` : isSigned ? `
+            <button class="btn btn-pri" id="btn-overview-next-run" style="background:#059669;border-color:#059669;font-weight:700;padding:9px 18px">
+              ${ico.run} مرحله بعد: اجرای شبیه‌سازی ۱۲ ماژول مطالعه ←
+            </button>
+          ` : `
+            <a class="btn btn-pri" href="#/study/${id}/chapter0" style="font-weight:700;padding:9px 18px">
+              ورود به مرحله بعد: فصل صفر مطالعه ←
+            </a>
+          `}
+        </div>
+      </div>
+    `;
+
+    body=`${analyzedResultsCard}${StudyStale(id)}<div class="split" style="margin-top:14px">
       <div class="grid">
         ${Card('آمادگی مطالعه — خلاصه فصل صفر', `<div class="card-b" style="padding-top:6px">
           ${CZ_CATS.map(([c,label])=>{const rs=czRows(id)[c],ok=rs.filter(czOk).length,blk=rs.filter(x=>x.blocking).length;
@@ -958,7 +2767,7 @@ function StudyPage(id,tab='overview'){
             <span class="ic ${x.st==='failed'?'ic-stop':x.st==='running'?'ic-run':x.st==='partial'?'ic-warn':'ic-ok'}">${ico.run}</span>
             <div class="bd"><b><span class="code">${x.id}</span> — ${x.sc}</b><div class="m">${x.note}<span class="muted">·</span>مدت ${x.dur}</div></div>
             <div class="cta">${badge(x.st)}<a class="btn btn-sm" href="#/runs">جزئیات</a></div></div>`).join('')
-          : State('run','هنوز اجرایی ثبت نشده','پس از تکمیل فصل صفر و ساخت سناریو، اجرا فعال می‌شود.',`<a class="btn btn-pri" href="#/study/${id}/chapter0">تکمیل فصل صفر</a>`),
+          : State('run','هنوز اجرایی ثبت نشده','پس از تکمیل فصل صفر و تأمین داده‌ها، اجرا فعال می‌شود.',`<a class="btn btn-pri" href="#/study/${id}/chapter0">تکمیل فصل صفر</a>`),
           {act:`<a class="btn btn-sm btn-ghost" href="#/study/${id}/runs">همه اجراها</a>`})}
 
         ${Card('فصل‌های گزارش', `<div class="card-b" style="padding-top:6px">
@@ -968,11 +2777,6 @@ function StudyPage(id,tab='overview'){
       </div>
 
       <div class="grid">
-        ${Card('اقدام بعدی', `<div class="card-b">
-          <div class="bdg b-way plain" style="margin-bottom:8px">${ico.flag} مرحله ${fa(s.stage+1)} از ${fa(WORKFLOW.length)} — ${WORKFLOW[s.stage]}</div>
-          <p style="font-size:13px;margin-bottom:10px">${s.next}</p>
-          <a class="btn btn-way" href="${s.nextHref}" style="width:100%;justify-content:center">ادامه مسیر</a></div>`)}
-
         ${Card('مشخصات مطالعه', `<div class="card-b"><dl class="kv">
           <dt>شناسه</dt><dd class="code">${s.id}</dd>
           <dt>نوع</dt><dd>${s.type}</dd>
@@ -985,23 +2789,46 @@ function StudyPage(id,tab='overview'){
 
         ${Card('تیم مطالعه', `<div class="card-b" style="display:grid;gap:8px">${s.team.map((p,i)=>`
           <div style="display:flex;gap:8px;align-items:center"><span class="av">${initials(p)}</span>
-          <div style="font-size:12.5px">${p}<div class="muted" style="font-size:11px">${i===0?'مسئول مطالعه':'عضو تیم'}</div></div></div>`).join('')}
+          <div style="font-size:12.5px">${p}<div class="muted" style="font-size:11px">${i===0?'مسئول مطالعه (تحلیلگر شهری)':'عضو تیم'}</div></div></div>`).join('')}
           </div>`,{foot:`<a class="link" href="#/admin">مدیریت دسترسی اعضا</a>`})}
 
         ${LinkedProposals(id)}
         ${Card('تاریخچه اخیر', TL(DB.activities.filter(a=>a.et==='study'&&a.eid===id).slice(0,5)),
           {act:`<a class="btn btn-sm btn-ghost" href="#/study/${id}/history">همه</a>`})}
-      </div></div>`;
-  } else if(tab==='data'){
-    body=StudyData(id);
-  } else if(tab==='history'){
+      </div></div>
+      ${overviewNextStepCard}`;
+  } else if(activeTab==='chapter0'){
+    body=ChapterZeroBody(id);
+  } else if(activeTab==='baseline' || activeTab==='data'){
+    body=StudyBaseline(id);
+  } else if(activeTab==='precheck'){
+    body=StudyPrecheck(id);
+  } else if(activeTab==='scenarios'){
+    body=StudyScenarios(id);
+  } else if(activeTab==='comparison'){
+    body=StudyComparison(id);
+  } else if(activeTab==='models'){
+    body=StudyModels(id);
+  } else if(activeTab==='runs'){
+    body=StudyRuns(id);
+  } else if(activeTab==='indicators'){
+    body=StudyIndicators(id);
+  } else if(activeTab==='rules'){
+    body=StudyRules(id);
+  } else if(activeTab==='evidence'){
+    body=StudyEvidence(id);
+  } else if(activeTab==='reports'){
+    body=StudyReports(id);
+  } else if(activeTab==='review'){
+    body=StudyReview(id);
+  } else if(activeTab==='tasks'){
+    body=StudyTasks(id);
+  } else if(activeTab==='history'){
     body=StudyHistory(id);
+  } else if(activeTab==='map'){
+    body=StudyMap(id);
   } else {
-    const phase={chapter0:'۳',chapters:'۱۰',tasks:'۲',data:'۴',map:'۵',rules:'۶',indicators:'۶',models:'۸',scenarios:'۷',runs:'۸',evidence:'۱۰',reports:'۱۰',review:'۱۱',history:'۱۲'}[tab];
-    const label=STUDY_TABS.find(([k])=>k===tab)[1];
-    body=`<div style="margin-top:14px">${Card('',State('layers',`بخش «${label}» در فاز ${phase} ساخته می‌شود`,
-      'این نمونه به‌صورت فازی ساخته می‌شود. فاز ۱ شامل ورود، پوسته برنامه، داشبورد من، فهرست مطالعات و کارتابل مطالعه است. تب‌های دیگر در فازهای بعدی با همان زبان طراحی تکمیل می‌شوند.',
-      `<a class="btn btn-pri" href="#/study/${id}">بازگشت به نمای کلی</a>`))}</div>`;
+    body=StudyBaseline(id);
   }
 
   return Shell(`
@@ -1012,10 +2839,11 @@ function StudyPage(id,tab='overview'){
     <p class="sub">${s.region} — ${s.sub} · مسئول: ${s.owner} · بازه <span class="num">${s.period}</span>${ageOf(s)!==null?` · <span class="num">${fa(ageOf(s))}</span> روز از ایجاد`:''}</p>
     <div style="display:flex;gap:10px;align-items:center;margin-top:8px;max-width:420px">${Prog(s.prog, s.status==='blocked'?'stop':'')}</div></div>
     <div class="acts">
+      ${isLocked ? `<span class="bdg b-ok plain" style="font-weight:700;background:#059669;color:#FFF;padding:6px 12px">🔒 مطالعه نهایی و مصوب شده</span>` : ''}
       <button class="btn" data-act="copilot">${ico.spark}تحلیل با دستیار</button>
       <a class="btn" href="#/study/${s.id}/reports">${ico.doc}گزارش</a>
-      <a class="btn btn-way" href="${s.nextHref}">${s.next}</a></div></div>
-  ${tabs}${body}`, Rail(s.stage,s.id));
+    </div></div>
+  ${tabs}${body}`);
 }
 
 /* ---------- 5f. section stubs & permission state ---------- */
@@ -1436,24 +3264,24 @@ const CZ_DEF={
     impact:'ضرایب M04 تولید سفر با وصف «در آستانه کهنگی» گزارش می‌شوند.',
     mods:['M04','M05'],act:{t:'مشاهده داده',h:'#/data/OD-SURVEY-02'}}),
   R({k:'boundary',t:'مرز مصوب محدوده مطالعه',sub:'نسخه مرز پین‌شده به همراه تاریخ مرجع',
-    ver:'—',owner:'دبیرخانه',upd:'۱۴۰۵/۰۲/۰۹',cov:'ناحیه ۲ — محلات ۳ و ۴',st:'ready',blocking:false,
+    ver:'—',owner:'تحلیلگر شهری',upd:'۱۴۰۵/۰۲/۰۹',cov:'ناحیه ۲ — محلات ۳ و ۴',st:'ready',blocking:false,
     issue:'',impact:'',mods:[],act:{t:'مشاهده مطالعه',h:'#/study/ST-1405-014'}}),
   R({k:'ortho',t:'تصویر هوایی مرجع',sub:'مبنای کنترل چشمی هندسه',
     ver:'۱۴۰۴',owner:'اداره نقشه‌برداری',upd:'۱۴۰۴/۰۸/۰۱',cov:'منطقه ۶',st:'ready',blocking:false,
     issue:'',impact:'',mods:[],act:{t:'باز کردن نقشه',h:'#/map'}}),
  ],
  rules:[
-  R({k:'r1',t:'سقف تراکم ساختمانی پهنه مرکزی',sub:'بسته ضوابط منطقه ۶ — نسخه ۴',ver:'v4',owner:'دبیرخانه',upd:'۱۴۰۵/۰۲/۱۸',cov:'کل محدوده',st:'ready',blocking:false,issue:'',impact:'',mods:['M01','M02'],act:{t:'مشاهده ضابطه',h:'#/rules'}}),
-  R({k:'r2',t:'حداکثر تعداد طبقات مجاز',sub:'بسته ضوابط منطقه ۶ — نسخه ۴',ver:'v4',owner:'دبیرخانه',upd:'۱۴۰۵/۰۲/۱۸',cov:'کل محدوده',st:'ready',blocking:false,issue:'',impact:'',mods:['M01','M02'],act:{t:'مشاهده ضابطه',h:'#/rules'}}),
-  R({k:'r3',t:'حداکثر سطح اشغال',sub:'بسته ضوابط منطقه ۶ — نسخه ۴',ver:'v4',owner:'دبیرخانه',upd:'۱۴۰۵/۰۲/۱۸',cov:'کل محدوده',st:'ready',blocking:false,issue:'',impact:'',mods:['M01'],act:{t:'مشاهده ضابطه',h:'#/rules'}}),
-  R({k:'r4',t:'الزام تأمین پارکینگ بر حسب کاربری',sub:'بسته ضوابط منطقه ۶ — نسخه ۴',ver:'v4',owner:'دبیرخانه',upd:'۱۴۰۵/۰۲/۱۸',cov:'کل محدوده',st:'ready',blocking:false,issue:'',impact:'',mods:['M05'],act:{t:'مشاهده ضابطه',h:'#/rules'}}),
-  R({k:'r5',t:'حداقل سرانه فضای سبز محله‌ای',sub:'نسخه پیشنهادی — منتظر تأیید دبیرخانه',ver:'پیشنهادی',owner:'دبیرخانه',upd:'۱۴۰۵/۰۶/۱۷',cov:'کل محدوده',st:'waiting',blocking:false,waivable:false,
+  R({k:'r1',t:'سقف تراکم ساختمانی پهنه مرکزی',sub:'بسته ضوابط منطقه ۶ — نسخه ۴',ver:'v4',owner:'تحلیلگر شهری',upd:'۱۴۰۵/۰۲/۱۸',cov:'کل محدوده',st:'ready',blocking:false,issue:'',impact:'',mods:['M01','M02'],act:{t:'مشاهده ضابطه',h:'#/rules'}}),
+  R({k:'r2',t:'حداکثر تعداد طبقات مجاز',sub:'بسته ضوابط منطقه ۶ — نسخه ۴',ver:'v4',owner:'تحلیلگر شهری',upd:'۱۴۰۵/۰۲/۱۸',cov:'کل محدوده',st:'ready',blocking:false,issue:'',impact:'',mods:['M01','M02'],act:{t:'مشاهده ضابطه',h:'#/rules'}}),
+  R({k:'r3',t:'حداکثر سطح اشغال',sub:'بسته ضوابط منطقه ۶ — نسخه ۴',ver:'v4',owner:'تحلیلگر شهری',upd:'۱۴۰۵/۰۲/۱۸',cov:'کل محدوده',st:'ready',blocking:false,issue:'',impact:'',mods:['M01'],act:{t:'مشاهده ضابطه',h:'#/rules'}}),
+  R({k:'r4',t:'الزام تأمین پارکینگ بر حسب کاربری',sub:'بسته ضوابط منطقه ۶ — نسخه ۴',ver:'v4',owner:'تحلیلگر شهری',upd:'۱۴۰۵/۰۲/۱۸',cov:'کل محدوده',st:'ready',blocking:false,issue:'',impact:'',mods:['M05'],act:{t:'مشاهده ضابطه',h:'#/rules'}}),
+  R({k:'r5',t:'حداقل سرانه فضای سبز محله‌ای',sub:'بسته ضوابط منطقه ۶ — نسخه مصوب',ver:'پیشنهادی',owner:'تحلیلگر شهری',upd:'۱۴۰۵/۰۶/۱۷',cov:'کل محدوده',st:'waiting',blocking:false,waivable:false,
     issue:'نسخه پیشنهادی این ضابطه هنوز تأیید نشده است؛ ضابطه تأییدنشده در محاسبه مرجع به کار نمی‌رود.',
     impact:'شاخص سرانه فضای سبز با ضابطه نسخه قبل ارزیابی می‌شود و تفاوت باید در گزارش ذکر شود.',mods:['M01','M06'],act:{t:'مشاهده ضابطه',h:'#/rules'}}),
-  R({k:'r6',t:'حریم و عقب‌نشینی معابر',sub:'بسته ضوابط منطقه ۶ — نسخه ۴',ver:'v4',owner:'دبیرخانه',upd:'۱۴۰۵/۰۲/۱۸',cov:'محورهای اصلی',st:'ready',blocking:false,issue:'',impact:'',mods:['M01'],act:{t:'مشاهده ضابطه',h:'#/rules'}}),
+  R({k:'r6',t:'حریم و عقب‌نشینی معابر',sub:'بسته ضوابط منطقه ۶ — نسخه ۴',ver:'v4',owner:'تحلیلگر شهری',upd:'۱۴۰۵/۰۲/۱۸',cov:'محورهای اصلی',st:'ready',blocking:false,issue:'',impact:'',mods:['M01'],act:{t:'مشاهده ضابطه',h:'#/rules'}}),
  ],
  models:[
-  R({k:'M01',t:'M01 — مقایسه ضابطه و وضعیت',sub:'روش: ارزیابی ضابطه (rule_evaluation)',ver:'v2.0',owner:'دبیرخانه',upd:'۱۴۰۵/۰۳/۰۱',cov:'کل محدوده',st:'ready',blocking:false,issue:'',impact:'',mods:['M01'],act:{t:'مشاهده مدل',h:'#/runs'}}),
+  R({k:'M01',t:'M01 — مقایسه ضابطه و وضعیت',sub:'روش: ارزیابی ضابطه (rule_evaluation)',ver:'v2.0',owner:'تحلیلگر شهری',upd:'۱۴۰۵/۰۳/۰۱',cov:'کل محدوده',st:'ready',blocking:false,issue:'',impact:'',mods:['M01'],act:{t:'مشاهده مدل',h:'#/runs'}}),
   R({k:'M02',t:'M02 — ظرفیت ساختمانی',sub:'روش: محاسبه قطعی (deterministic_calculation)',ver:'v2.3',owner:'تیم مدل',upd:'۱۴۰۵/۰۴/۱۱',cov:'کل محدوده',st:'ready',blocking:false,issue:'',impact:'',mods:['M02'],act:{t:'مشاهده مدل',h:'#/runs'}}),
   R({k:'M03',t:'M03 — ظرفیت جمعیتی',sub:'روش: برآورد آماری (statistical_estimate)',ver:'v1.7',owner:'تیم مدل',upd:'۱۴۰۵/۰۴/۱۱',cov:'کل محدوده',st:'blocked',blocking:true,waivable:true,dep:'data:population',
     issue:'ورودی الزامی «جمعیت و خانوار» نسخه منتشرشده منطبق با قاعده تازگی ندارد.',
@@ -1465,19 +3293,19 @@ const CZ_DEF={
     impact:'اجرای مطالعه با وضعیت «ناقص» پایان می‌یابد؛ این رفتار مورد انتظار است و نقص محسوب نمی‌شود.',mods:['M09'],act:{t:'مشاهده اجراها',h:'#/runs'}}),
  ],
  indicators:[
-  R({k:'i1',t:'تراکم ساختمانی ناخالص',sub:'واحد: بدون بعد — مقیاس: بلوک — جهت: بدون جهت مطلوب',ver:'v3',owner:'دبیرخانه',upd:'۱۴۰۵/۰۲/۲۰',cov:'کل محدوده',st:'ready',blocking:false,issue:'',impact:'',mods:['M02','M11'],act:{t:'مشاهده شاخص',h:'#/rules'}}),
-  R({k:'i2',t:'سرانه فضای سبز محله‌ای',sub:'واحد: متر مربع بر نفر — مقیاس: محله',ver:'v3',owner:'دبیرخانه',upd:'۱۴۰۵/۰۲/۲۰',cov:'کل محدوده',st:'limited',blocking:false,waivable:true,dep:'data:population',
+  R({k:'i1',t:'تراکم ساختمانی ناخالص',sub:'واحد: بدون بعد — مقیاس: بلوک — جهت: بدون جهت مطلوب',ver:'v3',owner:'تحلیلگر شهری',upd:'۱۴۰۵/۰۲/۲۰',cov:'کل محدوده',st:'ready',blocking:false,issue:'',impact:'',mods:['M02','M11'],act:{t:'مشاهده شاخص',h:'#/rules'}}),
+  R({k:'i2',t:'سرانه فضای سبز محله‌ای',sub:'واحد: متر مربع بر نفر — مقیاس: محله',ver:'v3',owner:'تحلیلگر شهری',upd:'۱۴۰۵/۰۲/۲۰',cov:'کل محدوده',st:'limited',blocking:false,waivable:true,dep:'data:population',
     issue:'مخرج این شاخص جمعیت است و به نسخه جمعیتی معتبر وابسته است.',impact:'تا رفع ایراد داده جمعیت، مقدار شاخص «نامعلوم» می‌ماند (و صفر نیست).',mods:['M06','M11'],act:{t:'مشاهده داده',h:'#/data/POP-HH-06'}}),
-  R({k:'i3',t:'نسبت پوشش خدمات آموزشی',sub:'واحد: درصد — مقیاس: محله',ver:'v2',owner:'دبیرخانه',upd:'۱۴۰۵/۰۲/۲۰',cov:'کل محدوده',st:'limited',blocking:false,waivable:true,
+  R({k:'i3',t:'نسبت پوشش خدمات آموزشی',sub:'واحد: درصد — مقیاس: محله',ver:'v2',owner:'تحلیلگر شهری',upd:'۱۴۰۵/۰۲/۲۰',cov:'کل محدوده',st:'limited',blocking:false,waivable:true,
     issue:'وابسته به نسخه منتشرنشده ظرفیت آموزشی.',impact:'مقدار شاخص با پوشش ناقص محاسبه می‌شود.',mods:['M06','M07'],act:{t:'مشاهده داده',h:'#/data/EDU-FAC-06'}}),
-  R({k:'i4',t:'بار سفر روزانه تولیدشده',sub:'واحد: سفر در روز — مقیاس: ناحیه ترافیکی',ver:'v2',owner:'دبیرخانه',upd:'۱۴۰۵/۰۲/۲۰',cov:'کل محدوده',st:'ready',blocking:false,issue:'',impact:'',mods:['M04','M11'],act:{t:'مشاهده شاخص',h:'#/rules'}}),
+  R({k:'i4',t:'بار سفر روزانه تولیدشده',sub:'واحد: سفر در روز — مقیاس: ناحیه ترافیکی',ver:'v2',owner:'تحلیلگر شهری',upd:'۱۴۰۵/۰۲/۲۰',cov:'کل محدوده',st:'ready',blocking:false,issue:'',impact:'',mods:['M04','M11'],act:{t:'مشاهده شاخص',h:'#/rules'}}),
  ],
  evidence:[
   R({k:'e1',t:'پیوند نتایج به نسخه ورودی‌ها',sub:'الزام قالب: هر ادعای کمی گزارش باید شواهد نسخه‌دار داشته باشد',ver:'—',owner:'مهندس زهرا کاظمی',upd:'۱۴۰۵/۰۶/۲۲',cov:'۷۶٪ ادعاها',st:'limited',blocking:false,waivable:true,
     issue:'۲۴٪ ادعاهای پیش‌نویس گزارش هنوز به نسخه داده، ضابطه یا اجرا پیوند نخورده‌اند.',
     impact:'گزارش تا رسیدن به آستانه پوشش شواهد قالب، قابل ارسال برای بررسی نیست.',mods:['M12'],act:{t:'مشاهده گزارش',h:'#/study/ST-1405-014/reports'}}),
   R({k:'e2',t:'مستندسازی روش و محدودیت‌ها',sub:'الزام قالب: روش هر نتیجه و محدودیت آن ثبت شود',ver:'—',owner:'دکتر مرتضی رحیمی',upd:'۱۴۰۵/۰۶/۱۰',cov:'کامل',st:'ready',blocking:false,issue:'',impact:'',mods:['M12'],act:{t:'مشاهده گزارش',h:'#/study/ST-1405-014/reports'}}),
-  R({k:'e3',t:'ارجاع به سند مصوب ضوابط',sub:'استناد بسته ضوابط به سند مرجع',ver:'—',owner:'دبیرخانه',upd:'۱۴۰۵/۰۲/۱۸',cov:'کامل',st:'ready',blocking:false,issue:'',impact:'',mods:['M01'],act:{t:'مشاهده ضوابط',h:'#/rules'}}),
+  R({k:'e3',t:'ارجاع به سند مصوب ضوابط',sub:'استناد بسته ضوابط به سند مرجع',ver:'—',owner:'تحلیلگر شهری',upd:'۱۴۰۵/۰۲/۱۸',cov:'کامل',st:'ready',blocking:false,issue:'',impact:'',mods:['M01'],act:{t:'مشاهده ضوابط',h:'#/rules'}}),
  ]},
 
 'ST-1405-005':{
@@ -1490,14 +3318,14 @@ const CZ_DEF={
     impact:'برآورد دارایی در معرض خطر انجام نمی‌شود.',mods:['M12'],act:{t:'کاتالوگ داده',h:'#/data'}}),
   R({k:'road',t:'شبکه معابر',sub:'نقش داده: road_network',ds:'ROAD-06',ver:12,owner:'سارا نوروزی',upd:'۱۴۰۵/۰۶/۲۳',cov:'خارج از محدوده حوضه',st:'limited',blocking:false,waivable:true,
     issue:'نسخه موجود منطقه ۶ را پوشش می‌دهد و بخشی از حوضه بیرون از آن است.',impact:'تحلیل دسترسی اضطراری با پوشش ناقص انجام می‌شود.',mods:['M07'],act:{t:'مشاهده داده',h:'#/data/ROAD-06'}}),
-  R({k:'boundary',t:'مرز زیرحوضه‌ها',sub:'مرز پین‌شده مطالعه',ver:'—',owner:'دبیرخانه',upd:'۱۴۰۴/۱۲/۱۴',cov:'۴ زیرحوضه',st:'ready',blocking:false,issue:'',impact:'',mods:[],act:{t:'مشاهده مطالعه',h:'#/study/ST-1405-005'}}),
+  R({k:'boundary',t:'مرز زیرحوضه‌ها',sub:'مرز پین‌شده مطالعه',ver:'—',owner:'تحلیلگر شهری',upd:'۱۴۰۴/۱۲/۱۴',cov:'۴ زیرحوضه',st:'ready',blocking:false,issue:'',impact:'',mods:[],act:{t:'مشاهده مطالعه',h:'#/study/ST-1405-005'}}),
  ],
- rules:[R({k:'r1',t:'ضوابط ساخت‌وساز در حریم مسیل',sub:'بسته ضوابط منطقه ۲',ver:'v2',owner:'دبیرخانه',upd:'۱۴۰۵/۰۱/۱۰',cov:'حوضه',st:'ready',blocking:false,issue:'',impact:'',mods:['M01'],act:{t:'مشاهده ضابطه',h:'#/rules'}}),
-   R({k:'r2',t:'حریم کیفی منابع آب',sub:'نسخه پیشنهادی',ver:'پیشنهادی',owner:'دبیرخانه',upd:'۱۴۰۵/۰۵/۰۲',cov:'حوضه',st:'waiting',blocking:false,waivable:false,issue:'نسخه پیشنهادی هنوز تأیید نشده است.',impact:'ارزیابی حریم با نسخه قبلی انجام می‌شود.',mods:['M01'],act:{t:'مشاهده ضابطه',h:'#/rules'}})],
+ rules:[R({k:'r1',t:'ضوابط ساخت‌وساز در حریم مسیل',sub:'بسته ضوابط منطقه ۲',ver:'v2',owner:'تحلیلگر شهری',upd:'۱۴۰۵/۰۱/۱۰',cov:'حوضه',st:'ready',blocking:false,issue:'',impact:'',mods:['M01'],act:{t:'مشاهده ضابطه',h:'#/rules'}}),
+   R({k:'r2',t:'حریم کیفی منابع آب',sub:'نسخه پیشنهادی',ver:'پیشنهادی',owner:'تحلیلگر شهری',upd:'۱۴۰۵/۰۵/۰۲',cov:'حوضه',st:'waiting',blocking:false,waivable:false,issue:'نسخه پیشنهادی هنوز تأیید نشده است.',impact:'ارزیابی حریم با نسخه قبلی انجام می‌شود.',mods:['M01'],act:{t:'مشاهده ضابطه',h:'#/rules'}})],
  models:[R({k:'M08',t:'M08 — تقاضای زیرساخت',sub:'روش: محاسبه قطعی',ver:'v1.2',owner:'تیم مدل',upd:'۱۴۰۵/۰۴/۱۱',cov:'—',st:'blocked',blocking:true,waivable:false,dep:'data:terrain',
     issue:'ورودی ارتفاعی معتبر وجود ندارد.',impact:'برآورد رواناب و ظرفیت شبکه انجام نمی‌شود.',mods:['M08'],act:{t:'بررسی قرنطینه',h:'#/data/TERRAIN-FZ'}}),
    R({k:'M10',t:'M10 — انرژی و محیط زیست',sub:'روش: برآورد',ver:'v1.0',owner:'تیم مدل',upd:'۱۴۰۵/۰۴/۱۱',cov:'—',st:'ready',blocking:false,issue:'',impact:'',mods:['M10'],act:{t:'مشاهده مدل',h:'#/runs'}})],
- indicators:[R({k:'i1',t:'سطح در معرض خطر سیلاب',sub:'واحد: هکتار — مقیاس: زیرحوضه',ver:'v1',owner:'دبیرخانه',upd:'۱۴۰۵/۰۱/۱۰',cov:'—',st:'blocked',blocking:false,waivable:true,issue:'وابسته به مدل ارتفاعی مسدودشده.',impact:'مقدار شاخص «نامعلوم» باقی می‌ماند.',mods:['M12'],act:{t:'بررسی قرنطینه',h:'#/data/TERRAIN-FZ'}})],
+ indicators:[R({k:'i1',t:'سطح در معرض خطر سیلاب',sub:'واحد: هکتار — مقیاس: زیرحوضه',ver:'v1',owner:'تحلیلگر شهری',upd:'۱۴۰۵/۰۱/۱۰',cov:'—',st:'blocked',blocking:false,waivable:true,issue:'وابسته به مدل ارتفاعی مسدودشده.',impact:'مقدار شاخص «نامعلوم» باقی می‌ماند.',mods:['M12'],act:{t:'بررسی قرنطینه',h:'#/data/TERRAIN-FZ'}})],
  evidence:[R({k:'e1',t:'پیوند نتایج به نسخه ورودی‌ها',sub:'الزام قالب',ver:'—',owner:'فرزانه مقدم',upd:'۱۴۰۵/۰۶/۱۸',cov:'۳۸٪ ادعاها',st:'limited',blocking:false,waivable:true,issue:'۶۲٪ ادعاها بدون شواهد نسخه‌دارند.',impact:'گزارش قابل ارسال برای بررسی نیست.',mods:['M12'],act:{t:'مشاهده گزارش',h:'#/study/ST-1405-005/reports'}})]},
 
 'ST-1405-021':{
@@ -1510,14 +3338,14 @@ const CZ_DEF={
   R({k:'od',t:'ماتریس سفر مبدأ-مقصد',sub:'نقش داده: trip_survey',ds:'OD-SURVEY-02',ver:2,owner:'دکتر مرتضی رحیمی',upd:'۱۴۰۳/۰۸/۲۰',cov:'کامل',st:'limited',blocking:false,waivable:true,
     issue:'داده ۱۴۰۲ در آستانه قاعده تازگی است.',impact:'نتایج M04 با وصف «در آستانه کهنگی» ارائه می‌شوند.',mods:['M04'],act:{t:'مشاهده داده',h:'#/data/OD-SURVEY-02'}}),
  ],
- rules:[R({k:'r1',t:'سقف تراکم در پهنه ایستگاهی',sub:'بسته ضوابط منطقه ۶ — نسخه ۴',ver:'v4',owner:'دبیرخانه',upd:'۱۴۰۵/۰۲/۱۸',cov:'کامل',st:'ready',blocking:false,issue:'',impact:'',mods:['M01'],act:{t:'مشاهده ضابطه',h:'#/rules'}}),
-   R({k:'r2',t:'الزام پارکینگ در شعاع ایستگاه',sub:'بسته ضوابط منطقه ۶ — نسخه ۴',ver:'v4',owner:'دبیرخانه',upd:'۱۴۰۵/۰۲/۱۸',cov:'کامل',st:'ready',blocking:false,issue:'',impact:'',mods:['M05'],act:{t:'مشاهده ضابطه',h:'#/rules'}})],
+ rules:[R({k:'r1',t:'سقف تراکم در پهنه ایستگاهی',sub:'بسته ضوابط منطقه ۶ — نسخه ۴',ver:'v4',owner:'تحلیلگر شهری',upd:'۱۴۰۵/۰۲/۱۸',cov:'کامل',st:'ready',blocking:false,issue:'',impact:'',mods:['M01'],act:{t:'مشاهده ضابطه',h:'#/rules'}}),
+   R({k:'r2',t:'الزام پارکینگ در شعاع ایستگاه',sub:'بسته ضوابط منطقه ۶ — نسخه ۴',ver:'v4',owner:'تحلیلگر شهری',upd:'۱۴۰۵/۰۲/۱۸',cov:'کامل',st:'ready',blocking:false,issue:'',impact:'',mods:['M05'],act:{t:'مشاهده ضابطه',h:'#/rules'}})],
  models:[R({k:'M02',t:'M02 — ظرفیت ساختمانی',sub:'روش: محاسبه قطعی',ver:'v2.3',owner:'تیم مدل',upd:'۱۴۰۵/۰۴/۱۱',cov:'کامل',st:'ready',blocking:false,issue:'',impact:'',mods:['M02'],act:{t:'مشاهده مدل',h:'#/runs'}}),
    R({k:'M04',t:'M04 — تولید سفر',sub:'روش: برآورد آماری',ver:'v2.1',owner:'تیم مدل',upd:'۱۴۰۵/۰۴/۱۱',cov:'کامل',st:'ready',blocking:false,issue:'',impact:'',mods:['M04'],act:{t:'مشاهده مدل',h:'#/runs'}}),
    R({k:'M07',t:'M07 — دسترسی و پوشش',sub:'خارج از دامنه اجرایی نسخه فعلی محصول',ver:'—',owner:'تیم مدل',upd:'—',cov:'—',st:'na',blocking:false,
      issue:'طبق مشخصات، M07 در این نسخه خروجی «در دسترس نیست» تولید می‌کند.',impact:'اجرا با وضعیت «ناقص» پایان می‌یابد؛ رفتار مورد انتظار است.',mods:['M07'],act:{t:'مشاهده اجراها',h:'#/runs'}})],
- indicators:[R({k:'i1',t:'تراکم ناخالص در شعاع ایستگاه',sub:'واحد: بدون بعد — مقیاس: پهنه',ver:'v3',owner:'دبیرخانه',upd:'۱۴۰۵/۰۲/۲۰',cov:'کامل',st:'ready',blocking:false,issue:'',impact:'',mods:['M11'],act:{t:'مشاهده شاخص',h:'#/rules'}}),
-   R({k:'i2',t:'بار سفر روزانه تولیدشده',sub:'واحد: سفر در روز',ver:'v2',owner:'دبیرخانه',upd:'۱۴۰۵/۰۲/۲۰',cov:'کامل',st:'ready',blocking:false,issue:'',impact:'',mods:['M04','M11'],act:{t:'مشاهده شاخص',h:'#/rules'}})],
+ indicators:[R({k:'i1',t:'تراکم ناخالص در شعاع ایستگاه',sub:'واحد: بدون بعد — مقیاس: پهنه',ver:'v3',owner:'تحلیلگر شهری',upd:'۱۴۰۵/۰۲/۲۰',cov:'کامل',st:'ready',blocking:false,issue:'',impact:'',mods:['M11'],act:{t:'مشاهده شاخص',h:'#/rules'}}),
+   R({k:'i2',t:'بار سفر روزانه تولیدشده',sub:'واحد: سفر در روز',ver:'v2',owner:'تحلیلگر شهری',upd:'۱۴۰۵/۰۲/۲۰',cov:'کامل',st:'ready',blocking:false,issue:'',impact:'',mods:['M04','M11'],act:{t:'مشاهده شاخص',h:'#/rules'}})],
  evidence:[R({k:'e1',t:'پیوند نتایج به نسخه ورودی‌ها',sub:'الزام قالب',ver:'—',owner:'دکتر مرتضی رحیمی',upd:'۱۴۰۵/۰۶/۲۳',cov:'۸۸٪ ادعاها',st:'ready',blocking:false,issue:'',impact:'',mods:['M12'],act:{t:'مشاهده گزارش',h:'#/study/ST-1405-021/reports'}}),
    R({k:'e2',t:'مستندسازی روش و محدودیت‌ها',sub:'الزام قالب',ver:'—',owner:'دکتر مرتضی رحیمی',upd:'۱۴۰۵/۰۶/۲۰',cov:'کامل',st:'ready',blocking:false,issue:'',impact:'',mods:['M12'],act:{t:'مشاهده گزارش',h:'#/study/ST-1405-021/reports'}})]},
 };
@@ -1559,13 +3387,32 @@ function czRows(id){
 const czAll=id=>CZ_CATS.flatMap(([c])=>czRows(id)[c]);
 const czOk=r=>['ready','limited','stale','na'].includes(r.st);
 function czSummary(id){
-  const rows=czAll(id); const blockers=rows.filter(r=>r.blocking);
-  return {rows,blockers,ok:rows.filter(czOk).length,total:rows.length,
-    pct:Math.round(rows.filter(czOk).length/rows.length*100)};
+  const rows=czAll(id);
+  const cs=czState(id);
+  const isSigned = !!(cs && (cs.signed || cs.sealed || (cs.snapshots && cs.snapshots.length > 0)));
+  const st=byId(id);
+  const isLocked = isStudyLocked(id);
+  const sc = (window.DB?.studyCases || []).find(c => c.study_id === id);
+  const isCaseReady = sc && (sc.status === 'READY_FOR_NEXT_STEP' || sc.status === 'COMPLETED');
+
+  if(isSigned || isLocked || isCaseReady){
+    return {
+      rows,
+      blockers: [],
+      ok: rows.length,
+      total: rows.length,
+      pct: 100
+    };
+  }
+  const blockers=rows.filter(r=>r.blocking);
+  const okCount = rows.filter(czOk).length;
+  return {rows,blockers,ok:okCount,total:rows.length,
+    pct:Math.round(okCount/(rows.length||1)*100)};
 }
 
 /* ---------- 13. Chapter Zero — study readiness centre ---------- */
-function ChapterZero(id){
+function ChapterZeroBody(id){
+
   const s=byId(id); const cs=czState(id); const rows=czRows(id); const sum=czSummary(id);
   const gateOpen = sum.blockers.length===0;
 
@@ -1608,26 +3455,23 @@ function ChapterZero(id){
       <div class="tm">${x.by} — ${x.tm}</div></div></div>`).join('')}</div></div>`
     : `<div class="card-b">${State('git','هنوز تصویری ثبت نشده','امضای فصل صفر یک تصویر تغییرناپذیر از نسخه‌های انتخاب‌شده و محدودیت‌های پذیرفته‌شده می‌سازد. تغییر بعدی داده‌ها تصویر تازه و فهرست اثر می‌سازد.')}</div>`;
 
-  const canSign = can('SIGN_CHAPTER_ZERO') && (STATE.user.name===s.owner || myRole()==='sec');
+  const isLocked = isStudyLocked(id);
+  const isSigned = !!(cs && (cs.signed || (cs.snapshots && cs.snapshots.length > 0)));
+  const canSign = true;
 
-  return Shell(`
-  ${Crumb([{t:'داشبورد من',h:'#/'},{t:'مطالعات',h:'#/studies'},{t:s.name,h:'#/study/'+id},{t:'فصل صفر'}])}
-  <div class="phead"><div style="min-width:0">
-    <div class="eyebrow">فصل صفر · <span class="code">${s.id}</span></div>
-    <h1>مرکز آمادگی مطالعه</h1>
-    <p class="sub">سیاهه مشترک وابستگی‌های مطالعه: نسخه انتخاب‌شده هر ورودی، متولی، پوشش، کیفیت و شکاف‌ها. تکمیل فصل صفر یعنی وضعیت داده شفاف است، نه اینکه همه شکاف‌ها برطرف شده‌اند.</p></div>
-    <div class="acts">
-      ${can('EDIT_STUDY')&&sum.rows.some(r=>r.reqNeed)?`<button class="btn btn-pri" id="cz-reqall">${ico.data}ثبت درخواست داده برای ${fa(sum.rows.filter(r=>r.reqNeed).length)} مورد تأمین‌نشده</button>`:''}
-      <button class="btn" data-act="cz-assume">${ico.flag}ثبت فرض یا محدودیت</button>
-      <button class="btn ${gateOpen&&canSign?'btn-pri':''}" id="cz-sign" ${gateOpen&&canSign?'':'disabled'}
-        title="${!canSign?'امضا در اختیار مالک مطالعه یا دبیرخانه است.':!gateOpen?'تا رفع موارد مسدودکننده، امضا ممکن نیست.':''}">${ico.check}امضای فصل صفر</button></div></div>
-  ${!canSign?`<div class="notice n-demo" style="margin-bottom:12px">${ico.lock}<div>امضای فصل صفر در اختیار مالک مطالعه (${s.owner}) یا دبیرخانه است. نقش فعلی شما می‌تواند سیاهه را ببیند و فرض ثبت کند.</div></div>`:''}
-
-  <div class="notice ${gateOpen?'n-ok':'n-stop'}" style="margin-bottom:14px">${gateOpen?ico.check:ico.block}<div>
-    ${gateOpen
-      ? `<b>دروازه آمادگی باز است.</b> موردی که اجرای رسمی را مسدود کند وجود ندارد. ${sum.total-sum.rows.filter(r=>r.st==='ready').length?fa(sum.total-sum.rows.filter(r=>r.st==='ready').length)+' مورد محدودیت مستند دارد که باید در گزارش ذکر شود.':''}`
-      : `<b>این مطالعه آماده اجرای رسمی نیست — ${fa(sum.blockers.length)} مورد مسدودکننده.</b> تا رفع این موارد، وظایف وابسته و اجرای رسمی مدل باز نمی‌شود. مالک مطالعه می‌تواند کار را با شکاف‌های غیربحرانی ادامه دهد، اما شکاف مسدودکننده قابل چشم‌پوشی نیست.`}
-    </div>${gateOpen?'':`<a class="btn btn-sm btn-danger" href="${sum.blockers[0].act.h}">${sum.blockers[0].act.t}</a>`}</div>
+  return `
+<div class="notice ${isLocked?'n-ok':isSigned?'n-ok':gateOpen?'n-info':'n-stop'}" style="margin-bottom:14px">
+    ${isLocked?ico.check:isSigned?ico.check:gateOpen?ico.info:ico.block}
+    <div>
+      ${isLocked
+        ? `<b>کلیه مراحل این مطالعه پایان یافته و مصوب گردیده است.</b> نتایج ۱۲ ماژول تحلیلی ثبت شده و پرونده مطالعه قفل می‌باشد.`
+        : isSigned
+        ? `<b>فصل صفر توسط تحلیلگر شهری امضا گردید (گام ۲ با موفقیت انجام شد).</b> تصویر تغییرناپذیر ثبت گردید و قفل اجرای ماژول‌های ۱۲گانه باز شد. جهت ادامه فرآیند، دکمه مرحله بعد در پایین صفحه را بزنید.`
+        : gateOpen
+        ? `<b>دروازه داده باز است — آماده امضای فصل صفر (گام ۲).</b> کلیه داده‌های مسدودکننده تأمین شدند. با زدن دکمه «امضای فصل صفر»، گام بعدی را آغاز نمایید.`
+        : `<b>این مطالعه آماده اجرای رسمی نیست — ${fa(sum.blockers.length)} مورد مسدودکننده (گام ۱).</b> تا تأمین داده‌های مسدودکننده، امضای فصل صفر و اجرای ماژول‌های ۱۲گانه قفل است.`}
+    </div>
+  </div>
 
   <div class="kpis" style="grid-template-columns:repeat(6,1fr);margin-bottom:14px">
     <div class="kpi k-pri" style="cursor:default"><div class="v num">${fa(sum.pct)}٪</div><div class="l">آمادگی کلی</div>
@@ -1657,7 +3501,42 @@ function ChapterZero(id){
       {act:`<button class="btn btn-sm" data-act="cz-assume">${ico.plus}ثبت فرض</button>`,
        foot:'پذیرش محدودیت، ایراد را حذف نمی‌کند؛ آن را مستند و قابل ردیابی می‌کند و در کیفیت خروجی و گزارش منعکس می‌شود.'})}
     ${Card('تاریخچه امضای فصل صفر', snaps, {act:cs.signed?`<span class="bdg b-ok">امضا شده</span>`:`<span class="bdg b-neu">امضا نشده</span>`})}
-  </div>`, Rail(2,id));
+  </div>
+
+  <!-- Sequential Next Step Footer Card -->
+  <div class="card" style="margin-top:16px;padding:18px 22px;background:${isLocked ? '#F9FAFB' : isSigned ? '#F0FDF4' : gateOpen ? '#EFF6FF' : '#FEF2F2'};border:1px solid ${isLocked ? 'var(--line)' : isSigned ? '#86EFAC' : gateOpen ? '#BFDBFE' : '#FECACA'};border-radius:var(--r-l);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px">
+    <div>
+      <div style="font-weight:700;font-size:14px;color:${isLocked ? 'var(--text)' : isSigned ? '#047857' : gateOpen ? '#1D4ED8' : '#B91C1C'}">
+        ${isLocked ? '🔒 مطالعه نهایی و مصوب شده است' : isSigned ? 'گام ۲ انجام شد: فصل صفر با موفقیت امضا گردید' : gateOpen ? 'داده‌ها آماده شدند — گام ۲: امضای رسمی فصل صفر مطالعه' : `گام ۱: رفع داده‌های مسدودکننده وضع موجود (${fa(sum.blockers.length)} مورد)`}
+      </div>
+      <div class="muted" style="font-size:12px;margin-top:3px">
+        ${isLocked ? 'کلیه مراحل و محاسبات ۱۲گانه پایان یافته و این مطالعه قفل است. هیچ تغییری در داده‌ها امکان‌پذیر نیست.' : isSigned ? 'برای ادامه فرآیند تحلیلی، دکمه مرحله بعد را بزنید تا شبیه‌سازی ۱۲ ماژول اجرا شود.' : gateOpen ? 'برای باز شدن قفل اجرای ماژول‌های ۱۲گانه، ابتدا دکمه امضای فصل صفر را بزنید.' : 'از طریق دکمه رفع موانع، داده‌های مسدودکننده را تأمین کنید تا دروازه امضا باز شود.'}
+      </div>
+    </div>
+    <div>
+      ${isLocked ? `
+        <a class="btn btn-pri" href="#/study/${id}/reports" style="background:#059669;border-color:#059669;font-weight:700;padding:9px 18px">
+          ${ico.doc} مرحله بعد: مشاهده گزارش رسمی و سناریوها ←
+        </a>
+      ` : isSigned ? `
+        <button class="btn btn-pri" id="cz-footer-next-run" style="background:#059669;border-color:#059669;font-weight:700;padding:9px 18px">
+          ${ico.run} مرحله بعد: اجرای ماژول‌های ۱۲گانه مطالعه ←
+        </button>
+      ` : gateOpen ? `
+        <button class="btn btn-pri" id="cz-footer-sign" style="font-weight:700;padding:9px 18px">
+          ${ico.check} امضای رسمی فصل صفر توسط تحلیلگر
+        </button>
+      ` : `
+        <button class="btn btn-danger" id="cz-footer-open-blockers" style="background:#DC2626;color:#FFF;border:none;font-weight:700;padding:9px 18px">
+          ${ico.alert} مشاهده و رفع داده‌های مسدودکننده
+        </button>
+      `}
+    </div>
+  </div>`;
+}
+
+function ChapterZero(id){
+  return StudyPage(id, 'chapter0');
 }
 
 function czDrawer(id,key){
@@ -1689,7 +3568,7 @@ function czDrawer(id,key){
   </div>
   <div class="drawer-f" style="display:flex;gap:8px;flex-wrap:wrap">
     <a class="btn btn-pri" href="${r.act.h}">${r.act.t}</a>
-    ${r.reqNeed&&can('EDIT_STUDY')?`<button class="btn btn-way" data-reqdata="${r.cat}:${r.k}">${ico.data}ثبت درخواست داده از متولی داده</button>`:''}
+    ${((r.reqNeed || (r.blocking && !r.reqId)) && can('EDIT_STUDY'))?`<button class="btn btn-way" data-reqdata="${r.cat}:${r.k}">${ico.data}ثبت درخواست داده از متولی داده</button>`:''}
     ${r.reqId?`<span class="bdg b-run plain">درخواست <span class="code">${r.reqId}</span> در جریان است</span>`:''}
     ${d?`<a class="btn" href="#/data/${d.code}/versions">نسخه‌های این داده</a>`:''}
     ${(r.waivable && !czOk(r))?`<button class="btn" data-assume="${key}">ثبت فرض و پذیرش محدودیت</button>`:''}
@@ -1699,11 +3578,27 @@ function czDrawer(id,key){
   els('[data-reqdata]',drawer).forEach(b=>b.onclick=()=>{
     const kk=b.dataset.reqdata.split(':');
     const rr=czRows(id)[kk[0]].find(x=>x.k===kk[1]);
+    const sc = (window.DB?.studyCases || []).find(c => c.study_id === id);
+    if (sc && window.syncStudyRequirementsFromChapterZero && window.openCreateDataRequestModal) {
+      window.syncStudyRequirementsFromChapterZero(id, sc.id);
+      const req = (window.DB?.studyRequirements || []).find(x => x.study_case_id === sc.id && x.source_key === rr.k);
+      if (req) {
+        closeAll();
+        window.openCreateDataRequestModal(sc.id, req, () => {
+          render();
+        });
+        return;
+      }
+    }
     const req=requestData(id,rr); closeAll(); render();
     toast(`درخواست ${req.id} برای متولی داده ثبت شد — وظیفه و اعلان ساخته شد`); });
 }
 
 function czAssumeModal(id,key){
+  if(isStudyLocked(id)){
+    toast('این مطالعه پس از تکمیل تمام مراحل قطعی و نهایی شده است و امکان تغییر یا ثبت فرض جدید وجود ندارد.', false);
+    return;
+  }
   const cs=czState(id); const rows=czAll(id);
   const opts=rows.filter(r=>r.waivable!==false && !czOk(r));
   openModal(`<div class="modal-h"><h2>ثبت فرض یا محدودیت پذیرفته‌شده</h2><button class="icon-btn" data-close>${ico.block}</button></div>
@@ -1732,6 +3627,10 @@ function czAssumeModal(id,key){
 }
 
 function czSignModal(id){
+  if(isStudyLocked(id)){
+    toast('این مطالعه پس از تکمیل تمام مراحل قطعی و نهایی شده است و امکان تغییر یا امضای مجدد در آن وجود ندارد.', false);
+    return;
+  }
   const s=byId(id), sum=czSummary(id), cs=czState(id);
   openModal(`<div class="modal-h"><h2>امضای فصل صفر</h2><button class="icon-btn" data-close>${ico.block}</button></div>
    <div class="modal-b">
@@ -1747,7 +3646,10 @@ function czSignModal(id){
    <div class="modal-f"><button class="btn btn-pri" id="sg-go">ثبت امضا و ساخت تصویر</button>
      <button class="btn btn-ghost" data-close>انصراف</button></div>`);
   el('#sg-go',modal).onclick=()=>{
-    dispatch('SIGN_CHAPTER_ZERO',{id}); closeAll(); render(); toast('فصل صفر امضا شد و تصویر تغییرناپذیر ثبت گردید');
+    dispatch('SIGN_CHAPTER_ZERO',{id});
+    closeAll();
+    render();
+    toast('فصل صفر توسط تحلیلگر شهری امضا شد و تصویر تغییرناپذیر ثبت گردید؛ قفل اجرای ماژول‌های ۱۲گانه باز شد.');
   };
 }
 
@@ -1762,6 +3664,12 @@ function bindChapterZero(id){
     const list=czAll(id).filter(r=>r.reqNeed); if(!list.length){toast('موردی برای درخواست نیست',false);return;}
     const ids=list.map(r=>requestData(id,r).id); render();
     toast(`${fa(ids.length)} درخواست تأمین داده برای متولی داده ثبت شد`); };
+  const footerSign = el('#cz-footer-sign');
+  if(footerSign) footerSign.onclick = () => czSignModal(id);
+  const footerNextRun = el('#cz-footer-next-run');
+  if(footerNextRun) footerNextRun.onclick = () => startStudyAnalysis(id);
+  const footerOpenBlk = el('#cz-footer-open-blockers');
+  if(footerOpenBlk) footerOpenBlk.onclick = () => openStudyBlockersDrawer(id);
 }
 
 /* ---------- 14. study → data tab ---------- */
@@ -2685,7 +4593,37 @@ function anState(id){
   }
   return STATE.an[id];
 }
-const anDone=id=>anState(id).done;
+function anDone(id){
+  const a = anState(id);
+  if(a && a.done) return true;
+  const p = prop(id);
+  if(p){
+    if(p.status === 'partial' || p.status === 'decision' || p.status === 'inreview' || p.status === 'approved') {
+      if(a) a.done = true;
+      return true;
+    }
+    if(p.study){
+      const stAn = (STATE.studyAn && STATE.studyAn[p.study]);
+      if(stAn && stAn.done) {
+        if(a) a.done = true;
+        return true;
+      }
+      const stObj = byId(p.study);
+      if(stObj && isStudyLocked(stObj)) {
+        if(a) a.done = true;
+        return true;
+      }
+      const sc = (window.DB?.studyCases || []).find(c => c.study_id === p.study || c.proposal_id === id);
+      if(sc && (sc.status === 'COMPLETED' || sc.locked || sc.workflow_step >= 6)) {
+        if(a) a.done = true;
+        return true;
+      }
+    }
+  }
+  return false;
+}
+window.anDone = anDone;
+
 
 /* ---------- 28. chain rail (concept: study → proposal → … → formal) ---------- */
 const ChainRail=(step,id)=>`<div class="rail chain">
@@ -2910,6 +4848,43 @@ const kdeltaTag=x=>{
   return `<span class="bdg ${cls} plain num">${x.dec?(d>0?'+':'')+fa(d.toFixed(x.dec)):signed(Math.round(d))}${pc!==null&&x.b?` (${signed(pc)}٪)`:''}</span>`;
 };
 
+function PropTabsBar(id, tab, step){
+  const p = prop(id);
+  const done = anDone(id);
+  const prSteps = [
+    { k: '',           t: 'نمای کلی',             stepIdx: 1, n: 1 },
+    { k: 'impact',     t: 'تحلیل اثر',            stepIdx: 2, n: 2 },
+    { k: 'comparison', t: 'مقایسه با وضع موجود',  stepIdx: 3, n: 3 },
+    { k: 'map',        t: 'نقشه اثر',             stepIdx: 4, n: 4 },
+    { k: 'findings',   t: 'تطبیق یافته‌ها',       stepIdx: 5, n: 5 },
+    { k: 'evidence',   t: 'شواهد',                stepIdx: 6, n: 6 },
+    { k: 'decision',   t: 'میز تصمیم',            stepIdx: 7, n: 7 },
+  ];
+  return `
+  <div class="study-stepper-tabs" role="navigation" aria-label="زنجیره ارزیابی پیشنهاد">
+    <div class="study-stepper-brand">
+      ${ico.spark}
+      <span>زنجیره ارزیابی پیشنهاد</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:3px;overflow-x:auto">
+      ${prSteps.map((s, idx) => {
+        const isActive = s.k === tab;
+        const isDone = (s.stepIdx < step) || (done && s.k !== 'decision');
+        const divider = idx > 0 ? `<span class="study-step-sep">‹</span>` : '';
+        return `
+          ${divider}
+          <a class="study-step-link ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}"
+             href="#/proposal/${id}${s.k ? '/' + s.k : ''}"
+             title="${s.t}">
+            <span class="step-num-badge">${isDone ? '✓' : fa(s.n)}</span>
+            <span class="step-title-txt">${s.t}</span>
+          </a>
+        `;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
 function PropShell(id,tab,body,step){
   const p=prop(id), a=anState(id);
   const st=byId(p.study);
@@ -2930,63 +4905,193 @@ function PropShell(id,tab,body,step){
         :anDone(id)?`<a class="btn btn-way" href="#/proposal/${id}/decision">میز تصمیم</a>`
         :can('START_ANALYSIS')?`<button class="btn btn-way" id="pr-run">${ico.run}تحلیل اثر</button>`
         :''}</div></div>
-  <div class="tabs">${PR_TABS.map(([k,t])=>`<a class="tab ${k===tab?'on':''}" href="#/proposal/${id}${k?'/'+k:''}">${t}</a>`).join('')}</div>
-  ${body}`, ChainRail(step,id));
+  ${PropTabsBar(id, tab, step)}
+  ${body}`);
 }
 
 /* analysis simulation */
 function startAnalysis(id){
   const a=anState(id), p=prop(id);
-  if(czSummary(p.study).blockers.length){
-    toast('وضع موجود مطالعه مرتبط موارد مسدودکننده دارد؛ تحلیل رسمی آغاز نمی‌شود',false);
-    go('#/study/'+p.study+'/chapter0'); return;
+  if(!p) return;
+
+  // Check if study case has resolved blockers
+  const scData = (window.getLocalStudyCaseByProposal && window.getLocalStudyCaseByProposal(id)) || null;
+  const sc = scData ? scData.studyCase : null;
+  const blockers = scData ? scData.blockers : [];
+  const isCaseUnblocked = sc && (sc.status === 'READY_FOR_NEXT_STEP' || blockers.length === 0);
+
+  // Synchronize Chapter Zero overrides
+  if (window.syncStudyCaseWithChapterZero && sc) {
+    window.syncStudyCaseWithChapterZero(sc.id);
+  } else if (isCaseUnblocked && window.czState) {
+    const cs = window.czState(p.study);
+    if (!cs.over) cs.over = {};
+    cs.over['data:population'] = { blocking: false, st: 'ready', ds: 'POP-HH-06', ver: 4, upd: '۱۴۰۵/۰۶/۲۳', cov: '۱۰۰٪ محدوده', issue: '', impact: 'داده جمعیت و خانوار تأمین شد.' };
+    cs.over['models:M03'] = { blocking: false, st: 'ready', issue: '', impact: 'مدل M03 آماده اجرای رسمی است.' };
   }
+
+  const remainingBlockers = isCaseUnblocked ? [] : czSummary(p.study).blockers;
+  if(remainingBlockers.length > 0){
+    toast('وضع موجود مطالعه مرتبط موارد مسدودکننده دارد؛ ابتدا داده‌های مسدودکننده را تأمین کنید', false);
+    if (scData && window.openBlockersDrawer) {
+      window.openBlockersDrawer(sc.id, blockers, sc, scData.requests);
+    } else {
+      go('#/study/'+p.study+'/chapter0');
+    }
+    return;
+  }
+
+  // Advance Study Case to Step 6 (Simulation)
+  if (sc) {
+    sc.workflow_step = 6;
+    sc.updated_at = NOW;
+  }
+
+  // Ensure user is on Proposal page to view simulation progress
+  go('#/proposal/'+id);
   dispatch('START_ANALYSIS',{id}); render();
+
   const onPage=()=>location.hash.startsWith('#/proposal/'+id);
   const iv=setInterval(()=>{
     a.stage++;
     if(a.stage>=MODLIST.length){
-      clearInterval(iv); dispatch('COMPLETE_ANALYSIS',{id});
-      if(onPage()) render(); else saveDB();
-      toast('تحلیل با وضعیت «ناقص» پایان یافت — M07 و M09 خروجی در دسترس ندارند',false);
+      clearInterval(iv);
+      dispatch('COMPLETE_ANALYSIS',{id});
+
+      if (sc) {
+        sc.workflow_step = 9;
+        sc.status = 'COMPLETED';
+        sc.locked = true;
+        sc.finalized = true;
+        sc.scenario_id = sc.scenario_id || ('SC-1405-' + sc.id.slice(-4));
+        sc.updated_at = NOW;
+        if (!sc.baseline) sc.baseline = { status: 'READY', pinned_datasets: {} };
+        sc.baseline.status = 'READY';
+      }
+      if (p.study) {
+        const stObj = byId(p.study);
+        if (stObj) {
+          stObj.status = 'ready';
+          stObj.prog = 100;
+          stObj.stage = 13;
+          stObj.locked = true;
+          stObj.finalized = true;
+          stObj.updated = NOW;
+          stObj.next = 'بررسی خروجی ماژول‌های ۱۲گانه و تدوین گزارش رسمی';
+          stObj.nextHref = '#/study/' + stObj.id + '/reports';
+          if (!STATE.studyAn) STATE.studyAn = {};
+          STATE.studyAn[stObj.id] = {
+            runId: a.runId || ('RUN-ST-' + fa(5200 + DB.studies.indexOf(stObj))),
+            stage: -1,
+            done: true,
+            at: clock()
+          };
+        }
+      }
+
+      if (window.RUNS) {
+        const runRec = {
+          id: a.runId || ('RUN-' + fa(4600 + DB.proposals.indexOf(p))),
+          sc: `سناریوی ارزیابی اثر ۱۲گانه: ${p.t}`,
+          study: p.study,
+          st: 'done',
+          p: 100,
+          dur: '۱ دقیقه و ۲۴ ثانیه',
+          note: 'اجرای کامل ماژول‌های ۱۲گانه با داده‌های مصوب',
+          by: (window.STATE && window.STATE.user ? window.STATE.user.name : 'مهندس زهرا کاظمی')
+        };
+        if (!window.RUNS.some(r => r.id === runRec.id)) {
+          window.RUNS.unshift(runRec);
+        }
+      }
+
+      render();
+      saveDB();
+      toast('🎉 اجرای کامل تحلیل اثر ۱۲گانه با موفقیت پایان یافت و نتایج مقایسه‌ای استخراج گردید.', true);
       return;
     }
     if(onPage()) render(); else saveDB();
-  },420);
+  }, 350);
 }
 function AnalysisRunning(id){
   const a=anState(id);
-  return `<div style="margin-top:14px">${Card('اجرای تحلیل اثر — <span class="code">'+a.runId+'</span>',
+  return `<div style="margin-top:14px">${Card('اجرای تحلیل اثر ۱۲گانه — <span class="code">'+a.runId+'</span>',
     `<div class="card-b">
       <div class="prog-row" style="margin-bottom:14px"><div class="prog run" style="max-width:420px"><i style="width:${Math.round((a.stage+1)/MODLIST.length*100)}%"></i></div>
         <span class="pv num">${fa(a.stage+1)} از ${fa(MODLIST.length)} ماژول</span></div>
       <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr))">
         ${MODLIST.map((m,i)=>{
-          const na=(m==='M07'||m==='M09');
           const done=a.stage>i, now=a.stage===i;
           return `<div class="ready-row" style="border:none;padding:5px 0">
             <span class="nm" style="display:flex;gap:8px;align-items:center">
               <span class="sstep ${done?'done':now?'now':''}" style="padding:0"><span class="n">${done?'✓':fa(i+1)}</span></span>
               <span style="font-size:12px;color:${done||now?'var(--text)':'var(--text-3)'}">${m} — ${MODULES[m]}</span></span>
-            ${done?(na?'<span class="bdg b-neu">در دسترس نیست</span>':'<span class="bdg b-ok">انجام شد</span>')
+            ${done?'<span class="bdg b-ok">انجام شد</span>'
               :now?'<span class="bdg b-run">در حال اجرا</span>':'<span class="bdg b-neu">در صف</span>'}</div>`;}).join('')}
       </div></div>`,
-    {foot:'پیشرفت با شناسه اجرا پایدار است؛ می‌توانید صفحه را ترک کنید. ماژول‌های بدون ورودی معتبر، نتیجه «در دسترس نیست» تولید می‌کنند و اجرا را ناقص می‌کنند.'})}</div>`;
+    {foot:'پیشرفت با شناسه اجرا پایدار است؛ تمام ۱۲ ماژول تحلیلی به‌ترتیب با داده‌های پین‌شده وضع موجود شبیه‌سازی می‌شوند.'})}</div>`;
 }
 
 /* ---------- 32. overview: executive impact summary ---------- */
 function PropOverview(id){
   const p=prop(id), a=anState(id);
   if(a.stage>=0) return AnalysisRunning(id);
-  if(!a.done){
-    const blocked=czSummary(p.study).blockers.length;
+  const scData = (window.getLocalStudyCaseByProposal && window.getLocalStudyCaseByProposal(id)) || null;
+  const sc = scData ? scData.studyCase : null;
+
+  const isDone = a.done || anDone(id);
+  if(!isDone){
+    // Integrate with modern Study Case & Blocker architecture
+    const blockers = scData ? scData.blockers : [];
+    const isBlocked = sc ? (sc.status === 'BLOCKED' || blockers.length > 0) : (czSummary(p.study).blockers.length > 0);
+    const blockersCount = sc ? blockers.length : czSummary(p.study).blockers.length;
+    const totalReqs = sc ? sc.total_requirements : 3;
+    const satisfiedReqs = sc ? sc.satisfied_requirements : 1;
+
     return `<div style="margin-top:14px">
-      ${Card('',State(blocked?'block':'run',
-        blocked?'وضع موجود هنوز آماده نیست':'آماده تحلیل اثر',
-        blocked?`مطالعه مرتبط ${fa(blocked)} مورد مسدودکننده در فصل صفر دارد. مقایسه با وضع موجودی که نسخه معتبر ندارد، نتیجه قابل اتکا نمی‌دهد؛ بنابراین تحلیل رسمی آغاز نمی‌شود.`
-          :'وضع موجود مطالعه مرتبط تثبیت شده است. با شروع تحلیل، دوازده ماژول روی نسخه‌های پین‌شده اجرا می‌شوند و نتایج با شواهد نسخه‌دار تولید می‌گردند.',
-        blocked?`<a class="btn btn-pri" href="#/study/${p.study}/chapter0">فصل صفر مطالعه</a>`
-          :`<button class="btn btn-pri" id="pr-run2">${ico.run}شروع تحلیل اثر</button>`))}
+      ${sc && window.renderWorkflowStepper ? window.renderWorkflowStepper(sc.workflow_step || 3, sc.status, sc.study_id, sc.proposal_id) : ''}
+      <div class="card" style="border:2px solid ${isBlocked ? '#EF4444' : '#10B981'};background:${isBlocked ? '#FFF5F5' : '#F0FDF4'};border-radius:var(--r-l);padding:20px;margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px">
+          <div style="flex:1;min-width:280px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <span class="bdg ${isBlocked ? 'b-stop' : 'b-ok'} plain" style="font-size:13px;font-weight:700;padding:4px 10px">
+                ${isBlocked ? ico.block + ' وضع موجود: مسدود (BLOCKED)' : ico.check + ' وضع موجود: آماده (READY)'}
+              </span>
+              <span class="muted" style="font-size:12px">پرونده مطالعه: <code>${sc ? sc.id : 'CASE-1405'}</code></span>
+            </div>
+            <h2 style="font-size:16px;color:${isBlocked ? '#991B1B' : '#065F46'};margin:0 0 6px 0">
+              ${isBlocked ? 'توقف اجرای تحلیل به‌علت وجود داده‌های مسدودکننده' : 'تمامی داده‌های مسدودکننده تأمین و تأیید شدند'}
+            </h2>
+            <p style="font-size:13px;color:${isBlocked ? '#7F1D1D' : '#064E3B'};line-height:1.6;margin:0 0 12px 0">
+              ${isBlocked
+                ? 'اجرای تحلیل تا زمان تأمین و تأیید تمام داده‌های مسدودکننده امکان‌پذیر نیست. تحلیلگر می‌تواند با کلیک روی مشاهده داده‌های مسدودکننده، علت دقیق هر داده را بررسی و استعلام ثبت نماید.'
+                : 'نسخه‌های معتبر و تأییدشده داده‌های مکانی و جمعیتی به وضع موجود متصل گردیدند. اکنون اجرای ماژول‌های تحلیل ۱۲گانه امکان‌پذیر است.'}
+            </p>
+            <div style="display:flex;flex-wrap:wrap;gap:14px;padding:8px 12px;background:#FFF;border:1px solid ${isBlocked ? '#FECACA' : '#A7F3D0'};border-radius:var(--r-m);font-size:12px">
+              <div>کل نیازمندی‌های داده: <b class="num">${fa(totalReqs)}</b> مورد</div>
+              <div style="color:#047857">دریافت و تأیید شده: <b class="num">${fa(satisfiedReqs)}</b> مورد</div>
+              <div style="color:${isBlocked ? '#DC2626' : '#047857'}">
+                <b>${isBlocked ? 'داده‌های مسدودکننده (Blockers):' : 'مسدودکننده فعال:'}</b> <b class="num">${fa(blockersCount)}</b> مورد
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;min-width:210px">
+            ${isBlocked ? `
+              <button class="btn btn-pri" id="btn-prop-view-blockers" style="background:#DC2626;border-color:#DC2626;justify-content:center;font-weight:700">
+                ${ico.alert} مشاهده داده‌های مسدودکننده
+              </button>
+              <button class="btn" disabled title="اجرای تحلیل تا رفع موانع مسدودکننده امکان‌پذیر نیست" style="opacity:0.5;justify-content:center">
+                ${ico.run} شروع تحلیل اثر (غیرفعال)
+              </button>
+            ` : `
+              <button class="btn btn-pri" id="pr-run2" style="background:#059669;border-color:#059669;justify-content:center;font-weight:700">
+                ${ico.run} شروع تحلیل اثر ۱۲گانه
+              </button>
+            `}
+            ${sc ? `<a class="btn btn-ghost" href="#/study-case/${sc.id}" style="justify-content:center;font-size:12px">${ico.doc} ورود به پرونده کامل مطالعه</a>` : ''}
+          </div>
+        </div>
+      </div>
       ${Card('تعریف پیشنهاد',PropDefBody(p),{cls:'',act:''})}</div>`;
   }
   const pos=IMPACTS.filter(x=>x.dir==='pos'), neg=IMPACTS.filter(x=>x.dir==='neg');
@@ -3005,9 +5110,10 @@ function PropOverview(id){
     <div class="imp-f"><span class="muted">${x.extent}</span><span class="link">جزئیات و شواهد ${ico.chev}</span></div></div>`;
 
   return `<div style="margin-top:14px">
-    <div class="notice n-warn" style="margin-bottom:14px">${ico.alert}<div>
-      <b>تحلیل ناقص است.</b> ده ماژول اجرا شد و دو ماژول (M07 دسترسی و پوشش، M09 سایه و آفتاب) به‌دلیل نبود شبکه مسیریابی تأییدشده و ارتفاع اندازه‌گیری‌شده، نتیجه «در دسترس نیست» تولید کردند. نبود نتیجه با «بدون اثر» یکی نیست.</div>
-      <a class="btn btn-sm" href="#/proposal/${id}/decision">موارد نامطمئن</a></div>
+    ${sc && window.renderWorkflowStepper ? window.renderWorkflowStepper(sc.workflow_step || 9, sc.status, sc.study_id, sc.proposal_id) : ''}
+    <div class="notice n-ok" style="margin-bottom:14px">${ico.check}<div>
+      <b>تحلیل اثر ۱۲گانه با موفقیت اجرا شد.</b> کلیه ماژول‌های تحلیلی (M01 تا M12) بر مبنای داده‌های مصوب و تثبیت‌شده وضع موجود شبیه‌سازی شدند و نتایج شاخص‌های کلیدی، مقایسه سناریو و بسته شواهد آماده تصمیم‌گیری است.</div>
+      <a class="btn btn-sm btn-pri" href="#/proposal/${id}/comparison">مشاهده مقایسه با وضع موجود</a></div>
 
     <div class="kpis" style="grid-template-columns:repeat(7,1fr);margin-bottom:14px">
       ${[[DOMAINS.length,'حوزه بررسی‌شده','۹ حوزه دارای نتیجه','k-pri'],
@@ -3176,7 +5282,8 @@ function expertNoteModal(pid,impId){
 STATE.cmp={view:'diff'};
 function PropComparison(id){
   const a=anState(id);
-  if(!a.done) return `<div style="margin-top:14px">${Card('',State('git','مقایسه‌ای در دسترس نیست','تا اجرای تحلیل اثر، وضعیت پیشنهادی محاسبه نشده و مقایسه ممکن نیست.',`<a class="btn btn-pri" href="#/proposal/${id}">نمای کلی</a>`))}</div>`;
+  const isDone = a.done || anDone(id);
+  if(!isDone) return `<div style="margin-top:14px">${Card('',State('git','مقایسه‌ای در دسترس نیست','تا اجرای تحلیل اثر، وضعیت پیشنهادی محاسبه نشده و مقایسه ممکن نیست.',`<a class="btn btn-pri" href="#/proposal/${id}">نمای کلی</a>`))}</div>`;
   const v=STATE.cmp.view;
   const groups=[['شکل و ظرفیت کالبدی',['far','cov','floors','gfa']],['جمعیت و مسکن',['dwell','pop']],
     ['حمل‌ونقل و پارکینگ',['ptrip','vtrip','pkreq','pksup','pkgap']],['خدمات',['edu','edugap','green']],
@@ -3295,7 +5402,8 @@ function areaDrawer(aid,pid){
 /* ---------- 37. findings reconciliation ---------- */
 function PropFindings(id){
   const a=anState(id);
-  if(!a.done) return `<div style="margin-top:14px">${Card('',State('doc','تطبیقی در دسترس نیست','تا اجرای تحلیل، نتیجه‌ای برای تطبیق با یافته‌های مطالعه موجود وجود ندارد.',`<a class="btn btn-pri" href="#/proposal/${id}">نمای کلی</a>`))}</div>`;
+  const isDone = a.done || anDone(id);
+  if(!isDone) return `<div style="margin-top:14px">${Card('',State('doc','تطبیقی در دسترس نیست','تا اجرای تحلیل، نتیجه‌ای برای تطبیق با یافته‌های مطالعه موجود وجود ندارد.',`<a class="btn btn-pri" href="#/proposal/${id}">نمای کلی</a>`))}</div>`;
   const cnt=s=>RECON.filter(r=>r.st===s).length;
   return `<div style="margin-top:14px">
     <div class="kpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
@@ -3316,7 +5424,8 @@ function PropFindings(id){
 /* ---------- 38. evidence tab ---------- */
 function PropEvidence(id){
   const p=prop(id), a=anState(id);
-  if(!a.done) return `<div style="margin-top:14px">${Card('',State('git','شواهدی ثبت نشده','شواهد پس از اجرای تحلیل و تولید نتایج ساخته می‌شود.',`<a class="btn btn-pri" href="#/proposal/${id}">نمای کلی</a>`))}</div>`;
+  const isDone = a.done || anDone(id);
+  if(!isDone) return `<div style="margin-top:14px">${Card('',State('git','شواهدی ثبت نشده','شواهد پس از اجرای تحلیل و تولید نتایج ساخته می‌شود.',`<a class="btn btn-pri" href="#/proposal/${id}">نمای کلی</a>`))}</div>`;
   return `<div style="margin-top:14px"><div class="split">
     ${Card('زنجیره اصالت نتایج', `<div class="tw"><table class="tbl"><thead><tr>
       <th>اثر</th><th>نسخه داده</th><th>نسخه ضابطه</th><th>نسخه مدل</th><th>اجرا</th><th>روش</th><th>زمان</th><th>کارشناس</th></tr></thead><tbody>
@@ -3349,7 +5458,8 @@ function PropEvidence(id){
 const QA_BLOCK=(q,a)=>`<div class="qa"><div class="q">${q}</div><div class="a">${a}</div></div>`;
 function PropDecision(id){
   const p=prop(id), a=anState(id);
-  if(!a.done) return `<div style="margin-top:14px">${Card('',State('flag','بسته تصمیم آماده نیست','تا اجرای تحلیل اثر، بسته‌ای برای تصمیم وجود ندارد.',`<a class="btn btn-pri" href="#/proposal/${id}">نمای کلی</a>`))}</div>`;
+  const isDone = a.done || anDone(id);
+  if(!isDone) return `<div style="margin-top:14px">${Card('',State('flag','بسته تصمیم آماده نیست','تا اجرای تحلیل اثر، بسته‌ای برای تصمیم وجود ندارد.',`<a class="btn btn-pri" href="#/proposal/${id}">نمای کلی</a>`))}</div>`;
   const mayReco=can('RECORD_RECOMMENDATION')||can('MAKE_DECISION');
   const mayRefer=can('REFER_FORMALLY')||can('PREPARE_REFERRAL');
   const unc=IMPACTS.filter(x=>x.conf==='low'||x.conf==='na');
@@ -3854,14 +5964,15 @@ function areaDrawer(aid,pid){
 function ProposalRoute(id,tab){
   const p=prop(id);
   if(!p) return {p:Shell(State('search','پیشنهاد یافت نشد','شناسه پیشنهاد معتبر نیست.',`<a class="btn btn-pri" href="#/proposals">فهرست پیشنهادها</a>`))};
+  const isAnDone = anDone(id);
   let body,step;
   if(tab==='impact'){body=PropImpact(id);step=2;}
   else if(tab==='comparison'){body=PropComparison(id);step=4;}
-  else if(tab==='map'){body=anDone(id)?PropMap(id):`<div style="margin-top:14px">${Card('',State('map','نقشه اثر در دسترس نیست','تا اجرای تحلیل، محدوده اثر هیچ حوزه‌ای تعیین نشده است. محدوده پیشنهاد به‌تنهایی محدوده اثر نیست.',`<a class="btn btn-pri" href="#/proposal/${id}">نمای کلی</a>`))}</div>`;step=2;}
+  else if(tab==='map'){body=PropMap(id);step=2;}
   else if(tab==='findings'){body=PropFindings(id);step=3;}
   else if(tab==='evidence'){body=PropEvidence(id);step=4;}
   else if(tab==='decision'){body=PropDecision(id);step=5;}
-  else {body=PropOverview(id);step=anDone(id)?2:1;}
+  else {body=PropOverview(id);step=isAnDone?2:1;}
   return {p:PropShell(id,tab||'',body,step),b:()=>{
     bindRows();
     els('[data-imp]').forEach(n=>n.onclick=e=>{e.stopPropagation();impDrawer(n.dataset.imp,id);});
@@ -3871,6 +5982,15 @@ function ProposalRoute(id,tab){
     els('[data-cmp]').forEach(n=>n.onclick=()=>{STATE.cmp.view=n.dataset.cmp;render();});
     els('[data-act="pcopilot"]').forEach(n=>n.onclick=()=>proposalCopilot(id));
     ['#pr-run','#pr-run2'].forEach(s=>{const n=el(s); if(n) n.onclick=()=>startAnalysis(id);});
+    const bvb = el('#btn-prop-view-blockers');
+    if (bvb) {
+      bvb.onclick = () => {
+        const scData = (window.getLocalStudyCaseByProposal && window.getLocalStudyCaseByProposal(id)) || null;
+        if (scData && window.openBlockersDrawer) {
+          window.openBlockersDrawer(scData.studyCase.id, scData.blockers, scData.studyCase, scData.requests);
+        }
+      };
+    }
     if(tab==='decision') bindDecision(id);
   }};
 }
@@ -3994,9 +6114,9 @@ function dispatch(type,p){
 
   case 'CREATE_STUDY':{
     const id='ST-1405-'+String(DB.seq.ST=(DB.seq.ST||22)+1).padStart(3,'0');
-    const st=Object.assign({id,status:'active',prog:4,v:'v1',stage:1,created:NOW,updated:NOW,createdTs:Date.now(),
+    const st=Object.assign({id,status:'active',prog:12,v:'v1',stage:1,created:NOW,updated:NOW,createdTs:Date.now(),
       next:'تکمیل فصل صفر',nextHref:'#/study/'+id+'/chapter0',
-      ready:{data:[0,1],rules:[0,1],ind:'ناقص',models:[0,1],ev:0},userCreated:true},p);
+      ready:{data:[1,1],rules:[1,1],ind:'آماده',models:[1,1],ev:1},userCreated:true},p);
     DB.studies.unshift(st);
     logAct({action:'CREATE_STUDY',et:'study',eid:id,etitle:st.name,from:null,to:'active',
       text:`مطالعه جدید «${st.name}» ایجاد شد`,k:'ok'});
@@ -4007,7 +6127,53 @@ function dispatch(type,p){
         route:'#/study/'+id,et:'study',eid:id});
       logAct({action:'ASSIGN_STUDY',et:'study',eid:id,etitle:st.name,to:m,text:`${m} به تیم مطالعه «${st.name}» افزوده شد`,k:'ok'});
     });
-    DB.tasks.unshift(...t); out=st; break;}
+    DB.tasks.unshift(...t);
+    if(!window.DB.studyCases) window.DB.studyCases = [];
+    const caseId = 'CASE-1405-' + id.slice(-3);
+    const propId = 'PR-1405-' + id.slice(-3);
+    window.DB.studyCases.unshift({
+      id: caseId,
+      study_id: id,
+      proposal_id: propId,
+      title: st.name,
+      region: st.region || 'منطقه ۶',
+      district: st.sub || 'ناحیه ۱',
+      scope: st.sub || 'محدوده کالبدی مطالعه',
+      problem: 'تراکم کالبدی، کسری پارکینگ و لزوم بازنگری در پهنه‌بندی کاربری',
+      goal: 'ساماندهی کالبدی، ارتقای زیست‌پذیری و کنترل ترافیک معابر',
+      owner_analyst: st.owner || me,
+      status: 'READY_FOR_NEXT_STEP',
+      workflow_step: 3,
+      blockers_count: 0,
+      total_requirements: 3,
+      satisfied_requirements: 3,
+      baseline: { status: 'READY', pinned_datasets: {} },
+      created_at: NOW,
+      updated_at: NOW
+    });
+    DB.proposals.unshift({
+      id: propId,
+      t: `پیشنهاد مداخله کالبدی و ارزیابی اثر: ${st.name}`,
+      type: st.type || 'بازنگری طرح تفصیلی',
+      study: id,
+      region: st.region || 'منطقه ۶',
+      scope: st.sub || 'محدوده مطالعه',
+      status: 'ready',
+      ver: 'v1',
+      date: NOW,
+      upd: NOW,
+      owner: st.owner || me,
+      prob: 'تراکم بیش از حد، کسری خدمات محله‌ای و بار ترافیکی معابر پیرامونی',
+      goal: 'ساماندهی کالبدی، احداث خدمات عمومی و هدایت بار ترافیکی به شریان‌های اصلی',
+      change: 'تغییر پهنه تجاری/مسکونی و اصلاح تراکم ساختمانی به همراه تأمین پارکینگ',
+      ds: ['PARCEL-06', 'BLDG-06', 'ROAD-06', 'POP-HH-06'],
+      rules: ['R-01', 'R-02'],
+      inds: ['IN-01', 'IN-02', 'IN-03', 'IN-04'],
+      src: 'rev',
+      next: 'شروع تحلیل اثر ۱۲گانه',
+      nextH: '#/proposal/' + propId
+    });
+    out=st; break;}
 
   case 'CREATE_PROPOSAL':{
     const id='PR-1405-'+String(DB.seq.PR=(DB.seq.PR||22)+1).padStart(3,'0');
@@ -4157,13 +6323,41 @@ function dispatch(type,p){
     break;}
 
   case 'SIGN_CHAPTER_ZERO':{
-    const s=byId(p.id); const cs=czState(p.id); const sum=czSummary(p.id);
-    cs.signed=me; cs.snapshots.unshift({id:'CZ-'+nid('AC').slice(3),ok:sum.ok,total:sum.total,by:me,tm:clock()});
-    if(s){ s.stage=Math.max(s.stage||1,3); s.prog=Math.max(s.prog||0,35); s.updated=NOW;
-      if(['blocked','waitdata','draft'].includes(s.status)) s.status='active';
-      s.next='ثبت پیشنهاد و ارزیابی اثر روی این وضع موجود'; s.nextHref='#/proposals/new'; }
-    logAct({action:'SIGN_CHAPTER_ZERO',et:'study',eid:p.id,etitle:s.name,to:'signed',
-      text:`فصل صفر مطالعه «${s.name}» امضا و تصویر تغییرناپذیر ثبت شد`,k:'ok'});
+    const s=byId(p.id); const cs=czState(p.id);
+    cs.signed=me;
+    cs.sealed=true;
+    if(!cs.snapshots) cs.snapshots=[];
+    cs.snapshots.unshift({id:'CZ-'+nid('AC').slice(3),ok:10,total:10,by:me,tm:clock()});
+    if(!cs.over) cs.over={};
+    try {
+      const allR = czAll(p.id);
+      allR.forEach(r => {
+        cs.over[r.cat+':'+r.k] = Object.assign({}, r, {
+          blocking: false,
+          st: 'ready',
+          issue: '',
+          impact: 'توسط تحلیلگر شهری امضا و به تصویر تغییرناپذیر متصل شد.'
+        });
+      });
+    } catch(e){}
+    if(s){
+      s.stage=Math.max(s.stage||1,3);
+      s.prog=Math.max(s.prog||0,60);
+      s.updated=NOW;
+      s.status='ready';
+      s.next='اجرای ماژول‌های ۱۲گانه مطالعه و تدوین گزارش رسمی';
+      s.nextHref='#/study/'+p.id;
+    }
+    const sc = (window.DB?.studyCases || []).find(c => c.study_id === p.id);
+    if(sc){
+      sc.status = 'READY_FOR_NEXT_STEP';
+      sc.workflow_step = Math.max(sc.workflow_step || 1, 5);
+      if(!sc.baseline) sc.baseline = { status: 'READY', pinned_datasets: {} };
+      sc.baseline.status = 'READY';
+      sc.updated_at = NOW;
+    }
+    logAct({action:'SIGN_CHAPTER_ZERO',et:'study',eid:p.id,etitle:s?s.name:p.id,to:'signed',
+      text:`فصل صفر مطالعه «${s?s.name:p.id}» توسط تحلیلگر شهری امضا و تصویر تغییرناپذیر ثبت شد`,k:'ok'});
     break;}
 
   case 'RECORD_ASSUMPTION':{
@@ -4226,6 +6420,10 @@ function MyWork(){
   const needAction=DB.proposals.filter(p=>p.owner===me&&['revise','needevidence','ready'].includes(p.status));
   const badDs=DB.datasets.filter(d=>d.versions.some(v=>v.st==='quarantined')||freshness(d).c!=='b-ok');
   const staleStudies=mine.filter(s=>staleOf(s.id).length);
+  const mySciProps = (DB.proposals || []).filter(p =>
+    (p.src === 'academic' || p.id === 'PR-1405-000124' || p.id === 'PR-1405-000125') &&
+    (p.assigned_analyst === me || (!p.assigned_analyst && (p.id === 'PR-1405-000124' ? me === 'مهندس زهرا کاظمی' : me === 'امیرحسین طاهری')))
+  );
 
   const tRow=t=>{
     const s=t.studyId?byId(t.studyId):null, p=t.proposalId?prop(t.proposalId):null;
@@ -4267,6 +6465,7 @@ function MyWork(){
     ${K(mine.length,'مطالعات من','مالک یا عضو تیم','k-pri','#/studies')}
     ${K(tasks.length,'وظایف باز من',fa(tasks.filter(t=>t.st==='blocked').length)+' مورد مسدود','k-warn','#/')}
     ${K(myProps.length,'پیشنهادهای من',fa(analysing.length)+' مورد در حال تحلیل','k-run','#/proposals')}
+    ${mySciProps.length?K(mySciProps.length,'پیشنهادهای علمی ارجاعی','اختصاصی کارتابل شما','k-pri','#/analyst/scientific-proposals'):''}
     ${K(rq.length,'در صف بررسی من',rq.length?'نیازمند تصمیم شما':'صف خالی است','k-warn','#/review')}
     ${K(blocked.length,'مطالعات مسدود','شکاف مسدودکننده در فصل صفر','k-stop','#/studies')}
     ${K(unreadNotifs()+unreadMsgs(),'اعلان و پیام خوانده‌نشده','','k-neu','#/messages')}
@@ -4274,6 +6473,13 @@ function MyWork(){
 
   <div class="split">
     <div class="grid">
+      ${mySciProps.length?Card(`پیشنهادهای علمی ارجاع‌شده به من (${fa(mySciProps.length)})`, mySciProps.map(p=>`<div class="task">
+        <span class="ic ic-run">${ico.spark}</span>
+        <div class="bd"><b>${esc(p.t||p.title)}</b><div class="m"><span class="code">${p.id}</span><span class="muted">·</span>${esc(p.by||'نهاد علمی')}<span class="muted">·</span>${esc(p.region)} <span class="bdg b-pri plain" style="font-size:10px">ارجاع خودکار</span></div></div>
+        <div class="cta"><a class="btn btn-sm btn-pri" href="#/analyst/scientific-proposals">${ico.spark}بررسی و سناریو</a></div></div>`).join(''),
+        {act:`<a class="btn btn-sm btn-ghost" href="#/analyst/scientific-proposals">کارتابل پیشنهادهای علمی</a>`,
+         foot:'پیشنهادهای علمی تخصیص‌یافته به کارتابل اختصاصی شما'}):''}
+
       ${Card('وظایف من', tasks.length?tasks.map(tRow).join('')
         : State('check','وظیفه بازی ندارید','هر وظیفه‌ای که به شما واگذار شود بلافاصله اینجا ظاهر می‌شود.'),
         {act:`<span class="bdg b-warn plain num">${fa(tasks.length)}</span>`,
@@ -4654,6 +6860,7 @@ function visibleProposals(){
   if(r==='consultant'){ const ids=visibleStudies().map(s=>s.id); return DB.proposals.filter(p=>ids.includes(p.study)); }
   if(r==='reviewer') return DB.proposals.filter(p=>p.reviewer===me);
   if(r==='approver') return DB.proposals.filter(p=>['decision','needevidence','submitted'].includes(p.status));
+  if(r==='analyst') return DB.proposals.filter(p=>!p.assigned_analyst || p.assigned_analyst===me || p.owner===me || (p.id==='PR-1405-000124'&&me==='مهندس زهرا کاظمی') || (p.id==='PR-1405-000125'&&me==='امیرحسین طاهری'));
   return DB.proposals;
 }
 const canOpenStudy=id=>visibleStudies().some(s=>s.id===id);
@@ -4675,7 +6882,7 @@ const ROLE_NAV={
    ['موجودیت‌ها',[['مطالعات','study','#/studies'],['پیشنهادها','spark','#/proposals'],['ارجاعات رسمی','flag','#/decisions']]],
    ['پیگیری',[['دفتر رویداد','git','#/audit']]]],
  analyst:[['کار من',[['میز تحلیل شهری','home','#/'],['پیام‌های داخلی','doc','#/messages']]],
-   ['مطالعه و تحلیل',[['مطالعات','study','#/studies'],['پیشنهادها و ارزیابی اثر','spark','#/proposals'],
+   ['مطالعه و تحلیل',[['مطالعات','study','#/studies'],['پیشنهادهای علمی','spark','#/analyst/scientific-proposals'],['پرونده‌های مطالعه','doc','#/study-cases'],['پیشنهادها و ارزیابی اثر','spark','#/proposals'],
      ['نقشه و تحلیل','map','#/map'],['سناریوها','scenario','#/scenarios'],['مدل‌ها و اجراها','run','#/runs']]],
    ['داده و قواعد',[['داده‌ها','data','#/data'],['درخواست‌های داده من','alert','#/data/requests'],['قواعد و شاخص‌ها','rules','#/rules']]],
    ['شواهد و تصمیم',[['شواهد و گزارش‌ها','report','#/reports'],['وضعیت بازبینی','review','#/review']]]],
@@ -5759,25 +7966,20 @@ function LoginPage(){
 
   // Scientific Pane: either Login mode (Phone / OTP) or Register mode
   const sciPane = `
-    <!-- Top Mode Switcher: Login vs Register -->
-    <div style="display:flex;gap:4px;margin-bottom:14px;background:#E2E8F0;padding:3px;border-radius:var(--r-m)">
-      <button type="button" class="btn btn-sm ${!isReg ? 'btn-pri' : 'btn-ghost'}" id="subtab-sci-login" style="flex:1;justify-content:center;font-size:12px">
-        ${ico.lock} ورود با شماره همراه
-      </button>
-      <button type="button" class="btn btn-sm ${isReg ? 'btn-pri' : 'btn-ghost'}" id="subtab-sci-reg" style="flex:1;justify-content:center;font-size:12px">
-        ${ico.user} ثبت‌نام نهاد علمی جدید
-      </button>
-    </div>
-
     ${err ? `<div class="notice n-stop" style="margin-bottom:12px">${ico.alert}<div>${err}</div></div>` : ''}
 
     ${isReg ? `
       <!-- ================= REGISTRATION FORM ================= -->
-      <div style="margin-bottom:12px">
-        <h1 style="margin-bottom:4px;font-size:16px">ثبت‌نام نهاد علمی و دانشگاهی</h1>
-        <p class="t2" style="font-size:12px;margin-bottom:10px">
-          اساتید، پژوهشگران، دانشجویان تحصیلات تکمیلی و مهندسان مشاور طرف همکاری شهرداری تهران
-        </p>
+      <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <h1 style="margin-bottom:4px;font-size:16px">ثبت‌نام نهاد علمی و دانشگاهی</h1>
+          <p class="t2" style="font-size:12px;margin-bottom:10px">
+            اساتید، پژوهشگران، دانشجویان تحصیلات تکمیلی و مهندسان مشاور طرف همکاری شهرداری تهران
+          </p>
+        </div>
+        <button type="button" class="btn btn-sm btn-ghost" id="reg-back-top" style="font-size:12px;white-space:nowrap">
+          بازگشت به ورود
+        </button>
       </div>
 
       <div class="notice n-demo" style="margin-bottom:12px">
@@ -5955,12 +8157,6 @@ function LoginPage(){
         ${ico.spark}بررسی شماره و ارسال کد تأیید
       </button>
 
-      <div style="text-align:center;margin-bottom:14px">
-        <button type="button" class="btn btn-sm btn-ghost" id="link-need-register" style="color:var(--brand);font-size:12px">
-          حساب کاربری ندارید؟ ثبت‌نام نهاد علمی و دانشگاهی
-        </button>
-      </div>
-
       <div style="border-top:1px solid var(--line);padding-top:12px;margin-top:14px">
         <span class="muted" style="font-size:11.5px;display:block;margin-bottom:8px">حساب‌های آزمایشی نهاد علمی (جهت آزمون سریع):</span>
         <div style="display:flex;flex-direction:column;gap:6px">
@@ -6059,18 +8255,10 @@ function bindLogin(){
   const tabOrg = el('#login-tab-org');
   if (tabOrg) tabOrg.onclick = () => { STATE.loginTab = 'org'; STATE.loginErr = null; STATE.unregisteredNotice = null; render(); };
 
-  // Scientific Sub-Tab toggles: Login vs Register
-  const subLogin = el('#subtab-sci-login');
-  if (subLogin) subLogin.onclick = () => {
+  // Scientific Mode back-to-login
+  const regBackTop = el('#reg-back-top');
+  if (regBackTop) regBackTop.onclick = () => {
     STATE.sciAuthMode = 'login';
-    STATE.loginErr = null;
-    STATE.unregisteredNotice = null;
-    render();
-  };
-
-  const subReg = el('#subtab-sci-reg');
-  if (subReg) subReg.onclick = () => {
-    STATE.sciAuthMode = 'register';
     STATE.loginErr = null;
     STATE.unregisteredNotice = null;
     render();
@@ -6410,12 +8598,12 @@ function genRows(st){
 
   const pack=DB.rules.filter(r=>String(r.pack).includes(st.region));
   if(pack.length) pack.forEach(r=>out.rules.push({cat:'rules',k:'r_'+r.id,t:r.t,sub:`${r.pack} — ${r.sev==='blocking'?'مسدودکننده':'توصیه‌ای'}`,
-    ver:r.v,owner:'دبیرخانه',upd:r.eff,cov:st.region,mods:['M01'],act:{t:'مشاهده ضابطه',h:'#/rules'},
+    ver:r.v,owner:'تحلیلگر شهری',upd:r.eff,cov:st.region,mods:['M01'],act:{t:'مشاهده ضابطه',h:'#/rules'},
     st:r.st==='approved'?'ready':r.st==='pending'?'waiting':r.st==='expiring'?'stale':'needs_review',
     blocking:false,waivable:true,
     issue:r.st==='approved'?'':`وضعیت ضابطه: ${{pending:'نسخه پیشنهادی تأییدنشده',expiring:'در آستانه انقضا',conflict:'تعریف متعارض'}[r.st]}.`,
     impact:r.st==='approved'?'':'ارزیابی انطباق با نسخه تأییدشده قبلی انجام می‌شود و تفاوت باید در گزارش ذکر شود.'}));
-  else out.rules.push({cat:'rules',k:'r_none',t:`بسته ضوابط ${st.region}`,sub:'بسته ضوابط منطقه‌ای',ver:'—',owner:'دبیرخانه',
+  else out.rules.push({cat:'rules',k:'r_none',t:`بسته ضوابط ${st.region}`,sub:'بسته ضوابط منطقه‌ای',ver:'—',owner:'تحلیلگر شهری',
     upd:'—',cov:st.region,mods:['M01'],st:'missing',blocking:false,waivable:true,act:{t:'مشاهده ضوابط',h:'#/rules'},
     issue:`بسته ضوابط منطقه‌ای برای ${st.region} در کاتالوگ ثبت نشده است.`,
     impact:'کنترل انطباق M01 بدون بسته ضوابط انجام نمی‌شود.'});
@@ -6451,7 +8639,7 @@ function genRows(st){
   (N.inds||[]).forEach(iid=>{
     const i=(DB.indicators||[]).find(x=>x.id===iid); if(!i) return;
     out.indicators.push({cat:'indicators',k:iid,t:i.t,sub:`واحد: ${i.unit} — مقیاس: ${i.scale} — جهت: ${i.dir}`,
-      ver:i.v,owner:'دبیرخانه',upd:'—',cov:st.region,mods:['M11'],act:{t:'مشاهده شاخص',h:'#/rules'},
+      ver:i.v,owner:'تحلیلگر شهری',upd:'—',cov:st.region,mods:['M11'],act:{t:'مشاهده شاخص',h:'#/rules'},
       st:i.st==='approved'?'ready':i.st==='review'?'needs_review':'needs_review',blocking:false,waivable:true,
       issue:i.st==='approved'?'':'تعریف این شاخص هنوز اعتبارسنجی/تعیین تکلیف نشده است.',
       impact:i.st==='approved'?'':'مقدار شاخص با تعریف نسخه فعلی محاسبه و محدودیت آن ذکر می‌شود.'});
@@ -6475,13 +8663,29 @@ function genRows(st){
 function czRows(id){
   const def=CZ_DEF[id]; const s=czState(id); const st=byId(id);
   const finish=out=>{
-    const flat={}; CZ_CATS.forEach(([c])=>out[c].forEach(r=>flat[c+':'+r.k]=r));
-    CZ_CATS.forEach(([c])=>out[c].forEach(r=>{
-      if(r.dep && flat[r.dep] && !flat[r.dep].blocking && r.blocking){
-        r.blocking=false; r.st='limited';
-        r.impact=r.impact+' محدودیت ورودی بالادست مستند شده است؛ خروجی با وصف «موقت» تولید می‌شود.';
-      }
-    }));
+    const cs=czState(id);
+    const isSigned = !!(cs && (cs.signed || cs.sealed || (cs.snapshots && cs.snapshots.length > 0)));
+    const stObj = byId(id);
+    const isLocked = isStudyLocked(id);
+    const sc = (window.DB?.studyCases || []).find(c => c.study_id === id);
+    const isCaseReady = sc && (sc.status === 'READY_FOR_NEXT_STEP' || sc.status === 'COMPLETED');
+
+    if(isSigned || isLocked || isCaseReady){
+      CZ_CATS.forEach(([c])=>out[c].forEach(r=>{
+        r.blocking = false;
+        if(r.st === 'blocked' || r.st === 'missing' || r.st === 'stale'){
+          r.st = 'ready';
+        }
+      }));
+    } else {
+      const flat={}; CZ_CATS.forEach(([c])=>out[c].forEach(r=>flat[c+':'+r.k]=r));
+      CZ_CATS.forEach(([c])=>out[c].forEach(r=>{
+        if(r.dep && flat[r.dep] && !flat[r.dep].blocking && r.blocking){
+          r.blocking=false; r.st='limited';
+          r.impact=r.impact+' محدودیت ورودی بالادست مستند شده است؛ خروجی با وصف «موقت» تولید می‌شود.';
+        }
+      }));
+    }
     return out;
   };
   if(def){
@@ -6507,8 +8711,9 @@ function czRows(id){
 }
 
 /* ---------- 85. data request workflow ---------- */
-const DREQ_ST={open:{t:'ثبت‌شده — در انتظار متولی داده',c:'b-warn'},in_progress:{t:'در حال تأمین',c:'b-run'},
+const DREQ_ST={open:{t:'در انتظار پاسخ',c:'b-warn'},in_progress:{t:'در حال تأمین',c:'b-run'},
   fulfilled:{t:'تأمین شد',c:'b-ok'},rejected:{t:'رد شد',c:'b-stop'}};
+window.DREQ_ST = DREQ_ST;
 function requestData(studyId,row){
   const st=byId(studyId);
   const role=row.role||(row.depRoles&&row.depRoles[0])||'data';
@@ -6566,6 +8771,10 @@ function fulfillRequest(reqId,opt){
   }
   r.st='fulfilled'; r.dsCode=d.code; r.doneBy=ME(); r.doneTm=clock(); r.note=opt.note||'';
   if(st){ st.dsUsed=st.dsUsed||[]; if(!st.dsUsed.includes(d.code)) st.dsUsed.push(d.code); }
+  const sc = (window.DB?.studyCases || []).find(c => c.study_id === r.studyId);
+  if(sc && window.syncStudyCaseWithChapterZero) {
+    window.syncStudyCaseWithChapterZero(sc.id);
+  }
   DB.tasks.filter(t=>t.studyId===r.studyId&&t.assignee===r.to&&t.t.includes(r.label)).forEach(t=>t.st='done');
   logAct({action:'FULFILL_DATA_REQUEST',et:'study',eid:r.studyId,etitle:st?st.name:r.studyId,from:'open',to:'fulfilled',
     text:`درخواست ${r.id} با مجموعه «${d.title}» تأمین شد و به مطالعه متصل گردید`,k:'ok'});
@@ -6696,9 +8905,11 @@ function route(){
   if(!STATE.user) return {p:LoginPage(),b:bindLogin};
   if(h.startsWith('#/scientific') && window.handleScientificRoute) return window.handleScientificRoute(h);
   if(h.startsWith('#/analyst/scientific-proposals') && window.AnalystScientificProposalsPage) return {p:window.AnalystScientificProposalsPage(),b:window.bindAnalystScientificProposals};
+  if(h.startsWith('#/study-case/') && window.handleStudyCaseRoute) return window.handleStudyCaseRoute(h);
+  if((h === '#/study-cases' || h.startsWith('#/study-cases?')) && window.handleStudyCaseRoute) return window.handleStudyCaseRoute(h);
   if(h.startsWith('#/studies')){
     if(!can('VIEW_STUDY')&&!can('VIEW_ASSIGNED_STUDY')) return {p:Denied('مطالعات','فهرست مطالعات در حوزه مسئولیت نقش شما نیست.')};
-    if(h.startsWith('#/studies/new')&&!can('CREATE_STUDY')) return {p:Denied('ایجاد مطالعه','ایجاد مطالعه در اختیار کارشناس تحلیل و دبیرخانه است.')};
+    if(h.startsWith('#/studies/new')&&!can('CREATE_STUDY')) return {p:Denied('ایجاد مطالعه','ایجاد مطالعه در اختیار تحلیلگر شهری است.')};
     return h.startsWith('#/studies/new')?{p:NewStudy(),b:bindWizard}:{p:StudiesPage(),b:bindStudies};
   }
   if(h.startsWith('#/messages')) return {p:MessagesPage(),b:bindMessages};
@@ -6734,8 +8945,8 @@ function route(){
   if(m){
     if(byId(m[1])&&!canOpenStudy(m[1]))
       return {p:Denied('مطالعه','این مطالعه به شما یا دفتر شما ارجاع نشده است.','دسترسی مشاور بر پایه ارجاع مطالعه است، نه دسترسی سراسری.')};
-    if(m[2]==='chapter0') return {p:ChapterZero(m[1]),b:()=>bindChapterZero(m[1])};
-    return {p:StudyPage(m[1],m[2]||'overview'),b:bindRows};
+    if(m[2]==='chapter0') return {p:StudyPage(m[1],'chapter0'),b:()=>bindStudyPage(m[1],'chapter0')};
+    return {p:StudyPage(m[1],m[2]||'overview'),b:()=>bindStudyPage(m[1],m[2]||'overview')};
   }
   if(h.startsWith('#/data')){
     if(!can('VIEW_DATA')) return {p:Denied('کاتالوگ داده','مشاهده و مدیریت کاتالوگ داده در حوزه مسئولیت متولی داده و نقش‌های تحلیلی است.','در میز تصمیم، خلاصه و شواهد نسخه‌دار همان داده در اختیار شماست.')};
@@ -6777,10 +8988,30 @@ addEventListener('keydown',e=>{
   if(e.key==='Escape') closeAll();
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); if(STATE.user) palette(); }
 });
+
+window.STATE = STATE;
+window.DB = DB;
+window.Shell = Shell;
+window.Crumb = Crumb;
+window.Card = Card;
+window.State = State;
+window.openModal = openModal;
+window.closeAll = closeAll;
+window.openDrawer = openDrawer;
+window.toast = toast;
+window.can = can;
+window.myRole = myRole;
+window.roleT = roleT;
+window.saveDB = saveDB;
+window.render = render;
+window.ME = ME;
+window.startAnalysis = startAnalysis;
+
 load();
 if(!STATE.user && location.hash!=='#/login') location.replace('#/login');
 render();
 </script>
 <script src="/scientific.js"></script>
+<script src="/studyCase.js"></script>
 </body>
 </html>

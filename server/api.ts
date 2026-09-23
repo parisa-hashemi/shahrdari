@@ -1,5 +1,5 @@
 import express, { Router, Request, Response } from 'express';
-import { store } from './store';
+import { store } from './store.ts';
 
 export const apiRouter = Router();
 
@@ -233,7 +233,7 @@ apiRouter.post('/proposals/:id/respond-info', (req: Request, res: Response) => {
 
 // 5. Analyst Queue & Decision Integration
 apiRouter.get('/analyst/proposals', (req: Request, res: Response) => {
-  const { region, district, topic, type, status, university, profession, search } = req.query as {
+  const { region, district, topic, type, status, university, profession, search, analyst } = req.query as {
     [key: string]: string;
   };
   const list = store.getAnalystProposals({
@@ -245,6 +245,7 @@ apiRouter.get('/analyst/proposals', (req: Request, res: Response) => {
     university,
     profession,
     search,
+    analyst: analyst || (req.headers['x-user-role'] === 'analyst' ? (req.headers['x-user-name'] as string) : undefined),
   });
   return res.json({ proposals: list, count: list.length });
 });
@@ -292,4 +293,135 @@ apiRouter.post('/analyst/proposals/:id/create-scenario', (req: Request, res: Res
 
 apiRouter.get('/scenarios', (_req: Request, res: Response) => {
   return res.json({ scenarios: store.getScenarios() });
+});
+
+// 6. Study Cases & Blocker Resolution
+apiRouter.get('/study-cases', (req: Request, res: Response) => {
+  const { analyst, status } = req.query as { analyst?: string; status?: string };
+  const cases = store.getStudyCases({ analyst, status });
+  return res.json({ studyCases: cases, count: cases.length });
+});
+
+apiRouter.get('/study-cases/:id', (req: Request, res: Response) => {
+  const sc = store.getStudyCase(req.params.id);
+  if (!sc) {
+    return res.status(404).json({ error: 'پرونده مطالعه یافت نشد' });
+  }
+  const requirements = store.getDataRequirements(sc.id);
+  const blockers = store.getBlockers(sc.id);
+  const requests = store.getDataRequests({ studyCaseId: sc.id });
+  return res.json({ studyCase: sc, requirements, blockers, requests });
+});
+
+apiRouter.get('/study-cases/by-proposal/:proposalId', (req: Request, res: Response) => {
+  let sc = store.getStudyCaseByProposal(req.params.proposalId);
+  if (!sc) {
+    // If not exists yet, create it from the proposal automatically
+    const analystName = (req.headers['x-user-name'] as string) || 'مهندس زهرا کاظمی';
+    try {
+      sc = store.createStudyCaseFromProposal(req.params.proposalId, analystName);
+    } catch {
+      return res.status(404).json({ error: 'پیشنهاد یافت نشد' });
+    }
+  }
+  const requirements = store.getDataRequirements(sc.id);
+  const blockers = store.getBlockers(sc.id);
+  const requests = store.getDataRequests({ studyCaseId: sc.id });
+  return res.json({ studyCase: sc, requirements, blockers, requests });
+});
+
+apiRouter.post('/study-cases/from-proposal', (req: Request, res: Response) => {
+  const { proposal_id } = req.body;
+  if (!proposal_id) {
+    return res.status(400).json({ error: 'شناسه پیشنهاد الزامی است' });
+  }
+  const analystName = (req.headers['x-user-name'] as string) || req.body.analyst_name || 'مهندس زهرا کاظمی';
+  try {
+    const sc = store.createStudyCaseFromProposal(proposal_id, analystName);
+    const requirements = store.getDataRequirements(sc.id);
+    const blockers = store.getBlockers(sc.id);
+    return res.json({ success: true, studyCase: sc, requirements, blockers });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message || 'خطا در ایجاد پرونده مطالعه' });
+  }
+});
+
+apiRouter.get('/study-cases/:id/requirements', (req: Request, res: Response) => {
+  const requirements = store.getDataRequirements(req.params.id);
+  return res.json({ requirements });
+});
+
+apiRouter.get('/study-cases/:id/blockers', (req: Request, res: Response) => {
+  const blockers = store.getBlockers(req.params.id);
+  return res.json({ blockers, count: blockers.length });
+});
+
+apiRouter.post('/study-cases/:id/requests', (req: Request, res: Response) => {
+  const { requirement_id, reason, priority } = req.body;
+  if (!requirement_id) {
+    return res.status(400).json({ error: 'شناسه نیازمندی داده الزامی است' });
+  }
+  const requestedBy = (req.headers['x-user-name'] as string) || 'مهندس زهرا کاظمی (تحلیلگر شهری)';
+  try {
+    const dataReq = store.createDataRequest(req.params.id, requirement_id, requestedBy, reason, priority);
+    const updatedCase = store.getStudyCase(req.params.id);
+    return res.json({ success: true, request: dataReq, studyCase: updatedCase });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message || 'خطا در ثبت درخواست داده' });
+  }
+});
+
+apiRouter.get('/data-requests', (req: Request, res: Response) => {
+  const { studyCaseId, status } = req.query as { studyCaseId?: string; status?: string };
+  const requests = store.getDataRequests({ studyCaseId, status });
+  return res.json({ requests, count: requests.length });
+});
+
+apiRouter.get('/data-requests/:id', (req: Request, res: Response) => {
+  const dataReq = store.getDataRequest(req.params.id);
+  if (!dataReq) {
+    return res.status(404).json({ error: 'درخواست داده یافت نشد' });
+  }
+  return res.json({ request: dataReq });
+});
+
+apiRouter.post('/data-requests/:id/fulfill', (req: Request, res: Response) => {
+  const { dataset_code, dataset_version, note } = req.body;
+  if (!dataset_code || dataset_version === undefined) {
+    return res.status(400).json({ error: 'شناسه دیتاست و شماره نسخه الزامی هستند' });
+  }
+  const fulfilledBy = (req.headers['x-user-name'] as string) || 'مهندس مریم فراهانی (متولی داده)';
+  try {
+    const result = store.fulfillDataRequest(
+      req.params.id,
+      dataset_code,
+      Number(dataset_version),
+      fulfilledBy,
+      note
+    );
+    return res.json({
+      success: true,
+      message: 'داده با موفقیت تأمین شد و به پرونده متصل گردید.',
+      request: result.request,
+      studyCase: result.studyCase,
+      unblocked: result.studyCase.status === 'READY_FOR_NEXT_STEP',
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message || 'خطا در تأمین داده' });
+  }
+});
+
+apiRouter.post('/study-cases/:id/recheck', (req: Request, res: Response) => {
+  try {
+    const updatedCase = store.recalculateStudyCaseBlockingState(req.params.id);
+    const blockers = store.getBlockers(req.params.id);
+    return res.json({
+      success: true,
+      studyCase: updatedCase,
+      blockers,
+      isBlocked: updatedCase.status === 'BLOCKED',
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message || 'خطا در ارزیابی مجدد وابستگی‌ها' });
+  }
 });

@@ -8,7 +8,10 @@ import {
   ScientificUser,
   University,
   Scenario,
-} from './types';
+  StudyCase,
+  DataRequirement,
+  DataRequest,
+} from './types.ts';
 
 const DB_FILE = path.join(process.cwd(), 'server', 'data', 'tuip_db.json');
 
@@ -18,8 +21,11 @@ export interface DBData {
   universities: University[];
   proposals: Proposal[];
   scenarios: Scenario[];
+  studyCases: StudyCase[];
+  dataRequirements: DataRequirement[];
+  dataRequests: DataRequest[];
   otpCodes: { [phone: string]: { code: string; expiresAt: number } };
-  seq: { proposal: number; scenario: number };
+  seq: { proposal: number; scenario: number; studyCase: number; dataRequest: number };
 }
 
 const SEED_UNIVERSITIES: University[] = [
@@ -289,6 +295,146 @@ const SEED_SCENARIOS: Scenario[] = [
   },
 ];
 
+const SEED_STUDY_CASES: StudyCase[] = [
+  {
+    id: 'CASE-1405-00045',
+    proposal_id: 'PR-1405-000124',
+    study_id: 'ST-1405-014',
+    title: 'پرونده تحلیلی: بهسازی شبکه معابر و زون پیاده دانشگاه تهران',
+    region: 'منطقه ۶',
+    district: 'ناحیه ۲',
+    scope: 'ناحیه ۲ — محلات ۳ و ۴ (پیرامون دانشگاه تهران)',
+    owner_analyst: 'مهندس زهرا کاظمی',
+    status: 'BLOCKED',
+    workflow_step: 3, // 1: پیشنهاد, 2: تعریف مطالعه, 3: نیازمندی داده, 4: وضع موجود, 5: سناریو, 6: تحلیل, 7: مقایسه, 8: گزارش, 9: بررسی نهایی
+    problem_statement: 'عدم تناسب ظرفیت شریان با بار سفر و تقاضای عبوری و تداخل شدید سواره و پیاده',
+    objective: 'آرام‌سازی سرعت، توسعه مسیرهای امن پیاده و بهبود خدمات اتوبوس برقی',
+    blockers_count: 2,
+    total_requirements: 3,
+    satisfied_requirements: 1,
+    baseline: {
+      status: 'BLOCKED',
+      pinned_datasets: {
+        'REQ-1405-03': { dataset_code: 'PARCEL-06', version: 3, approved_at: '۱۴۰۵/۰۶/۲۰' }
+      }
+    },
+    scenario_id: null,
+    created_at: '۱۴۰۵/۰۶/۲۲',
+    updated_at: '۱۴۰۵/۰۶/۲۳'
+  },
+  {
+    id: 'CASE-1405-00046',
+    proposal_id: 'PR-1405-000125',
+    study_id: 'ST-1405-014',
+    title: 'پرونده تحلیلی: احداث پارکینگ هوشمند مکانیزه و بارانداز کالا بلوار کشاورز',
+    region: 'منطقه ۶',
+    district: 'ناحیه ۲',
+    scope: 'ناحیه ۲ — بلوار کشاورز تقاطع کارگر',
+    owner_analyst: 'امیرحسین طاهری',
+    status: 'BLOCKED',
+    workflow_step: 3,
+    problem_statement: 'کمبود شدید فضای پارک حاشیه‌ای و اشباع خط عبور در ساعات اوج تجاری',
+    objective: 'ساماندهی پارک حاشیه‌ای و هدایت ناوگان توزیع کالا به پارکینگ‌های مکانیزه',
+    blockers_count: 1,
+    total_requirements: 2,
+    satisfied_requirements: 1,
+    baseline: {
+      status: 'BLOCKED',
+      pinned_datasets: {
+        'REQ-1405-05': { dataset_code: 'ROAD-06', version: 2, approved_at: '۱۴۰۵/۰۶/۱۵' }
+      }
+    },
+    scenario_id: null,
+    created_at: '۱۴۰۵/۰۶/۲۰',
+    updated_at: '۱۴۰۵/۰۶/۲۳'
+  }
+];
+
+const SEED_DATA_REQUIREMENTS: DataRequirement[] = [
+  {
+    id: 'REQ-1405-01',
+    study_case_id: 'CASE-1405-00045',
+    name: 'جمعیت پایه و تراکم جمعیتی محدوده مطالعه',
+    category: 'جمعیت و سرانه',
+    reason: 'برای اجرای تحلیل ظرفیت جمعیتی (ماژول M03) و محاسبه سرانه‌های خدماتی',
+    module_code: 'M03 Population Capacity',
+    scope: 'منطقه ۶ — ناحیه ۲ (محلات ۳ و ۴)',
+    time_period: 'سال مطالعه ۱۴۰۵',
+    required: true,
+    blocking: true,
+    satisfied: false,
+    status: 'BLOCKED',
+    blocker_reason: 'نسخه معتبر و تأییدشده‌ای برای محدوده و دوره زمانی موردنیاز وجود ندارد.',
+    active_request_id: null
+  },
+  {
+    id: 'REQ-1405-02',
+    study_case_id: 'CASE-1405-00045',
+    name: 'شبکه معابر و شبیه‌سازی بار ترافیک محلی',
+    category: 'حمل‌ونقل و ترافیک',
+    reason: 'برای اجرای ماژول تولید سفر و تقاضای تردد (ماژول M04)',
+    module_code: 'M04 Trip Generation',
+    scope: 'منطقه ۶ — ناحیه ۲',
+    time_period: 'ساعات اوج صبح و عصر ۱۴۰۵',
+    required: true,
+    blocking: true,
+    satisfied: false,
+    status: 'BLOCKED',
+    blocker_reason: 'Dataset برای محدوده مطالعه وجود دارد، اما نسخه قابل استفاده و تأییدشده وجود ندارد.',
+    active_request_id: null
+  },
+  {
+    id: 'REQ-1405-03',
+    study_case_id: 'CASE-1405-00045',
+    name: 'پارسل‌ها و کاربری اراضی وضع موجود',
+    category: 'کالبدی و کاربری',
+    reason: 'برای انطباق با ضوابط پهنه‌بندی طرح تفصیلی (ماژول M01)',
+    module_code: 'M01 Rule / State Comparison',
+    scope: 'منطقه ۶ — ناحیه ۲',
+    time_period: 'وضع موجود مصوب',
+    required: true,
+    blocking: true,
+    satisfied: true,
+    status: 'SATISFIED',
+    attached_dataset: 'PARCEL-06',
+    attached_version: 3
+  },
+  {
+    id: 'REQ-1405-04',
+    study_case_id: 'CASE-1405-00046',
+    name: 'آمار عرضه و تقاضای پارک حاشیه‌ای بلوار کشاورز',
+    category: 'پارکینگ و پایانه‌ها',
+    reason: 'برای ارزیابی تقاضای پارکینگ (ماژول M05)',
+    module_code: 'M05 Parking Demand',
+    scope: 'منطقه ۶ — ناحیه ۲',
+    time_period: 'سال ۱۴۰۵',
+    required: true,
+    blocking: true,
+    satisfied: false,
+    status: 'BLOCKED',
+    blocker_reason: 'پوشش مکانی برای محدوده مطالعه کافی نیست.',
+    active_request_id: null
+  },
+  {
+    id: 'REQ-1405-05',
+    study_case_id: 'CASE-1405-00046',
+    name: 'شبکه معابر شریانی و رده‌بندی عملکردی',
+    category: 'حمل‌ونقل و ترافیک',
+    reason: 'برای شبیه‌سازی تقاضای سفر و ظرفیت معبر (ماژول M04)',
+    module_code: 'M04 Trip Generation',
+    scope: 'منطقه ۶ — ناحیه ۲',
+    time_period: 'وضع موجود',
+    required: true,
+    blocking: true,
+    satisfied: true,
+    status: 'SATISFIED',
+    attached_dataset: 'ROAD-06',
+    attached_version: 2
+  }
+];
+
+const SEED_DATA_REQUESTS: DataRequest[] = [];
+
 class Store {
   private data: DBData;
 
@@ -300,7 +446,23 @@ class Store {
     try {
       if (fs.existsSync(DB_FILE)) {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
-        return JSON.parse(raw);
+        const parsed: DBData = JSON.parse(raw);
+        if (!parsed.studyCases || !parsed.studyCases.length) {
+          parsed.studyCases = SEED_STUDY_CASES;
+        }
+        if (!parsed.dataRequirements || !parsed.dataRequirements.length) {
+          parsed.dataRequirements = SEED_DATA_REQUIREMENTS;
+        }
+        if (!parsed.dataRequests) {
+          parsed.dataRequests = SEED_DATA_REQUESTS;
+        }
+        if (!parsed.seq.studyCase) {
+          parsed.seq.studyCase = 50;
+        }
+        if (!parsed.seq.dataRequest) {
+          parsed.seq.dataRequest = 110;
+        }
+        return parsed;
       }
     } catch (e) {
       console.warn('Could not read store file, re-initializing seed data', e);
@@ -370,11 +532,14 @@ class Store {
       universities: SEED_UNIVERSITIES,
       proposals: SEED_PROPOSALS,
       scenarios: SEED_SCENARIOS,
+      studyCases: SEED_STUDY_CASES,
+      dataRequirements: SEED_DATA_REQUIREMENTS,
+      dataRequests: SEED_DATA_REQUESTS,
       otpCodes: {
         '09123456789': { code: '123456', expiresAt: Date.now() + 1000 * 60 * 60 * 24 },
         '09121112233': { code: '123456', expiresAt: Date.now() + 1000 * 60 * 60 * 24 },
       },
-      seq: { proposal: 126, scenario: 125 },
+      seq: { proposal: 126, scenario: 125, studyCase: 50, dataRequest: 110 },
     };
 
     this.save(initialData);
@@ -612,6 +777,25 @@ class Store {
 
     const status = (payload.status || 'SUBMITTED') as Proposal['status'];
 
+    // Auto-assign analyst (balance between analysts or region-based)
+    const analystPool = [
+      { name: 'مهندس زهرا کاظمی', title: 'کارشناس ارشد برنامه‌ریزی شهری', org: 'معاونت شهرسازی و معماری', phone: '09120000003' },
+      { name: 'امیرحسین طاهری', title: 'کارشناس منطقه', org: 'شهرداری منطقه ۶', phone: '09120000012' }
+    ];
+    let assigned = analystPool[0];
+    if (payload.district_id?.includes('۶') || payload.district_id === 'منطقه ۶') {
+      assigned = analystPool[1];
+    } else {
+      // Pick analyst with fewer proposals
+      const c0 = this.data.proposals.filter(p => p.assigned_analyst === analystPool[0].name).length;
+      const c1 = this.data.proposals.filter(p => p.assigned_analyst === analystPool[1].name).length;
+      assigned = c0 <= c1 ? analystPool[0] : analystPool[1];
+    }
+
+    const assignedAnalystName = payload.assigned_analyst || assigned.name;
+    const assignedAnalystTitle = payload.assigned_analyst_title || (assignedAnalystName === 'امیرحسین طاهری' ? 'کارشناس منطقه' : 'کارشناس ارشد برنامه‌ریزی شهری');
+    const assignedAnalystOrg = payload.assigned_analyst_org || (assignedAnalystName === 'امیرحسین طاهری' ? 'شهرداری منطقه ۶' : 'معاونت شهرسازی و معماری');
+
     const newProposal: Proposal = {
       proposal_id: propId,
       title: payload.title || 'پیشنهاد بدون عنوان',
@@ -649,6 +833,11 @@ class Store {
         uncertainties: [],
       },
       attachments: payload.attachments || [],
+      assigned_analyst: assignedAnalystName,
+      assigned_analyst_name: assignedAnalystName,
+      assigned_analyst_title: assignedAnalystTitle,
+      assigned_analyst_org: assignedAnalystOrg,
+      assigned_at: today,
       status,
       status_history: [
         {
@@ -661,6 +850,17 @@ class Store {
           actor_role: 'نهاد علمی / ارائه‌دهنده پیشنهاد',
           timestamp: today + '، ' + new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }),
           note: status === 'SUBMITTED' ? 'ثبت و ارسال نهایی پیشنهاد برای بررسی در صف کارشناس تحلیل شهری' : 'ایجاد پیش‌نویس اولیه پیشنهاد',
+        },
+        {
+          id: `SH-${Date.now()}-2`,
+          proposal_id: propId,
+          from_status: status,
+          to_status: status,
+          actor_id: 'سامانه ارجاع هوشمند TUIP',
+          actor_name: 'سامانه هوشمند TUIP',
+          actor_role: 'موتور ارجاع خودکار',
+          timestamp: today + '، ' + new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }),
+          note: `ارجاع خودکار پرونده به کارتابل تحلیلگر شهری: ${assignedAnalystName} (${assignedAnalystTitle} — ${assignedAnalystOrg}) و ثبت اعلان در زنگوله و پیام‌های داخلی`,
         },
       ],
       review_requests: [],
@@ -841,8 +1041,10 @@ class Store {
     university?: string;
     profession?: string;
     search?: string;
+    analyst?: string;
   }): Proposal[] {
     return this.data.proposals.filter(p => {
+      if (filters.analyst && p.assigned_analyst && p.assigned_analyst !== filters.analyst) return false;
       if (filters.region && p.district_id !== filters.region) return false;
       if (filters.district && p.neighborhood_id !== filters.district) return false;
       if (filters.topic && p.topic !== filters.topic) return false;
@@ -878,6 +1080,293 @@ class Store {
 
     return { total, underReview, needsInfo, accepted, completed, scenariosCount };
   }
+
+  // ==========================================
+  // Study Cases & Blocker Management
+  // ==========================================
+
+  public getStudyCases(filters?: { analyst?: string; status?: string }): StudyCase[] {
+    return (this.data.studyCases || []).filter(c => {
+      if (filters?.analyst && c.owner_analyst && !c.owner_analyst.includes(filters.analyst) && !filters.analyst.includes(c.owner_analyst)) return false;
+      if (filters?.status && c.status !== filters.status) return false;
+      return true;
+    });
+  }
+
+  public getStudyCase(id: string): StudyCase | undefined {
+    return (this.data.studyCases || []).find(c => c.id === id);
+  }
+
+  public getStudyCaseByProposal(proposalId: string): StudyCase | undefined {
+    return (this.data.studyCases || []).find(c => c.proposal_id === proposalId);
+  }
+
+  public createStudyCaseFromProposal(proposalId: string, analystName: string, analystRole: string = 'analyst'): StudyCase {
+    const existing = this.getStudyCaseByProposal(proposalId);
+    if (existing) return existing;
+
+    const prop = this.getProposal(proposalId);
+    if (!prop) throw new Error(`Proposal ${proposalId} not found`);
+
+    const seq = (this.data.seq.studyCase || 50) + 1;
+    this.data.seq.studyCase = seq;
+    const caseId = `CASE-1405-${String(seq).padStart(5, '0')}`;
+    const today = '۱۴۰۵/۰۶/۲۳';
+
+    const newCase: StudyCase = {
+      id: caseId,
+      proposal_id: proposalId,
+      study_id: prop.linked_study_id || 'ST-1405-014',
+      title: `پرونده تحلیلی: ${prop.title}`,
+      region: prop.district_id || 'منطقه ۶',
+      district: prop.neighborhood_id || 'ناحیه ۲',
+      scope: `${prop.district_id} — ${prop.neighborhood_id} ${prop.sub_area ? '— ' + prop.sub_area : ''}`,
+      owner_analyst: analystName || prop.assigned_analyst_name || 'مهندس زهرا کاظمی',
+      status: 'BLOCKED',
+      workflow_step: 3,
+      problem_statement: prop.problem_statement,
+      objective: prop.objective,
+      blockers_count: 2,
+      total_requirements: 3,
+      satisfied_requirements: 1,
+      baseline: {
+        status: 'BLOCKED',
+        pinned_datasets: {
+          [`REQ-${seq}-03`]: { dataset_code: 'PARCEL-06', version: 3, approved_at: today }
+        }
+      },
+      scenario_id: null,
+      created_at: today,
+      updated_at: today
+    };
+
+    // Auto-create realistic initial data requirements for this study case
+    const req1: DataRequirement = {
+      id: `REQ-${seq}-01`,
+      study_case_id: caseId,
+      name: `جمعیت پایه و تراکم جمعیتی محدوده ${prop.district_id}`,
+      category: 'جمعیت و سرانه',
+      reason: 'برای اجرای تحلیل ظرفیت جمعیتی (ماژول M03) و محاسبه سرانه‌های خدماتی',
+      module_code: 'M03 Population Capacity',
+      scope: `${prop.district_id} — ${prop.neighborhood_id}`,
+      time_period: 'سال مطالعه ۱۴۰۵',
+      required: true,
+      blocking: true,
+      satisfied: false,
+      status: 'BLOCKED',
+      blocker_reason: 'نسخه معتبر و تأییدشده‌ای برای محدوده و دوره زمانی موردنیاز وجود ندارد.',
+      active_request_id: null
+    };
+
+    const req2: DataRequirement = {
+      id: `REQ-${seq}-02`,
+      study_case_id: caseId,
+      name: `شبکه معابر و شبیه‌سازی بار ترافیک محدوده ${prop.district_id}`,
+      category: 'حمل‌ونقل و ترافیک',
+      reason: 'برای اجرای ماژول تولید سفر و تقاضای تردد (ماژول M04)',
+      module_code: 'M04 Trip Generation',
+      scope: `${prop.district_id} — ${prop.neighborhood_id}`,
+      time_period: 'ساعات اوج صبح و عصر ۱۴۰۵',
+      required: true,
+      blocking: true,
+      satisfied: false,
+      status: 'BLOCKED',
+      blocker_reason: 'Dataset برای محدوده مطالعه وجود دارد، اما نسخه قابل استفاده و تأییدشده وجود ندارد.',
+      active_request_id: null
+    };
+
+    const req3: DataRequirement = {
+      id: `REQ-${seq}-03`,
+      study_case_id: caseId,
+      name: `پارسل‌ها و کاربری اراضی وضع موجود ${prop.district_id}`,
+      category: 'کالبدی و کاربری',
+      reason: 'برای انطباق با ضوابط پهنه‌بندی طرح تفصیلی (ماژول M01)',
+      module_code: 'M01 Rule / State Comparison',
+      scope: `${prop.district_id} — ${prop.neighborhood_id}`,
+      time_period: 'وضع موجود مصوب',
+      required: true,
+      blocking: true,
+      satisfied: true,
+      status: 'SATISFIED',
+      attached_dataset: 'PARCEL-06',
+      attached_version: 3
+    };
+
+    if (!this.data.studyCases) this.data.studyCases = [];
+    if (!this.data.dataRequirements) this.data.dataRequirements = [];
+
+    this.data.studyCases.unshift(newCase);
+    this.data.dataRequirements.push(req1, req2, req3);
+
+    // Update proposal status
+    prop.status = 'ACCEPTED_FOR_ANALYSIS';
+    prop.status_history.push({
+      id: `HIS-${Date.now()}`,
+      proposal_id: proposalId,
+      from_status: 'INITIAL_REVIEW',
+      to_status: 'ACCEPTED_FOR_ANALYSIS',
+      actor_id: analystRole,
+      actor_name: analystName,
+      actor_role: analystRole,
+      timestamp: today,
+      note: `پیشنهاد مورد پذیرش قرار گرفت و پرونده تحلیلی ${caseId} ایجاد گردید.`
+    });
+
+    this.save();
+    return newCase;
+  }
+
+  public getDataRequirements(studyCaseId: string): DataRequirement[] {
+    return (this.data.dataRequirements || []).filter(r => r.study_case_id === studyCaseId);
+  }
+
+  public getDataRequirement(id: string): DataRequirement | undefined {
+    return (this.data.dataRequirements || []).find(r => r.id === id);
+  }
+
+  public getBlockers(studyCaseId: string): DataRequirement[] {
+    return (this.data.dataRequirements || []).filter(r => r.study_case_id === studyCaseId && r.blocking && !r.satisfied);
+  }
+
+  public createDataRequest(
+    studyCaseId: string,
+    requirementId: string,
+    requestedBy: string,
+    reason?: string,
+    priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' = 'HIGH'
+  ): DataRequest {
+    const sc = this.getStudyCase(studyCaseId);
+    if (!sc) throw new Error(`Study case ${studyCaseId} not found`);
+
+    const req = (this.data.dataRequirements || []).find(r => r.id === requirementId && r.study_case_id === studyCaseId);
+    if (!req) throw new Error(`Requirement ${requirementId} not found in ${studyCaseId}`);
+
+    // If an active request already exists for this requirement, return it to prevent duplicate requests
+    if (req.active_request_id) {
+      const existing = (this.data.dataRequests || []).find(
+        dr => dr.request_id === req.active_request_id && (dr.status === 'REQUESTED' || dr.status === 'IN_PROGRESS')
+      );
+      if (existing) return existing;
+    }
+
+    const seq = (this.data.seq.dataRequest || 110) + 1;
+    this.data.seq.dataRequest = seq;
+    const reqId = `DR-1405-${String(seq).padStart(5, '0')}`;
+    const today = '۱۴۰۵/۰۶/۲۳';
+
+    const newReq: DataRequest = {
+      request_id: reqId,
+      study_case_id: studyCaseId,
+      data_requirement_id: requirementId,
+      requirement_name: req.name,
+      requested_by: requestedBy || 'مهندس زهرا کاظمی (تحلیلگر شهری)',
+      assigned_to: 'مهندس مریم فراهانی (متولی داده)',
+      reason: reason || req.reason || `تأمین داده مسدودکننده برای ${req.name}`,
+      priority,
+      status: 'REQUESTED',
+      created_at: today,
+      updated_at: today
+    };
+
+    req.active_request_id = reqId;
+    req.status = 'REQUESTED';
+
+    if (!this.data.dataRequests) this.data.dataRequests = [];
+    this.data.dataRequests.unshift(newReq);
+
+    this.recalculateStudyCaseBlockingState(studyCaseId);
+    this.save();
+    return newReq;
+  }
+
+  public getDataRequests(filters?: { studyCaseId?: string; status?: string }): DataRequest[] {
+    return (this.data.dataRequests || []).filter(dr => {
+      if (filters?.studyCaseId && dr.study_case_id !== filters.studyCaseId) return false;
+      if (filters?.status && dr.status !== filters.status) return false;
+      return true;
+    });
+  }
+
+  public getDataRequest(requestId: string): DataRequest | undefined {
+    return (this.data.dataRequests || []).find(dr => dr.request_id === requestId);
+  }
+
+  public fulfillDataRequest(
+    requestId: string,
+    datasetCode: string,
+    datasetVersion: number,
+    fulfilledBy: string,
+    note?: string
+  ): { success: boolean; request: DataRequest; studyCase: StudyCase } {
+    const dr = (this.data.dataRequests || []).find(r => r.request_id === requestId);
+    if (!dr) throw new Error(`Data request ${requestId} not found`);
+
+    const today = '۱۴۰۵/۰۶/۲۳';
+    dr.status = 'FULFILLED';
+    dr.dataset_code = datasetCode;
+    dr.dataset_version = datasetVersion;
+    dr.fulfilled_at = today;
+    dr.updated_at = today;
+    if (note) dr.note = note;
+
+    // Fulfill Requirement
+    const req = (this.data.dataRequirements || []).find(r => r.id === dr.data_requirement_id);
+    if (req) {
+      req.satisfied = true;
+      req.status = 'SATISFIED';
+      req.attached_dataset = datasetCode;
+      req.attached_version = datasetVersion;
+      req.blocker_reason = undefined;
+    }
+
+    // Attach to Study Case Baseline
+    const sc = (this.data.studyCases || []).find(c => c.id === dr.study_case_id);
+    if (sc) {
+      if (!sc.baseline) {
+        sc.baseline = { status: 'BLOCKED', pinned_datasets: {} };
+      }
+      sc.baseline.pinned_datasets[dr.data_requirement_id] = {
+        dataset_code: datasetCode,
+        version: datasetVersion,
+        approved_at: today
+      };
+    }
+
+    // Run automatic blocking check!
+    const updatedCase = this.recalculateStudyCaseBlockingState(dr.study_case_id);
+    this.save();
+
+    return { success: true, request: dr, studyCase: updatedCase };
+  }
+
+  public recalculateStudyCaseBlockingState(studyCaseId: string): StudyCase {
+    const sc = (this.data.studyCases || []).find(c => c.id === studyCaseId);
+    if (!sc) throw new Error(`Study case ${studyCaseId} not found`);
+
+    const reqs = (this.data.dataRequirements || []).filter(r => r.study_case_id === studyCaseId);
+    const blockers = reqs.filter(r => r.blocking && !r.satisfied);
+
+    sc.total_requirements = reqs.length;
+    sc.satisfied_requirements = reqs.filter(r => r.satisfied).length;
+    sc.blockers_count = blockers.length;
+
+    if (blockers.length > 0) {
+      sc.status = 'BLOCKED';
+      if (!sc.baseline) sc.baseline = { status: 'BLOCKED', pinned_datasets: {} };
+      sc.baseline.status = 'BLOCKED';
+      sc.workflow_step = 3;
+    } else {
+      // All blockers resolved! Automatically unblock the study case and activate the next workflow step!
+      sc.status = 'READY_FOR_NEXT_STEP';
+      if (!sc.baseline) sc.baseline = { status: 'READY', pinned_datasets: {} };
+      sc.baseline.status = 'READY';
+      sc.workflow_step = 4; // Baseline ready -> Step 5 (Scenario) is enabled!
+    }
+
+    sc.updated_at = '۱۴۰۵/۰۶/۲۳';
+    return sc;
+  }
+
 }
 
 export const store = new Store();
