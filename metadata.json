@@ -1,0 +1,6 @@
+{
+  "name": "سامانه هوشمند برنامه‌ریزی شهری تهران (TUIP)",
+  "description": "سامانه هوشمند و یکپارچه برنامه‌ریزی، مطالعات و مدیریت شهری شهرداری تهران (TUIP)",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
