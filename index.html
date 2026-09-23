@@ -445,8 +445,9 @@ textarea.f-in{resize:vertical;font-family:inherit;line-height:1.7}
 .modal-b{padding:16px;overflow-y:auto}
 .modal-f{padding:11px 16px;border-top:1px solid var(--line);background:var(--surface-2);display:flex;gap:8px;justify-content:flex-start;border-radius:0 0 var(--r-l) var(--r-l)}
 .toasts{position:fixed;inset-block-end:18px;inset-inline-start:18px;z-index:80;display:flex;flex-direction:column;gap:8px}
-.toast{background:var(--ink-800);color:#EAF1F8;border-radius:var(--r-m);padding:10px 14px;font-size:12.5px;box-shadow:var(--sh-2);display:flex;gap:8px;align-items:center;max-width:420px}
-.toast .ok{color:#6FD3A8}
+.toast{background:#064E3B;color:#ECFDF5;border:1px solid #10B981;border-radius:var(--r-m);padding:12px 16px;font-size:13px;box-shadow:0 8px 24px rgba(6,78,59,0.3);display:flex;gap:10px;align-items:center;max-width:460px;line-height:1.5}
+.toast.toast-err{background:#7F1D1D;color:#FEF2F2;border:1px solid #EF4444;box-shadow:0 8px 24px rgba(127,29,29,0.3)}
+.toast .ok{color:#34D399;font-size:16px;display:flex;align-items:center}
 /* command palette */
 .pal-row{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:var(--r-m);cursor:pointer}
 .pal-row:hover,.pal-row.sel{background:var(--primary-050)}
@@ -1655,6 +1656,66 @@ function StudyTabsBar(id, activeTab){
   const isCaseReady = (window.DB?.studyCases || []).some(c => (c.study_id === id) && (c.status === 'READY_FOR_NEXT_STEP' || c.status === 'COMPLETED' || (c.workflow_step && c.workflow_step >= 6)));
   const isAnDone = isLocked || (stAn && stAn.done) || isCaseReady;
   const czComplete = isChapterZeroComplete(id);
+
+  if (myRole() === 'steward') {
+    return `
+    <div class="study-stepper-tabs" role="navigation" aria-label="مراحل مطالعه — نمای متولی داده">
+      <div class="study-stepper-brand" style="color:var(--primary)">
+        ${ico.data}
+        <span>پایش وابستگی‌های داده (حوزه دسترسی متولی داده)</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <a class="study-step-link ${activeTab === 'overview' ? 'active' : ''}" href="#/study/${id}/overview">
+          <span class="step-num-badge">۱</span>
+          <span class="step-title-txt">نمای کلی مطالعه</span>
+        </a>
+        <span class="study-step-sep">‹</span>
+        <a class="study-step-link ${activeTab === 'baseline' || activeTab === 'data' ? 'active' : ''}" href="#/study/${id}/data">
+          <span class="step-num-badge">۲</span>
+          <span class="step-title-txt">مجموعه‌های داده و وضع موجود</span>
+        </a>
+        <span class="study-step-sep">‹</span>
+        <a class="study-step-link ${activeTab === 'chapter0' ? 'active' : ''}" href="#/study/${id}/chapter0">
+          <span class="step-num-badge">۳</span>
+          <span class="step-title-txt">فصل صفر (پایش وابستگی داده)</span>
+        </a>
+        <div style="margin-inline-start:auto;display:flex;align-items:center;gap:8px">
+          <span class="bdg b-stop plain" style="font-size:11px">${ico.lock} ماژول‌های تحلیل، سناریوها و اجرا برای متولی داده مسدود است</span>
+          <a class="btn btn-sm btn-pri" href="#/data/affected-studies">${ico.chevL}فهرست مطالعات متأثر</a>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  if (myRole() === 'ruleman') {
+    return `
+    <div class="study-stepper-tabs" role="navigation" aria-label="مراحل مطالعه — نمای متولی قواعد">
+      <div class="study-stepper-brand" style="color:#7C3AED">
+        ${ico.rules}
+        <span>پایش انطباق و الزامات ضوابط (حوزه دسترسی متولی قواعد)</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <a class="study-step-link ${activeTab === 'overview' ? 'active' : ''}" href="#/study/${id}/overview">
+          <span class="step-num-badge">۱</span>
+          <span class="step-title-txt">نمای کلی مطالعه</span>
+        </a>
+        <span class="study-step-sep">‹</span>
+        <a class="study-step-link ${activeTab === 'baseline' || activeTab === 'rules' ? 'active' : ''}" href="#/study/${id}/baseline">
+          <span class="step-num-badge">۲</span>
+          <span class="step-title-txt">بسته ضوابط و وضع موجود</span>
+        </a>
+        <span class="study-step-sep">‹</span>
+        <a class="study-step-link ${activeTab === 'chapter0' ? 'active' : ''}" href="#/study/${id}/chapter0">
+          <span class="step-num-badge">۳</span>
+          <span class="step-title-txt">فصل صفر (الزامات و پیش‌فرض‌ها)</span>
+        </a>
+        <div style="margin-inline-start:auto;display:flex;align-items:center;gap:8px">
+          <span class="bdg b-stop plain" style="font-size:11px">${ico.lock} ماژول‌های تحلیل، سناریوها و اجرا برای متولی قواعد مسدود است</span>
+          <a class="btn btn-sm btn-pri" href="#/rules/affected-studies">${ico.chevL}فهرست مطالعات متأثر</a>
+        </div>
+      </div>
+    </div>`;
+  }
 
   const steps = [
     { k: 'overview',   t: 'نمای کلی',             stageIdx: 1, n: 1 },
@@ -3147,6 +3208,42 @@ function StudyPage(id,tab='overview'){
   const activeTab = tabAliases[rawTab] || rawTab;
   const tabs = StudyTabsBar(id, activeTab);
 
+  if (myRole() === 'steward' && !['overview', 'chapter0', 'baseline', 'data'].includes(activeTab)) {
+    return Shell(Crumb([{t:'داشبورد متولی داده',h:'#/'},{t:'مطالعات متأثر',h:'#/data/affected-studies'},{t:s.name}]) +
+      tabs +
+      `<div class="card" style="margin-top:16px;border:1px solid #FECACA;background:#FFF5F5">
+        <div class="card-b" style="padding:32px 20px;text-align:center">
+          <div style="font-size:44px;margin-bottom:12px;color:var(--stop)">${ico.lock}</div>
+          <h2 style="font-size:16.5px;font-weight:700;color:#991B1B;margin-bottom:8px">عدم دسترسی به بخش تحلیل مطالعات</h2>
+          <p style="font-size:13px;color:#475569;max-width:580px;margin:0 auto 16px auto;line-height:1.8">
+            بر اساس ماتریس دسترسی و تفکیک وظایف سازمانی (RBAC)، <b>نقش متولی داده</b> اجازه ورود به بخش‌های تحلیل، تدوین سناریوها و اجرای مدل‌های مطالعات را ندارد و <b>صرفاً می‌تواند مشاهده کند داده‌ها بر روی چه مطالعاتی اثرگذار هستند</b> و وضعیت وابستگی‌های داده را پایش کند.
+          </p>
+          <div style="display:flex;justify-content:center;gap:10px">
+            <a class="btn btn-pri" href="#/study/${id}/data">${ico.data} مشاهده وابستگی‌های داده این مطالعه</a>
+            <a class="btn" href="#/data/affected-studies">${ico.chevL} بازگشت به فهرست مطالعات متأثر از داده</a>
+          </div>
+        </div>
+      </div>`);
+  }
+
+  if (myRole() === 'ruleman' && !['overview', 'chapter0', 'baseline', 'rules'].includes(activeTab)) {
+    return Shell(Crumb([{t:'میز قواعد و ضوابط',h:'#/rules'},{t:'مطالعات متأثر',h:'#/rules/affected-studies'},{t:s.name}]) +
+      tabs +
+      `<div class="card" style="margin-top:16px;border:1px solid #FECACA;background:#FFF5F5">
+        <div class="card-b" style="padding:32px 20px;text-align:center">
+          <div style="font-size:44px;margin-bottom:12px;color:var(--stop)">${ico.lock}</div>
+          <h2 style="font-size:16.5px;font-weight:700;color:#991B1B;margin-bottom:8px">عدم دسترسی به بخش تحلیل مطالعات</h2>
+          <p style="font-size:13px;color:#475569;max-width:580px;margin:0 auto 16px auto;line-height:1.8">
+            بر اساس اصل تفکیک وظایف سازمانی و ماتریس دسترسی (RBAC / SoD)، <b>نقش متولی قواعد و ضوابط</b> اجازه ورود به بخش‌های تحلیل، تدوین سناریوها، اجرای مدل‌ها و تصمیم‌گیری نهایی را ندارد و <b>صرفاً می‌تواند مشاهده کند ضوابط بر روی چه مطالعاتی اثرگذار هستند</b> و وضعیت انطباق قواعد و پکیج‌های ضابطه را پایش نماید.
+          </p>
+          <div style="display:flex;justify-content:center;gap:10px">
+            <a class="btn btn-pri" href="#/study/${id}/baseline">${ico.rules} مشاهده وضعیت انطباق ضوابط این مطالعه</a>
+            <a class="btn" href="#/rules/affected-studies">${ico.chevL} بازگشت به فهرست مطالعات متأثر از ضوابط</a>
+          </div>
+        </div>
+      </div>`);
+  }
+
   const stAn = (STATE.studyAn && STATE.studyAn[id]) || null;
   if(tab==='overview' && stAn && stAn.stage>=0){
     return Shell(Crumb([{t:'داشبورد من',h:'#/'},{t:'مطالعات',h:'#/studies'},{t:s.region,h:'#/studies'},{t:s.name}])+tabs+StudyAnalysisRunning(id));
@@ -3359,7 +3456,7 @@ function openDrawer(html){ drawer.innerHTML=html; scrim.classList.add('on'); dra
 function openModal(html){ modal.innerHTML=html; scrim.classList.add('on'); modal.classList.add('on'); bindOverlay(modal); }
 function bindOverlay(root){ els('[data-close]',root).forEach(b=>b.onclick=closeAll); els('a',root).forEach(a=>a.addEventListener('click',closeAll)); }
 function toast(msg,ok=true){
-  const t=document.createElement('div'); t.className='toast';
+  const t=document.createElement('div'); t.className='toast' + (ok?'':' toast-err');
   t.innerHTML=`<span class="${ok?'ok':''}">${ok?ico.check:ico.alert}</span><span>${msg}</span>`;
   el('#toasts').append(t); setTimeout(()=>t.remove(),4200);
 }
@@ -3480,7 +3577,7 @@ const CLASSES={
 const CLASS_RANK={unrestricted_internal:0,restricted_municipal:1,confidential:2,highly_restricted:3};
 const DSTAT={
   draft:{t:'پیش‌نویس',c:'b-neu'}, validating:{t:'در حال اعتبارسنجی',c:'b-run'},
-  quarantined:{t:'قرنطینه',c:'b-stop'}, ready:{t:'آماده انتشار',c:'b-warn'},
+  quarantined:{t:'قرنطینه',c:'b-stop'}, waiting_revision:{t:'در انتظار پاسخ مبدأ',c:'b-warn'}, ready:{t:'آماده انتشار',c:'b-warn'},
   published:{t:'منتشرشده',c:'b-ok'}, superseded:{t:'جایگزین‌شده',c:'b-neu'},
   withdrawn:{t:'ابطال‌شده',c:'b-stop'}
 };
@@ -4292,21 +4389,201 @@ function QuarantinePage(){
     return Shell(`${DataHead('قرنطینه')}${Card('',State('lock','بازرسی قرنطینه دسترسی جداگانه دارد',
       'مشاهده نامزدهای قرنطینه‌شده مجوز مستقل متولی داده است. نقش فعلی شما این مجوز را ندارد.',
       `<button class="btn" data-act="user">تغییر نقش نشست</button> <a class="btn btn-pri" href="#/data">کاتالوگ داده</a>`))}`);
-  const rows=DS.flatMap(d=>d.versions.filter(v=>v.st==='quarantined').map(v=>({d,v})));
+  const rows=DB.datasets.flatMap(d=>d.versions.filter(v=>v.st==='quarantined').map(v=>({d,v})));
+  const waitingRows=DB.datasets.flatMap(d=>d.versions.filter(v=>v.st==='waiting_revision').map(v=>({d,v})));
   return Shell(`${DataHead('قرنطینه')}${dataTabs('quarantine')}
   <div class="notice n-stop" style="margin-bottom:14px">${ico.lock}<div>
-    <b>محتوای قرنطینه روی مبنای تحلیلی فعال اثر ندارد.</b> این نسخه‌ها منتشر نشده‌اند، در مرور لایه‌های نقشه ظاهر نمی‌شوند و در انتخاب رسمی مدل وارد نمی‌شوند. اصلاح، نامزد جدید می‌سازد و بارگذاری اصلی را بازنویسی نمی‌کند.</div></div>
-  ${Card('نامزدهای قرنطینه‌شده', rows.length?rows.map(({d,v})=>{const q=qCounts(v);
+    <b>محتوای قرنطینه روی مبنای تحلیلی فعال اثر ندارد.</b> این نسخه‌ها منتشر نشده‌اند، در مرور لایه‌های نقشه ظاهر نمی‌شوند و در انتخاب رسمی مدل وارد نمی‌شوند. ارسال درخواست اصلاح مبدأ، داده را به وضعیت «در انتظار پاسخ مبدأ» منتقل نموده و از صف قرنطینه فعال خارج می‌سازد.</div></div>
+  ${Card('نامزدهای قرنطینه‌شده فعال', rows.length?rows.map(({d,v})=>{const q=qCounts(v);
     return `<div class="task"><span class="ic ic-stop">${ico.lock}</span>
-      <div class="bd"><b>${d.title} — <span class="vbadge">v${fa(v.v)}</span></b>
-      <div class="m"><span class="code">${d.code}</span><span class="muted">·</span>متولی ${d.owner}<span class="muted">·</span>بارگذاری ${v.imported}</div>
+      <div class="bd"><b>${d.title} — <span class="vbadge">v${fa(v.v)}</span> <span class="bdg b-stop plain">قرنطینه</span></b>
+      <div class="m"><span class="code">${d.code}</span><span class="muted">·</span>متولی: ${d.owner} (${d.org})<span class="muted">·</span>بارگذاری: ${v.imported}</div>
       <div class="m">ورودی ${fa(v.counts[0])} · پذیرفته ${fa(v.counts[1])} · ردشده ${fa(v.counts[2])} · قرنطینه ${fa(v.counts[3])}</div>
       <div style="margin-top:7px;display:flex;gap:6px;flex-wrap:wrap">${(v.checks||[]).filter(c=>c.outcome!=='pass').map(c=>
         `<span class="bdg ${OUT[c.outcome].c}">${CHECKS[c.code]}${c.waivable===false?' — غیرقابل چشم‌پوشی':''}</span>`).join('')}</div></div>
-      <div class="cta"><a class="btn btn-sm" href="#/data/${d.code}/quality">بازرسی</a>
-        <button class="btn btn-sm" data-fix="${d.code}">ساخت نامزد اصلاح‌شده</button></div></div>`;}).join('')
-    : State('check','چیزی در قرنطینه نیست','همه نامزدهای اخیر کنترل‌های مسدودکننده را گذرانده‌اند.'))}`);
+      <div class="cta" style="display:flex;gap:6px;flex-wrap:wrap">
+        <a class="btn btn-sm" href="#/data/${d.code}/quality">بازرسی کیفیت</a>
+        <button class="btn btn-sm btn-pri" data-quar-fix="${d.code}">بارگذاری نامزد اصلاح‌شده</button>
+        <button class="btn btn-sm" data-quar-reqrev="${d.code}">درخواست اصلاح مبدأ</button>
+      </div></div>`;}).join('')
+    : State('check','چیزی در قرنطینه فعال نیست','تمامی نامزدهای اخیر کنترل‌های مسدودکننده را پشت سر گذاشته‌اند یا به وضعیت «در انتظار پاسخ مبدأ» منتقل شده‌اند.'))}
+
+  ${waitingRows.length ? Card('نامزدهای در انتظار پاسخ اصلاح از سوی سازمان مبدأ', waitingRows.map(({d,v}) => `
+    <div class="task" style="border-right:3px solid #F59E0B">
+      <span class="ic ic-warn">${ico.mail}</span>
+      <div class="bd">
+        <b>${d.title} — <span class="vbadge">v${fa(v.v)}</span> <span class="bdg b-warn plain">در انتظار پاسخ مبدأ</span></b>
+        <div class="m"><span class="code">${d.code}</span><span class="muted">·</span>ارائه‌دهنده: ${d.org} (${d.owner})</div>
+        <div class="m" style="color:#B45309">شرح درخواست اصلاح: ${v.revisionNote || 'درخواست اصلاح CRS و هندسه فایل'}</div>
+        <div class="m" style="font-size:11.5px;color:var(--text-3)">زمان ثبت: ${v.revisionDate || 'امروز'} · از صف قرنطینه فعال خارج گردیده است.</div>
+      </div>
+      <div class="cta" style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-pri" data-quar-fix="${d.code}">بارگذاری پاسخ و فایل اصلاح‌شده</button>
+        <a class="btn btn-sm" href="#/data/${d.code}/issues">مشاهده در دفتر مسائل</a>
+      </div>
+    </div>`).join(''), {foot:'پس از دریافت پاسخ و ارسال فایل اصلاح‌شده، متولی داده نامزد جدید را اعتبارسنجی می‌کند.'}) : ''}
+  `);
 }
+/* ---------- Affected Studies for Data Steward (RBAC scoped) ---------- */
+function AffectedStudiesPage(){
+  const allStudies = window.STUDIES || [];
+  const datasets = DB.datasets || [];
+  const staleMap = DB.stale || {};
+
+  const studyRows = allStudies.map(s => {
+    const usedDatasets = datasets.filter(d => (d.uses || []).includes(s.id));
+    const staleItems = staleMap[s.id] || [];
+    const quarUsed = usedDatasets.filter(d => d.versions.some(v => v.st === 'quarantined'));
+    const waitUsed = usedDatasets.filter(d => d.versions.some(v => v.st === 'waiting_revision'));
+    const staleUsed = usedDatasets.filter(d => {
+      const fr = freshness(d);
+      return fr.c === 'b-stop' || fr.c === 'b-warn';
+    });
+
+    let impactType = 'stable';
+    let impactText = 'وابستگی‌های داده پایدار و معتبر';
+    let impactBadge = 'b-ok';
+
+    if (quarUsed.length > 0) {
+      impactType = 'quarantine_blocked';
+      impactText = `مسدودکننده: «${quarUsed.map(d=>d.title).join('، ')}» در قرنطینه فعال است`;
+      impactBadge = 'b-stop';
+    } else if (waitUsed.length > 0) {
+      impactType = 'waiting_revision';
+      impactText = `در انتظار اصلاح: اخطار برای «${waitUsed.map(d=>d.title).join('، ')}» ارسال شده`;
+      impactBadge = 'b-warn';
+    } else if (staleItems.length > 0) {
+      impactType = 'new_version_available';
+      impactText = `نسخه تازه‌تر منتشر شد: ${staleItems.map(x=>x.title+' v'+fa(x.v)).join('، ')}`;
+      impactBadge = 'b-run';
+    } else if (staleUsed.length > 0) {
+      impactType = 'stale_data';
+      impactText = `داده کهنه: «${staleUsed.map(d=>d.title).join('، ')}» نیازمند به‌روزرسانی دوره`;
+      impactBadge = 'b-warn';
+    }
+
+    return {
+      s,
+      usedDatasets,
+      staleItems,
+      quarUsed,
+      waitUsed,
+      staleUsed,
+      impactType,
+      impactText,
+      impactBadge
+    };
+  });
+
+  const totalStudies = studyRows.length;
+  const blockedCount = studyRows.filter(r => r.impactType === 'quarantine_blocked').length;
+  const waitingCount = studyRows.filter(r => r.impactType === 'waiting_revision').length;
+  const newVerCount = studyRows.filter(r => r.impactType === 'new_version_available').length;
+  const staleCount = studyRows.filter(r => r.impactType === 'stale_data').length;
+  const stableCount = studyRows.filter(r => r.impactType === 'stable').length;
+
+  return Shell(`
+    ${Crumb([{t:'میز داده',h:'#'},{t:'مطالعات متأثر از داده'}])}
+    <div class="phead">
+      <div>
+        <div class="eyebrow">حاکمیت داده و پایش زنجیره اثر</div>
+        <h1>مطالعات متأثر از داده‌ها و تغییرات نسخه‌ها</h1>
+        <p class="sub">پایش جامع اثرگذاری وضعیت مجموعه‌های داده (قرنطینه، در انتظار اصلاح مبدأ، کهنگی و نسخه‌های تازه) بر پرونده‌های مطالعاتی</p>
+      </div>
+      <div class="acts">
+        <a class="btn" href="#/data">${ico.data} کاتالوگ داده</a>
+        <a class="btn" href="#/data/quarantine">${ico.lock} صف قرنطینه</a>
+      </div>
+    </div>
+
+    <!-- اعلان تفکیک نقش و عدم دسترسی به تحلیل -->
+    <div class="notice n-info" style="margin-bottom:14px;border:1px solid #BFDBFE;background:#EFF6FF">
+      ${ico.rules}
+      <div style="flex:1">
+        <b>تفکیک وظایف و ماتریس دسترسی متولی داده (RBAC Data Steward):</b>
+        بر اساس قوانین حاکمیت داده و امنیت سامانه، <b>نقش متولی داده صرفاً مسئول پایش سلامت داده‌ها و رصد اثرگذاری آن‌ها بر مطالعات است</b> و اجازه دسترسی به ماژول‌های تحلیل، تدوین سناریوها، اجرای مدل‌ها و تصمیم‌گیری نهایی را ندارد. برای هر مطالعه، صرفاً وابستگی‌های داده و فصل صفر قابل بازبینی است.
+      </div>
+    </div>
+
+    <!-- آمار و شاخص‌های اثرپذیری مطالعات -->
+    <div class="kpis" style="margin-bottom:14px">
+      ${KPIc(totalStudies, 'کل مطالعات تحت پایش', 'دارای وابستگی داده', 'k-pri', '#/data/affected-studies')}
+      ${KPIc(blockedCount, 'مسدود به دلیل قرنطینه داده', 'نیازمند رفع مسدودی', 'k-stop', '#/data/quarantine')}
+      ${KPIc(waitingCount, 'در انتظار پاسخ اصلاح مبدأ', 'اخطار به سازمان ارائه‌دهنده', 'k-warn', '#/data/quarantine')}
+      ${KPIc(newVerCount, 'دارای نسخه جدیدتر داده', 'مطالعه به نسخه قبل پین است', 'k-run', '#/data/affected-studies')}
+      ${KPIc(staleCount, 'وابسته به داده منقضی', 'نیازمند بارگذاری دوره جدید', 'k-warn', 'javascript:void(0)" onclick="refreshStaleModal()')}
+      ${KPIc(stableCount, 'وابستگی‌های پایدار', 'بدون ریسک داده‌ای', 'k-ok', '#/data/affected-studies')}
+    </div>
+
+    <!-- جدول ماتریس اثرپذیری مطالعات -->
+    ${Card('ماتریس مطالعات و وضعیت وابستگی به داده‌ها', `
+      <div class="tw">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>شناسه و نام مطالعه</th>
+              <th>منطقه / واحد</th>
+              <th>داده‌های پین‌شده در مطالعه</th>
+              <th>وضعیت اثرگذاری داده بر مطالعه</th>
+              <th>دسترسی متولی داده</th>
+              <th>اقدام</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${studyRows.map(({s, usedDatasets, impactText, impactBadge, impactType}) => `
+              <tr>
+                <td>
+                  <span class="ttl" style="font-weight:600">${s.name}</span>
+                  <div class="sub code">${s.id} · نوع: ${s.type || 'مطالعه شهری'}</div>
+                </td>
+                <td style="white-space:nowrap">
+                  <div>${s.region}</div>
+                  <div class="muted" style="font-size:11px">مسئول: ${s.owner || 'کارشناس شهرداری'}</div>
+                </td>
+                <td>
+                  <div style="display:flex;flex-direction:column;gap:4px">
+                    ${usedDatasets.length ? usedDatasets.map(d => {
+                      const v = dsCur(d);
+                      const isQuar = d.versions.some(vx => vx.st === 'quarantined');
+                      const isWait = d.versions.some(vx => vx.st === 'waiting_revision');
+                      const bdg = isQuar ? '<span class="bdg b-stop plain">قرنطینه</span>' : (isWait ? '<span class="bdg b-warn plain">در انتظار پاسخ مبدأ</span>' : `<span class="bdg b-ok plain">v${fa(v.v)}</span>`);
+                      return `<div style="font-size:12px;display:flex;align-items:center;gap:6px">
+                        <span class="code" style="font-size:11px">${d.code}</span>
+                        <span>${d.title}</span>
+                        ${bdg}
+                      </div>`;
+                    }).join('') : '<span class="muted" style="font-size:12px">وابستگی ثبتی مستقیم ندارد</span>'}
+                  </div>
+                </td>
+                <td>
+                  <span class="bdg ${impactBadge}">${impactText}</span>
+                  ${impactType === 'new_version_available' ? '<div style="font-size:11px;color:var(--text-3);margin-top:3px">مطالعه پایدار است و به نسخه قبلی پین مانده</div>' : ''}
+                  ${impactType === 'quarantine_blocked' ? '<div style="font-size:11px;color:#991B1B;margin-top:3px">قفل ورود به مرحله مدل‌سازی به‌دلیل خطای داده</div>' : ''}
+                </td>
+                <td style="white-space:nowrap">
+                  <span class="bdg b-neu plain" style="font-size:11px" title="بر اساس RBAC، ماژول‌های تحلیل، سناریوها و اجرای مدل برای متولی داده مسدود است">
+                    ${ico.lock} صرفاً پایش داده (تحلیل مسدود)
+                  </span>
+                </td>
+                <td style="white-space:nowrap">
+                  <div style="display:flex;gap:6px">
+                    <a class="btn btn-sm btn-pri" href="#/study/${s.id}/data" title="مشاهده وضعیت داده‌های وضع موجود و فصل صفر">
+                      ${ico.data} مشاهده وابستگی داده
+                    </a>
+                  </div>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`, {
+      foot: 'قانون حاکمیت: داده‌های قرنطینه تا زمان رفع مسدودی، اجازه ورود به فرآیند مدل‌سازی و تحلیل رسمی را به هیچ مطالعه‌ای نمی‌دهند.'
+    })}
+  `);
+}
+function bindAffectedStudies(){
+  bindRows();
+}
+
 function IssuesPage(){
   return Shell(`${DataHead('مسائل داده')}${dataTabs('issues')}
   ${Card('دفتر مسائل و شکاف‌های داده', `<div class="tw"><table class="tbl"><thead><tr>
@@ -4589,10 +4866,14 @@ function IngestPage(){
 
   if(s===0) body=`<p class="t2" style="margin-bottom:12px">فایل مبدأ، قالب اعلام‌شده، سازمان منبع، تاریخ منبع و طبقه‌بندی را مشخص کنید. بایت‌های اصلی فایل بدون تغییر نگهداری می‌شوند.</p>
     <div class="grid cols-2">
-      <div><label class="f-lbl">فایل مبدأ</label>
-        <div class="fld" style="padding:8px 11px"><span>${ico.doc}</span><span class="code">${g.file}</span>
-          <span class="muted" style="margin-inline-start:auto;font-size:11.5px">۲٫۴ مگابایت</span></div>
-        <p class="muted" style="font-size:11px;margin-top:4px">حداکثر اندازه مجاز و قالب‌های پذیرفته‌شده پیش از بارگذاری نمایش داده می‌شود.</p></div>
+      <div><label class="f-lbl">فایل مبدأ (انتخاب از روی لپ‌تاپ)</label>
+        <div class="fld" style="padding:6px 11px;display:flex;align-items:center;gap:8px">
+          <span>${ico.doc}</span>
+          <span class="code" id="ig-file-display">${g.file}</span>
+          <button type="button" class="btn btn-sm btn-pri" id="ig-choose-btn" style="margin-inline-start:auto;padding:3px 10px">${ico.plus} انتخاب عکس یا فایل از لپ‌تاپ</button>
+          <input type="file" id="ig-file-input" style="display:none" accept=".csv,.xlsx,.xls,.json,.geojson,.zip,.png,.jpg,.jpeg">
+        </div>
+        <p class="muted" style="font-size:11px;margin-top:4px">می‌توانید عکس، شیپ‌فایل زیپ‌شده یا جدول را مستقیماً از حافظه لپ‌تاپ انتخاب نمایید.</p></div>
       <div><label class="f-lbl">قالب اعلام‌شده</label><input class="f-in" value="${g.fmt}" readonly></div>
       <div><label class="f-lbl">سازمان منبع</label><input class="f-in" id="ig-org" value="${esc(g.org)}"></div>
       <div><label class="f-lbl">تاریخ منبع</label><input class="f-in num" id="ig-date" value="${g.srcDate}"></div>
@@ -7370,9 +7651,9 @@ const ROLE_NAV={
      ['داده‌های مرتبط','data','#/data']]]],
  steward:[['میز داده',[['میز داده','home','#/'],['کاتالوگ داده','data','#/data'],['درخواست‌های تأمین داده','alert','#/data/requests'],['صف انتشار','flag','#/data/queue'],
    ['قرنطینه','lock','#/data/quarantine'],['مسائل داده','alert','#/data/issues'],['بارگذاری نسخه','plus','#/data/ingest']]],
-   ['اثر بر کار',[['مطالعات متأثر','study','#/studies'],['پیام‌های داخلی','doc','#/messages']]]],
- ruleman:[['میز قواعد',[['میز قواعد و شاخص‌ها','home','#/'],['ضوابط','rules','#/rules'],['شاخص‌ها','report','#/rules?tab=ind']]],
-   ['زمینه',[['مطالعات متأثر','study','#/studies'],['داده‌ها','data','#/data'],['پیام‌های داخلی','doc','#/messages']]]],
+   ['اثر بر کار',[['مطالعات متأثر از داده','study','#/data/affected-studies'],['پیام‌های داخلی','doc','#/messages']]]],
+ ruleman:[['میز قواعد',[['میز قواعد و شاخص‌ها','home','#/'],['ضوابط','rules','#/rules'],['شاخص‌ها','report','#/rules?tab=ind'],['درخواست‌های تدوین و اصلاح','alert','#/rules/requests']]],
+   ['اثر بر کار',[['مطالعات متأثر از ضوابط','study','#/rules/affected-studies'],['داده‌ها','data','#/data'],['پیام‌های داخلی','doc','#/messages']]]],
  modeler:[['میز مدل',[['میز مدل و اجرا','home','#/'],['مدل‌ها','run','#/models'],['صف اجرا','run','#/runs']]],
    ['زمینه',[['مطالعات','study','#/studies'],['داده‌ها','data','#/data'],['پیام‌های داخلی','doc','#/messages']]]],
  reviewer:[['میز بازبینی',[['میز بازبینی','home','#/'],['در انتظار بازبینی من','review','#/review'],
@@ -7395,6 +7676,7 @@ function roleNav(){
     '#/data/requests':(DB.dataRequests||[]).filter(r=>['open','in_progress'].includes(r.st)).length,
     '#/data/quarantine':DB.datasets.filter(d=>d.versions.some(v=>v.st==='quarantined')).length,
     '#/data/queue':DB.datasets.filter(d=>d.versions.some(v=>v.st==='ready')).length,
+    '#/rules/requests':(DB.ruleRequests||[]).filter(r=>['PENDING','WAITING','waiting','open'].includes(r.status)).length,
     '#/findings':myRole()==='consultant'?(DB.findings||[]).filter(f=>f.by===ME()).length:(DB.findings||[]).length};
   return groups.map(([g,items])=>({g,items:items.map(([t,ic,h])=>({t,ic,h,pill:pill[h]||0}))}));
 }
@@ -7424,6 +7706,22 @@ function roleNav(){
     {id:'RL-05',t:'حداقل سرانه فضای سبز محله‌ای',pack:'بسته ضوابط منطقه ۶',v:'پیشنهادی',st:'pending',eff:'۱۴۰۵/۰۸/۰۱',exp:null,sev:'advisory',studies:['ST-1405-014','ST-1405-017']},
     {id:'RL-06',t:'حریم و عقب‌نشینی معابر',pack:'بسته ضوابط منطقه ۶',v:'v3',st:'expiring',eff:'۱۴۰۳/۰۱/۰۱',exp:'۱۴۰۵/۰۷/۰۱',sev:'blocking',studies:['ST-1405-009']},
     {id:'RL-07',t:'ضوابط ساخت‌وساز در حریم مسیل',pack:'بسته ضوابط منطقه ۲',v:'v2',st:'conflict',eff:'۱۴۰۵/۰۱/۱۰',exp:null,sev:'blocking',studies:['ST-1405-005']},
+  ];
+  if(!d.ruleRequests) d.ruleRequests=[
+    {
+      id:'RR-1405-001',
+      study_id:'ST-1405-005',
+      rule_code:'RL-07',
+      rule_title:'ضوابط ساخت‌وساز در حریم مسیل',
+      reason:'CONFLICT',
+      description:'تعارض مصوبه کمیسیون ماده ۵ با حریم هیدرولوژی وزارت نیرو در پهنه مسیل دره فرحزاد؛ نیازمند تدوین نسخه مصوب جهت رفع مسدودی مطالعه',
+      requester:'مهندس زهرا کاظمی',
+      status:'WAITING',
+      created_at:'۱۴۰۵/۰۶/۲۳',
+      due_date:'۱۴۰۵/۰۷/۱۰',
+      attachment_name:'مصوبه_حریم_مسیل_فرحزاد.pdf',
+      attachment_size:'۲.۴ مگابایت'
+    }
   ];
   if(!d.indicators) d.indicators=[
     {id:'IN-01',t:'تراکم ساختمانی ناخالص',unit:'بدون بعد',scale:'بلوک',dir:'بدون جهت مطلوب',v:'v3',st:'approved'},
@@ -7717,60 +8015,241 @@ function HomeConsultant(){
 function HomeSteward(){
   const q=DB.datasets.filter(d=>d.versions.some(v=>v.st==='ready'));
   const qr=DB.datasets.filter(d=>d.versions.some(v=>v.st==='quarantined'));
+  const waitingRev=DB.datasets.filter(d=>d.versions.some(v=>v.st==='waiting_revision'));
   const sup=DB.datasets.filter(d=>d.versions.some(v=>v.st==='superseded'));
   const stale=Object.keys(DB.stale||{}).filter(k=>(DB.stale[k]||[]).length);
   const exc=DB.datasets.filter(d=>qCounts(dsCur(d)).w>0);
-  return Shell(`${RoleHead(`<a class="btn" href="#/data/quarantine">${ico.lock}قرنطینه</a><a class="btn btn-pri" href="#/data/ingest">${ico.plus}بارگذاری نسخه</a>`)}
-  <div class="kpis" style="margin-bottom:14px">
-    ${KPIc(q.length,'در صف انتشار','آماده تصمیم شما','k-warn','#/data/queue')}
-    ${KPIc(qr.length,'در قرنطینه','نیازمند اصلاح مبدأ','k-stop','#/data/quarantine')}
-    ${KPIc(exc.length,'دارای هشدار کیفیت','','k-warn','#/data')}
-    ${KPIc(sup.length,'دارای نسخه جایگزین‌شده','تاریخچه حفظ شده','k-neu','#/data')}
-    ${KPIc(stale.length,'مطالعه متأثر از نسخه جدید','نیازمند بررسی اثر','k-run','#/studies')}
-    ${KPIc(DB.issues.filter(i=>i.st!=='closed').length,'مسئله باز داده','','k-stop','#/data/issues')}
+  const openReqs=(DB.dataRequests||[]).filter(r=>['open','in_progress'].includes(r.st));
+  const staleDatasets=DB.datasets.filter(d=>{
+    const fr=freshness(d);
+    return fr.c==='b-stop'||fr.c==='b-warn';
+  });
+
+  return Shell(`${RoleHead(`
+    <button class="btn" id="stew-quar-top-btn" style="display:flex;align-items:center;gap:6px">${ico.lock}میز کار قرنطینه (${fa(qr.length)})</button>
+    ${waitingRev.length ? `<a class="btn" href="#/data/quarantine" style="background:#FEF3C7;color:#92400E;border-color:#FCD34D;display:flex;align-items:center;gap:6px">${ico.mail}در انتظار پاسخ مبدأ (${fa(waitingRev.length)})</a>` : ''}
+    <button class="btn" id="stew-stale-top-btn" style="background:#FEF3C7;color:#92400E;border-color:#FCD34D;display:flex;align-items:center;gap:6px">${ico.spark}بارگذاری نسخه به‌روز / رفع کهنگی (${fa(staleDatasets.length)})</button>
+    <a class="btn btn-pri" href="#/data/ingest" style="display:flex;align-items:center;gap:6px">${ico.plus}بارگذاری و اعتبارسنجی نسخه جدید</a>`)}
+
+  <!-- چرخه حیات داده TUIP و راهنمای گیت‌های حاکمیتی -->
+  <div class="card" style="margin-bottom:14px;background:#F8FAFC;border:1px solid #E2E8F0">
+    <div class="card-h" style="padding:10px 16px;background:#F1F5F9;border-bottom:1px solid #E2E8F0">
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+        <div style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px;color:#1E293B">
+          ${ico.rules} راهنمای گیت‌های چرخه حیات داده در سامانه TUIP — نحوه مدیریت حالات قرنطینه، کهنگی، تراز و انتشار
+        </div>
+        <span class="bdg b-neu plain" style="font-size:11px">راهنمای جامع نقش متولی داده</span>
+      </div>
+    </div>
+    <div class="card-b" style="padding:14px;font-size:12.5px;line-height:1.8">
+      <div class="grid cols-4" style="gap:12px">
+        <div style="background:#FFF;border:1px solid #FECACA;border-radius:var(--r-m);padding:12px">
+          <div style="color:#B91C1C;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+            ${ico.lock} ۱. حالت قرنطینه (Quarantined)
+          </div>
+          <p style="margin:0 0 8px 0;color:#334155;font-size:12px">
+            <b>چه زمانی؟</b> در صورت خطای مسدودکننده (مغایرت سامانه مختصات CRS، نقص هندسه چندضلعی‌ها، یا عدم تراز رکوردها).<br>
+            <b>اثر:</b> نسخه کاملاً ایزوله است و <u>هرگز نمی‌تواند</u> مسدودکننده پرونده‌های مطالعاتی را رفع کند.<br>
+            <b>چطور هندل می‌شود؟</b> متولی علت خطا را بررسی نموده و با «درخواست اصلاح مبدأ»، داده را به «در انتظار پاسخ مبدأ» منتقل کرده یا «نسخه اصلاح‌شده» بارگذاری می‌نماید.
+          </p>
+        </div>
+
+        <div style="background:#FFF;border:1px solid #FDE68A;border-radius:var(--r-m);padding:12px">
+          <div style="color:#92400E;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+            ${ico.spark} ۲. گذشتن از وقت داده و کهنگی (Stale)
+          </div>
+          <p style="margin:0 0 8px 0;color:#334155;font-size:12px">
+            <b>چه زمانی؟</b> وقتی فاصله تاریخ برداشت با زمان حال بیش از دوره مجاز (مثلاً ۳۶ ماه یا ۱ سال) شود.<br>
+            <b>اثر:</b> در کاتالوگ برچسب «منقضی» می‌خورد و در تحلیل‌ها با وصف برآوردی/قدیمی گزارش می‌شود.<br>
+            <b>چطور داده جدید می‌گذارد؟</b> متولی با کلیک روی «بارگذاری نسخه به‌روز / رفع کهنگی»، فایل دوره جدید (مثلاً ۱۴۰۵) را وارد، نگاشت، اعتبارسنجی و منتشر می‌کند.
+          </p>
+        </div>
+
+        <div style="background:#FFF;border:1px solid #BFDBFE;border-radius:var(--r-m);padding:12px">
+          <div style="color:#1D4ED8;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+            ${ico.check} ۳. تأیید فنی و بررسی معنایی
+          </div>
+          <p style="margin:0 0 8px 0;color:#334155;font-size:12px">
+            <b>قاعده دروازه دوگانه:</b> قبولی در ۲۰+ آزمون فنی خودکار شرط لازم است، اما شرط کافی نیست.<br>
+            <b>بررسی معنایی:</b> متولی داده باید منطق جداول، ضرایب و تطابق موضوعی را تأیید کند.<br>
+            پس از تأیید معنایی، دکمه انتشار فعال شده و نسخه به وضعیت «PUBLISHED» ارتقا می‌یابد.
+          </p>
+        </div>
+
+        <div style="background:#FFF;border:1px solid #CBD5E1;border-radius:var(--r-m);padding:12px">
+          <div style="color:#334155;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+            ${ico.doc} ۴. جایگزینی بدون تخریب (Superseded)
+          </div>
+          <p style="margin:0 0 8px 0;color:#334155;font-size:12px">
+            <b>تغییرناپذیری تاریخی:</b> با انتشار نسخه جدید، نسخه پیشین هرگز پاک نمی‌شود، بلکه به وضعیت جایگزین‌شده (Superseded) می‌رود.<br>
+            <b>حفظ قابلیت بازتولید:</b> مطالعات قدیمی همچنان به نسخه قبلی پین‌شده متصل می‌مانند و محاسبات تاریخی‌شان به هم نمی‌ریزد.
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="split"><div class="grid">
-    ${Card('صف انتشار', q.length?q.map(d=>{const v=d.versions.find(x=>x.st==='ready');
-      return RowI('ic-warn','data',`${d.title} — <span class="vbadge">v${fa(v.v)}</span>`,
-        `${v.reason}<span class="muted">·</span>${fa(qCounts(v).b)} خطا، ${fa(qCounts(v).w)} هشدار${d.semanticReview==='pending'?' <span class="bdg b-warn plain">در انتظار تأیید معنایی</span>':''}`,
-        `<a class="btn btn-sm btn-pri" href="#/data/${d.code}/quality">بررسی و انتشار</a>`);}).join('')
-      : EmptyRole(),{foot:'موفقیت فنی بارگذاری، انتشار نیست؛ تأیید معنایی متولی جداگانه لازم است.'})}
-    ${Card('قرنطینه', qr.length?qr.map(d=>{const v=d.versions.find(x=>x.st==='quarantined');
-      return RowI('ic-stop','lock',`${d.title} — <span class="vbadge">v${fa(v.v)}</span>`,
-        `ورودی ${num(v.counts[0])} · ردشده ${num(v.counts[2])} · قرنطینه ${num(v.counts[3])}`,
-        `<a class="btn btn-sm" href="#/data/${d.code}/quality">بازرسی</a>`);}).join('')
-      : State('check','چیزی در قرنطینه نیست',''))}
-  </div><div class="grid">
-    ${Card('درخواست‌های تأمین داده مطالعات', (DB.dataRequests||[]).filter(r=>['open','in_progress'].includes(r.st)).length
-      ?(DB.dataRequests||[]).filter(r=>['open','in_progress'].includes(r.st)).map(r=>RowI('ic-warn','data',
-        `<span class="code">${r.id}</span> — ${r.label}`,
-        `${byId(r.studyId)?byId(r.studyId).name:r.studyId}<span class="muted">·</span>${r.region}<span class="muted">·</span>درخواست: ${r.by}`,
-        `<button class="btn btn-sm btn-pri" data-fulfil="${r.id}">تأمین داده</button>`)).join('')
-      : State('data','درخواست تأمین داده‌ای در صف نیست','وقتی کارشناس تحلیل در فصل صفر وابستگی تأمین‌نشده ثبت کند، اینجا می‌آید.'),
-      {act:`<a class="btn btn-sm btn-ghost" href="#/data/requests">همه درخواست‌ها</a>`,
-       foot:'تأمین درخواست، مجموعه را به مطالعه متصل و فصل صفر آن را به‌روز می‌کند.'})}
-    ${MyTasksCard()}
-    ${Card('مطالعات متأثر از نسخه جدید', stale.length?stale.map(k=>{const s=byId(k); if(!s) return '';
-      return RowI('ic-run','study',s.name,`${(DB.stale[k]||[]).map(x=>x.title+' v'+fa(x.v)).join('، ')}`,
-        `<a class="btn btn-sm" href="#/study/${k}/data">مشاهده</a>`);}).join('')
-      : State('check','مطالعه‌ای در وضعیت کهنگی نیست',''),{foot:'اجراهای قبلی به نسخه اصلی خود متصل می‌مانند.'})}
-    ${Card('رویدادهای داده', TL(DB.activities.filter(a=>a.et==='dataset').slice(0,6)))}
-  </div></div>`);
+
+  <div class="kpis" style="margin-bottom:14px">
+    ${KPIc(openReqs.length,'درخواست‌های تأمین باز','مطالعات نیازمند داده','k-warn','#/data/requests')}
+    ${KPIc(qr.length,'در قرنطینه فعال','نیازمند اصلاح یا بارگذاری نامزد','k-stop','#/data/quarantine')}
+    ${waitingRev.length ? KPIc(waitingRev.length,'در انتظار پاسخ مبدأ','اخطار اصلاح ابلاغ‌شده','k-warn','#/data/quarantine') : ''}
+    ${KPIc(staleDatasets.length,'داده‌های منقضی و کهنه','نیازمند بارگذاری نسخه تازه','k-warn','javascript:void(0)" onclick="refreshStaleModal()')}
+    ${KPIc(q.length,'در صف انتشار','در انتظار تأیید معنایی','k-run','#/data/queue')}
+    ${KPIc(stale.length,'مطالعه متأثر از نسخه جدید','مشاهده ماتریس اثرپذیری','k-run','#/data/affected-studies')}
+  </div>
+
+  <div class="split">
+    <!-- ستون سمت راست: قرنطینه، در انتظار پاسخ، کهنگی، صف انتشار -->
+    <div class="grid">
+      <!-- کارت قرنطینه -->
+      ${Card('میز کار قرنطینه و نامزدهای مسدودشده', qr.length ? qr.map(d=>{
+        const v=d.versions.find(x=>x.st==='quarantined')||dsCur(d);
+        const errChk=(v.checks||[]).find(c=>c.outcome==='error');
+        return `
+          <div class="task" style="border-right:3px solid var(--stop)">
+            <span class="ic ic-stop">${ico.lock}</span>
+            <div class="bd">
+              <b>${d.title} — <span class="vbadge">v${fa(v.v)}</span> <span class="bdg b-stop plain">قرنطینه</span></b>
+              <div class="m"><span class="code">${d.code}</span><span class="muted">·</span>بارگذاری: ${v.imported||'۱۴۰۵/۰۶/۲۲'}</div>
+              <div class="m" style="color:var(--stop);font-weight:500">
+                علت مسدودکننده: ${errChk ? errChk.why : 'مغایرت سامانه مختصات مبدأ (CRS) با هندسه فایل'}
+              </div>
+              <div class="m">
+                ورودی ${fa(v.counts[0])} · ردشده ${fa(v.counts[2])} · قرنطینه ${fa(v.counts[3]||v.counts[0])}
+              </div>
+            </div>
+            <div class="cta" style="display:flex;gap:6px;flex-wrap:wrap">
+              <button class="btn btn-sm btn-pri" data-quar-fix="${d.code}">بارگذاری نسخه اصلاح‌شده</button>
+              <button class="btn btn-sm" data-quar-reqrev="${d.code}">درخواست اصلاح مبدأ</button>
+              <a class="btn btn-sm" href="#/data/${d.code}/quality">بازرسی کیفیت</a>
+            </div>
+          </div>`;
+      }).join('') : State('check','چیزی در قرنطینه فعال نیست','تمامی نامزدهای اخیر کنترل‌های مسدودکننده را پشت سر گذاشته‌اند یا در انتظار پاسخ سازمان مبدأ می‌باشند.'),
+      {foot:'محتوای قرنطینه ایزوله است و اجازه اتصال به پرونده پژوهشی را ندارد؛ رفع مسئله نامزد جدید می‌سازد.'})}
+
+      <!-- کارت نامزدهای در انتظار پاسخ مبدأ -->
+      ${waitingRev.length ? Card('نامزدهای در انتظار پاسخ سازمان مبدأ', waitingRev.map(d=>{
+        const v = d.versions.find(x=>x.st==='waiting_revision') || dsCur(d);
+        return `
+          <div class="task" style="border-right:3px solid #F59E0B">
+            <span class="ic ic-warn">${ico.mail}</span>
+            <div class="bd">
+              <b>${d.title} — <span class="vbadge">v${fa(v.v)}</span> <span class="bdg b-warn plain">در انتظار پاسخ مبدأ</span></b>
+              <div class="m"><span class="code">${d.code}</span><span class="muted">·</span>سازمان مبدأ: ${d.org} (${d.owner})</div>
+              <div class="m" style="color:#B45309">
+                اخطار ابلاغ‌شده: ${v.revisionNote || 'درخواست اصلاح سامانه مختصات مبدأ و هندسه فایل'}
+              </div>
+              <div class="m" style="font-size:11.5px;color:var(--text-3)">
+                زمان ارسال اخطار: ${v.revisionDate || 'امروز'} · وضعیت: از صف قرنطینه فعال خارج گردیده است
+              </div>
+            </div>
+            <div class="cta" style="display:flex;gap:6px;flex-wrap:wrap">
+              <button class="btn btn-sm btn-pri" data-quar-fix="${d.code}">بارگذاری پاسخ و فایل اصلاح‌شده</button>
+              <a class="btn btn-sm" href="#/data/${d.code}/issues">مشاهده در دفتر مسائل</a>
+            </div>
+          </div>`;
+      }).join(''), {foot:'پس از دریافت پاسخ و فایل اصلاح‌شده از سازمان مبدأ، نامزد جدید بارگذاری و اعتبارسنجی می‌شود.'}) : ''}
+
+      <!-- کارت داده‌های دارای کهنگی زمانی -->
+      ${Card('داده‌های دارای کهنگی زمانی — نیازمند انتشار نسخه تازه', staleDatasets.length ? staleDatasets.map(d=>{
+        const v=dsCur(d);
+        const fr=freshness(d);
+        return `
+          <div class="task" style="border-right:3px solid #F59E0B">
+            <span class="ic ic-warn">${ico.spark}</span>
+            <div class="bd">
+              <b>${d.title} — <span class="vbadge">v${fa(v.v)}</span> <span class="bdg ${fr.c} plain">${fr.t}</span></b>
+              <div class="m"><span class="code">${d.code}</span><span class="muted">·</span>تاریخ مشاهده فعلی: ${v.obs||'قدیمی'}</div>
+              <div class="m">قاعده تازگی: از دوره به‌روزرسانی اعلام‌شده گذشته است.</div>
+            </div>
+            <div class="cta">
+              <button class="btn btn-sm btn-pri" style="background:#D97706;border-color:#D97706" data-refresh-ds="${d.code}">
+                ${ico.spark} بارگذاری نسخه به‌روز (رفع کهنگی)
+              </button>
+            </div>
+          </div>`;
+      }).join('') : State('check','داده‌ای در وضعیت کهنگی نیست','تمامی داده‌ها در بازه پوشش زمانی معتبر قرار دارند.'),
+      {foot:'با کلیک روی بارگذاری نسخه به‌روز، نسخه تازه جایگزین نسخه کهنه شده و به مطالعات اعلان داده می‌شود.'})}
+
+      <!-- صف انتشار -->
+      ${Card('صف انتشار و تأیید معنایی', q.length?q.map(d=>{const v=d.versions.find(x=>x.st==='ready');
+        return RowI('ic-warn','data',`${d.title} — <span class="vbadge">v${fa(v.v)}</span>`,
+          `${v.reason}<span class="muted">·</span>${fa(qCounts(v).b)} خطا، ${fa(qCounts(v).w)} هشدار${d.semanticReview==='pending'?' <span class="bdg b-warn plain">در انتظار تأیید معنایی</span>':''}`,
+          `<a class="btn btn-sm btn-pri" href="#/data/${d.code}/quality">بررسی و انتشار</a>`);}).join('')
+        : EmptyRole(),{foot:'موفقیت فنی بارگذاری، انتشار نیست؛ تأیید معنایی متولی جداگانه لازم است.'})}
+    </div>
+
+    <!-- ستون سمت چپ: درخواست‌های تأمین داده، وظایف، مطالعات متأثر، رویدادها -->
+    <div class="grid">
+      ${Card('درخواست‌های تأمین داده مطالعات', openReqs.length
+        ?openReqs.map(r=>RowI('ic-warn','data',
+          `<span class="code">${r.id}</span> — ${r.label}`,
+          `${byId(r.studyId)?byId(r.studyId).name:r.studyId}<span class="muted">·</span>${r.region}<span class="muted">·</span>درخواست: ${r.by}`,
+          `<button class="btn btn-sm btn-pri" data-fulfil="${r.id}">تأمین داده</button>`)).join('')
+        : State('data','درخواست تأمین داده‌ای در صف نیست','وقتی کارشناس تحلیل در فصل صفر وابستگی تأمین‌نشده ثبت کند، اینجا می‌آید.'),
+        {act:`<a class="btn btn-sm btn-ghost" href="#/data/requests">همه درخواست‌ها</a>`,
+         foot:'تأمین درخواست، نسخه منتشرشده را به مطالعه متصل و فصل صفر آن را به‌روز می‌کند.'})}
+
+      ${MyTasksCard()}
+
+      ${Card('مطالعات متأثر از تغییرات داده', stale.length?stale.map(k=>{const s=byId(k); if(!s) return '';
+        return RowI('ic-run','study',s.name,`${(DB.stale[k]||[]).map(x=>x.title+' v'+fa(x.v)).join('، ')}`,
+          `<a class="btn btn-sm" href="#/data/affected-studies">مشاهده ماتریس اثر</a>`);}).join('')
+        : State('check','مطالعه‌ای در وضعیت کهنگی نیست',''),{
+        act: `<a class="btn btn-sm btn-ghost" href="#/data/affected-studies">مشاهده کل مطالعات متأثر</a>`,
+        foot:'متولی داده صرفاً وابستگی‌ها و اثر تغییرات را مشاهده می‌کند؛ تحلیل و سناریوها در اختیار کارشناسان است.'})}
+
+      ${Card('رویدادهای داده', TL(DB.activities.filter(a=>a.et==='dataset').slice(0,6)))}
+    </div>
+  </div>`);
 }
 function HomeRuleman(){
-  const R=DB.rules,I=DB.indicators;
+  const R=DB.rules||[], I=DB.indicators||[];
   const pend=R.filter(r=>r.st==='pending'), exp=R.filter(r=>r.st==='expiring'), conf=R.filter(r=>r.st==='conflict');
   const iRev=I.filter(x=>x.st==='review'), iConf=I.filter(x=>x.st==='conflict');
-  return Shell(`${RoleHead(`<a class="btn btn-pri" href="#/rules">${ico.rules}کاتالوگ ضوابط و شاخص‌ها</a>`)}
+  const reqs=(DB.ruleRequests||[]);
+  const openReqs=reqs.filter(r=>['WAITING','PENDING','waiting','open'].includes(r.status));
+
+  return Shell(`${RoleHead(`
+    <a class="btn btn-pri" href="#/rules/requests">${ico.alert} کارتابل درخواست‌های اصلاح و تدوین (${fa(openReqs.length)})</a>
+    <a class="btn" href="#/rules/affected-studies">${ico.study} مطالعات متأثر از ضوابط</a>
+    <button class="btn btn-ghost" id="btn-open-rule-req-modal">${ico.plus} ثبت درخواست اصلاح ضابطه با پیوست</button>
+    <a class="btn btn-ghost" href="#/rules">${ico.rules} کاتالوگ ضوابط و شاخص‌ها</a>
+  `)}
   <div class="kpis" style="margin-bottom:14px">
+    ${KPIc(openReqs.length,'درخواست‌های در انتظار پاسخ','نیازمند تدوین نسخه مصوب','k-warn','#/rules/requests')}
+    ${KPIc(conf.length+iConf.length,'تعریف متعارض','نیازمند تعیین تقدم حقوقی','k-stop','#/rules')}
     ${KPIc(pend.length,'ضابطه در انتظار تأیید','نسخه پیشنهادی','k-warn','#/rules')}
-    ${KPIc(iRev.length,'شاخص نیازمند اعتبارسنجی','','k-warn','#/rules')}
     ${KPIc(exp.length,'ضابطه در آستانه انقضا','تاریخ اثر نزدیک','k-stop','#/rules')}
-    ${KPIc(conf.length+iConf.length,'تعریف متعارض','نیازمند تعیین تکلیف','k-stop','#/rules')}
-    ${KPIc(R.filter(r=>r.st==='approved').length,'ضابطه تأییدشده','','k-ok','#/rules')}
-    ${KPIc(new Set(R.flatMap(r=>r.studies)).size,'مطالعه متأثر','','k-neu','#/studies')}
+    ${KPIc(iRev.length,'شاخص نیازمند اعتبارسنجی','','k-warn','#/rules')}
+    ${KPIc(new Set(R.flatMap(r=>r.studies)).size,'مطالعه متأثر','پایش انطباق قوانین','k-neu','#/rules/affected-studies')}
   </div>
   <div class="split"><div class="grid">
+    <!-- کارتابل درخواست‌های اصلاح و تدوین ضابطه -->
+    ${Card('درخواست‌های تدوین و اصلاح ضابطه از سوی مطالعات (کارتابل ورودی متولی قواعد)', openReqs.length ? openReqs.map(r=>{
+      return `
+        <div class="task" style="border-right:3px solid #F59E0B">
+          <span class="ic ic-warn">${ico.rules}</span>
+          <div class="bd">
+            <b>${r.rule_title||r.rule_code} — <span class="code">${r.id}</span> <span class="bdg b-warn plain">در انتظار پاسخ و ارسال نسخه مصوب</span></b>
+            <div class="m"><span class="code">${r.study_id}</span><span class="muted">·</span>متقاضی: ${r.requester||'کارشناس مطالعه'}<span class="muted">·</span>دلیل: ${r.reason==='CONFLICT'?'تعارض احکام قانونی':r.reason==='OUTDATED'?'انقضای مصوبه':r.reason==='MISSING'?'فقدان ضابطه مصوب':'ابهام در ارزیابی'}</div>
+            <div class="m" style="color:#334155;margin-top:2px">${r.description||''}</div>
+            ${r.attachment_name ? `
+              <div style="margin-top:6px;display:flex;align-items:center;gap:6px;font-size:12px;color:#2563EB">
+                <span>📎</span> پیوست ارسالی از لپ‌تاپ: <b>${r.attachment_name}</b> ${r.attachment_size ? `<span class="muted">(${r.attachment_size})</span>` : ''}
+              </div>
+            ` : ''}
+          </div>
+          <div class="cta">
+            <button class="btn btn-sm btn-pri" style="background:#059669;border-color:#059669" data-solve-req="${r.id}">
+              ${ico.check} پاسخ، تدوین AST و رفع مسدودی
+            </button>
+          </div>
+        </div>`;
+    }).join('') : State('check','درخواستی در انتظار پاسخ نیست','تمامی مطالعات از نظر الزامات قواعد پاسخ داده شده‌اند.'),
+    {act:`<a class="btn btn-sm btn-ghost" href="#/rules/requests">مشاهده تمام درخواست‌ها</a>`,
+     foot:'پاسخ متولی قواعد و انتشار نسخه مصوب ضابطه، وضعیت مسدودی مطالعه را به‌طور خودکار رفع می‌کند.'})}
+
     ${Card('ضوابط نیازمند اقدام', [...pend,...exp,...conf].length?[...pend,...exp,...conf].map(r=>RowI(
       r.st==='pending'?'ic-warn':'ic-stop','rules',r.t,
       `<span class="code">${r.id}</span><span class="vbadge">${r.v}</span>${r.pack}<span class="muted">·</span>تاریخ اثر ${r.eff}${r.exp?' · انقضا '+r.exp:''}
@@ -7785,11 +8264,13 @@ function HomeRuleman(){
     ${MyTasksCard()}
     ${Card('مطالعات متأثر از ضوابط نیازمند اقدام', [...new Set([...pend,...exp,...conf].flatMap(r=>r.studies))].map(sid=>{
       const s=byId(sid); return s?RowI('ic-neu','study',s.name,`<span class="code">${sid}</span>${badge(s.status)}`,
-        `<a class="btn btn-sm" href="#/study/${sid}/chapter0">فصل صفر</a>`):'';}).join('')
-      || State('study','مطالعه‌ای متأثر نیست',''))}
-    ${Card('آنچه در حوزه مسئولیت شما نیست', `<div class="card-b" style="display:grid;gap:6px;font-size:12.5px">
-      ${['مدیریت کاربران و دسترسی‌ها','انتشار نسخه داده','ثبت تصمیم و ارجاع رسمی','تحلیل اثر پیشنهاد']
-        .map(x=>`<div class="ready-row" style="border:none;padding:3px 0"><span class="nm">${x}</span><span class="bdg b-neu plain">خارج از نقش</span></div>`).join('')}</div>`)}
+        `<a class="btn btn-sm" href="#/study/${sid}/baseline">وضعیت ضوابط</a>`):'';}).join('')
+      || State('study','مطالعه‌ای متأثر نیست',''),
+      {act:`<a class="btn btn-sm btn-ghost" href="#/rules/affected-studies">فهرست کامل مطالعات متأثر</a>`})}
+    ${Card('آنچه در حوزه مسئولیت شما نیست (ماتریس SoD / RBAC)', `<div class="card-b" style="display:grid;gap:6px;font-size:12.5px">
+      ${['تحلیل مطالعات و تدوین سناریوها','اجرای مدل‌های ترافیکی و محاسباتی','ثبت تصمیم و ارجاع رسمی','انتشار و اصلاح نسخه‌های داده خام']
+        .map(x=>`<div class="ready-row" style="border:none;padding:3px 0"><span class="nm">${x}</span><span class="bdg b-stop plain">مسدود (خارج از نقش)</span></div>`).join('')}</div>`,
+      {foot:'متولی قواعد صرفاً بر وضعیت احکام، تدوین AST و اثر آن‌ها بر مطالعات تمرکز دارد؛ فرآیند تحلیل و سناریوها در اختیار کارشناسان تحلیل است.'})}
   </div></div>`);
 }
 function HomeModeler(){
@@ -7999,6 +8480,18 @@ function bindHome(){
       text:`برای یافته مشاور «${f.topic}» درخواست اصلاح ثبت شد`,k:'warn'});
     notify({to:f.by,type:'warn',title:'برای یافته شما درخواست اصلاح ثبت شد',msg:f.topic,route:'#/findings',et:'study',eid:f.studyId});
     saveDB(); render(); toast('درخواست اصلاح ثبت شد و به مشاور اعلان داده شد');});
+
+  // Data Steward events
+  const sqb = el('#stew-quar-top-btn'); if(sqb) sqb.onclick = () => go('#/data/quarantine');
+  const ssb = el('#stew-stale-top-btn'); if(ssb) ssb.onclick = () => refreshStaleModal();
+  els('[data-refresh-ds]').forEach(b => b.onclick = () => refreshStaleModal(b.dataset.refreshDs));
+  els('[data-quar-fix]').forEach(b => b.onclick = () => quarantineFixModal(b.dataset.quarFix));
+  els('[data-quar-reqrev]').forEach(b => b.onclick = () => quarantineRequestRevisionModal(b.dataset.quarReqrev));
+
+  // Rule Steward events
+  els('[data-solve-req]').forEach(b => b.onclick = () => ruleFulfillModal(b.dataset.solveReq));
+  els('[data-req-rule-study]').forEach(b => b.onclick = () => ruleCorrectionRequestModal(null, b.dataset.reqRuleStudy, b.dataset.reqRuleName));
+  const rrqb = el('#btn-open-rule-req-modal'); if(rrqb) rrqb.onclick = () => ruleCorrectionRequestModal();
 }
 
 /* ---------- 72. secretariat & consultant modals ---------- */
@@ -8203,11 +8696,26 @@ function RulesPage(){
   const manage=can('MANAGE_RULES');
   const RST={approved:['تأییدشده','b-ok'],pending:['در انتظار تأیید','b-warn'],expiring:['در آستانه انقضا','b-stop'],conflict:['تعارض','b-stop']};
   const IST={approved:['تأییدشده','b-ok'],review:['نیازمند اعتبارسنجی','b-warn'],conflict:['تعریف متعارض','b-stop']};
+  const curTab = location.hash.includes('tab=ind') ? 'ind' : 'rules';
+  const subNav = `
+    <div style="display:flex;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px;flex-wrap:wrap">
+      <a class="btn ${curTab==='rules'?'btn-pri':''}" href="#/rules">${ico.rules} کاتالوگ ضوابط</a>
+      <a class="btn ${curTab==='ind'?'btn-pri':''}" href="#/rules?tab=ind">${ico.report} کاتالوگ شاخص‌ها</a>
+      <a class="btn" href="#/rules/requests">${ico.alert} کارتابل درخواست‌های اصلاح و تدوین (${fa((DB.ruleRequests||[]).filter(r=>['WAITING','waiting','PENDING','open'].includes(r.status)).length)})</a>
+      <a class="btn" href="#/rules/affected-studies">${ico.study} مطالعات متأثر از ضوابط</a>
+    </div>
+  `;
+
   return Shell(`${Crumb([{t:'میز کار من',h:'#/'},{t:'قواعد و شاخص‌ها'}])}
   <div class="phead"><div><div class="eyebrow">داده و قواعد</div><h1>قواعد و شاخص‌ها</h1>
     <p class="sub">ضوابط نسخه‌دار با دامنه اعمال و تاریخ اثر، و تعریف شاخص‌ها با واحد، مقیاس و جهت مطلوب. ضابطه تأییدنشده در محاسبه مرجع به کار نمی‌رود.</p></div>
-    <div class="acts">${manage?`<button class="btn btn-pri" id="rl-new">${ico.plus}ثبت نسخه جدید ضابطه</button>`:''}</div></div>
-  ${Card('کاتالوگ ضوابط', `<div class="tw"><table class="tbl"><thead><tr>
+    <div class="acts">
+      ${manage?`<button class="btn btn-pri" id="rl-new">${ico.plus}ثبت نسخه جدید ضابطه</button>`:''}
+      <button class="btn btn-ghost" id="rl-req-new">${ico.plus}ثبت درخواست اصلاح ضابطه با پیوست</button>
+    </div>
+  </div>
+  ${subNav}
+  ${curTab==='rules'?Card('کاتالوگ ضوابط', `<div class="tw"><table class="tbl"><thead><tr>
     <th>ضابطه</th><th>بسته</th><th>نسخه</th><th>شدت</th><th>تاریخ اثر</th><th>انقضا</th><th>وضعیت</th><th>مطالعات متأثر</th>${manage?'<th>اقدام</th>':''}</tr></thead><tbody>
     ${DB.rules.map(r=>`<tr style="cursor:default"><td><span class="ttl">${r.t}</span><span class="sub code">${r.id}</span></td>
       <td>${r.pack}</td><td><span class="vbadge">${r.v}</span></td>
@@ -8216,15 +8724,16 @@ function RulesPage(){
       <td><span class="bdg ${RST[r.st][1]}">${RST[r.st][0]}</span></td>
       <td>${r.studies.map(s=>`<a class="link code" href="#/study/${s}">${s}</a>`).join('، ')}</td>
       ${manage?`<td style="white-space:nowrap">${r.st==='pending'?`<button class="btn btn-sm btn-pri" data-rlapp="${r.id}">ارسال برای تأیید</button>`:''}
-        ${r.st==='expiring'?`<button class="btn btn-sm" data-rlext="${r.id}">تمدید نسخه</button>`:''}</td>`:''}</tr>`).join('')}
-    </tbody></table></div>`)}
-  <div style="height:14px"></div>
-  ${Card('کاتالوگ شاخص‌ها', `<div class="tw"><table class="tbl"><thead><tr>
+        ${r.st==='expiring'?`<button class="btn btn-sm" data-rlext="${r.id}">تمدید نسخه</button>`:''}
+        <button class="btn btn-sm btn-outline" data-req-rule="${r.id}" title="ثبت اخطار یا درخواست تدوین/اصلاح برای این ضابطه">درخواست اصلاح</button>
+        </td>`:''}</tr>`).join('')}
+    </tbody></table></div>`) : ''}
+  ${curTab==='ind'?Card('کاتالوگ شاخص‌ها', `<div class="tw"><table class="tbl"><thead><tr>
     <th>شاخص</th><th>واحد</th><th>مقیاس مکانی</th><th>جهت مطلوب</th><th>نسخه</th><th>وضعیت</th></tr></thead><tbody>
     ${DB.indicators.map(i=>`<tr style="cursor:default"><td><span class="ttl">${i.t}</span><span class="sub code">${i.id}</span></td>
       <td>${i.unit}</td><td>${i.scale}</td><td>${i.dir}</td><td><span class="vbadge">${i.v}</span></td>
       <td><span class="bdg ${IST[i.st][1]}">${IST[i.st][0]}</span></td></tr>`).join('')}
-    </tbody></table></div>`,{foot:'تعریف شاخص، مبنای مقایسه‌پذیری است؛ تغییر آن نتایج پیشین را بازنویسی نمی‌کند.'})}`);
+    </tbody></table></div>`,{foot:'تعریف شاخص، مبنای مقایسه‌پذیری است؛ تغییر آن نتایج پیشین را بازنویسی نمی‌کند.'}) : ''}`);
 }
 function bindRules(){
   els('[data-rlapp]').forEach(b=>b.onclick=()=>{const r=DB.rules.find(x=>x.id===b.dataset.rlapp);
@@ -8240,7 +8749,564 @@ function bindRules(){
     r.studies.forEach(sid=>{const s=byId(sid); if(s) notify({to:s.owner,self:true,type:'warn',
       title:'نسخه ضابطه مرتبط با مطالعه شما تغییر کرد',msg:r.t+' — '+r.v,route:'#/study/'+sid+'/chapter0',et:'study',eid:sid});});
     saveDB(); render(); toast('نسخه تازه ضابطه ثبت شد و مالکان مطالعات متأثر مطلع شدند');});
+  els('[data-req-rule]').forEach(b=>b.onclick=()=>ruleCorrectionRequestModal(b.dataset.reqRule));
+  const rrn = el('#rl-req-new'); if(rrn) rrn.onclick = () => ruleCorrectionRequestModal();
   bindRows();
+}
+
+/* ---------- 75-B. Rule Affected Studies Page ---------- */
+function RuleAffectedStudiesPage(){
+  if(!can('VIEW_RULES')) return Denied('مطالعات متأثر از ضوابط','مشاهده وضعیت ضوابط در حوزه مسئولیت متولی قواعد و کارشناس تحلیل است.');
+
+  const R = DB.rules || [];
+  const reqs = DB.ruleRequests || [];
+
+  const rows = DB.studies.map(s => {
+    const sRules = R.filter(r => (r.studies || []).includes(s.id));
+    const sReqs = reqs.filter(r => r.study_id === s.id);
+    const waitingReq = sReqs.find(r => ['WAITING', 'waiting', 'PENDING', 'open'].includes(r.status));
+    const blockingRule = sRules.find(r => r.sev === 'blocking' && ['conflict', 'expiring', 'pending'].includes(r.st));
+
+    let st = { t: 'منطبق و پایدار', c: 'b-ok', desc: 'تمامی ضوابط مصوب و معتبرند' };
+    if (waitingReq) {
+      st = { t: 'در انتظار پاسخ متولی', c: 'b-warn', desc: `درخواست تدوین/اصلاح برای «${waitingReq.rule_title||waitingReq.rule_code}» ابلاغ شده` };
+    } else if (blockingRule) {
+      st = { t: 'مسدودکننده فعال', c: 'b-stop', desc: `تعارض یا کهنگی در «${blockingRule.t}»` };
+    }
+
+    return { s, sRules, sReqs, waitingReq, blockingRule, st };
+  });
+
+  const blockedCount = rows.filter(r => r.blockingRule && !r.waitingReq).length;
+  const waitingCount = rows.filter(r => r.waitingReq).length;
+  const readyCount = rows.filter(r => !r.blockingRule && !r.waitingReq).length;
+
+  return Shell(`
+    ${Crumb([{t:'میز کار من',h:'#/'},{t:'قواعد و شاخص‌ها',h:'#/rules'},{t:'مطالعات متأثر از ضوابط'}])}
+    <div class="phead">
+      <div>
+        <div class="eyebrow">حاکمیت قواعد TUIP</div>
+        <h1>مطالعات متأثر از ضوابط و احکام</h1>
+        <p class="sub">پایش سطح اثرگذاری قوانین و احکام بر مطالعات شهری — رعایت تفکیک وظایف سازمانی (SoD)</p>
+      </div>
+      <div class="acts">
+        <button class="btn btn-pri" id="btn-open-rule-req-modal-aff">${ico.plus} ثبت درخواست اصلاح ضابطه با پیوست</button>
+        <a class="btn" href="#/rules/requests">${ico.alert} کارتابل درخواست‌ها (${fa(waitingCount)})</a>
+        <a class="btn" href="#/rules">${ico.rules} کاتالوگ ضوابط</a>
+      </div>
+    </div>
+
+    <!-- بنر تفکیک وظایف سازمانی -->
+    <div class="notice n-info" style="margin-bottom:14px;border-right:4px solid #7C3AED">
+      ${ico.lock}
+      <div>
+        <b>اصل تفکیک وظایف سازمانی (RBAC / SoD):</b>
+        متولی قواعد و ضوابط صرفاً اثرگذاری احکام، تعارضات حقوقی و انطباق ضوابط بر مطالعات را پایش می‌کند و اجازه ورود به بخش‌های تحلیل مطالعات، تدوین سناریوها، اجرای مدل‌ها و تصمیم‌گیری نهایی را ندارد.
+      </div>
+    </div>
+
+    <div class="kpis" style="margin-bottom:14px">
+      ${KPIc(rows.length, 'کل مطالعات تحت پایش', 'پایش انطباق قوانین', 'k-pri', '#/rules/affected-studies')}
+      ${KPIc(blockedCount, 'مطالعه مسدود با تعارض فعال', 'نیازمند درخواست اصلاح', 'k-stop', '#/rules/affected-studies')}
+      ${KPIc(waitingCount, 'مطالعه در انتظار پاسخ', 'اخطار/درخواست ابلاغ شده', 'k-warn', '#/rules/requests')}
+      ${KPIc(readyCount, 'مطالعه با ضوابط پایدار', 'منطبق و بدون مسدودی', 'k-ok', '#/rules/affected-studies')}
+    </div>
+
+    ${Card('فهرست مطالعات و وضعیت انطباق ضوابط', `
+      <div class="tw">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>شناسه و عنوان مطالعه</th>
+              <th>پهنه / حوزه</th>
+              <th>مسئول مطالعه</th>
+              <th>ضوابط مرتبط</th>
+              <th>وضعیت انطباق ضابطه</th>
+              <th>توضیح وضعیت و مسدودی</th>
+              <th>اقدامات</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(({ s, sRules, waitingReq, blockingRule, st }) => `
+              <tr>
+                <td>
+                  <span class="ttl">${s.name}</span>
+                  <span class="sub code">${s.id}</span>
+                </td>
+                <td>${s.region}</td>
+                <td style="white-space:nowrap">${s.owner}</td>
+                <td>
+                  <div style="display:flex;gap:4px;flex-wrap:wrap">
+                    ${sRules.length ? sRules.map(r => `<span class="vbadge" title="${r.t}">${r.id}</span>`).join('') : '<span class="muted">—</span>'}
+                  </div>
+                </td>
+                <td style="white-space:nowrap">
+                  <span class="bdg ${st.c} plain">${st.t}</span>
+                </td>
+                <td style="font-size:12px;color:#475569">
+                  ${st.desc}
+                  ${waitingReq && waitingReq.attachment_name ? `
+                    <div style="font-size:11px;color:#2563EB;margin-top:2px">
+                      📎 پیوست ارسالی: <b>${waitingReq.attachment_name}</b> ${waitingReq.attachment_size ? `<span class="muted">(${waitingReq.attachment_size})</span>` : ''}
+                    </div>
+                  ` : ''}
+                </td>
+                <td style="white-space:nowrap">
+                  <div style="display:flex;gap:6px">
+                    <a class="btn btn-sm btn-pri" href="#/study/${s.id}/baseline" title="مشاهده وضعیت انطباق ضوابط">
+                      ${ico.rules} وضعیت ضوابط
+                    </a>
+                    ${waitingReq ? `
+                      <button class="btn btn-sm" style="background:#059669;color:#fff;border-color:#059669" data-solve-req="${waitingReq.id}">
+                        ${ico.check} پاسخ به درخواست
+                      </button>
+                    ` : `
+                      <button class="btn btn-sm btn-outline" data-req-rule-study="${s.id}" data-req-rule-name="${s.name}">
+                        ${ico.plus} درخواست اصلاح
+                      </button>
+                    `}
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `, {
+      foot: 'قانون حاکمیت: تا زمان تأمین و تعیین تکلیف ضوابط مسدودکننده، مجوز ورود به مراحل تحلیل رسمی و تصویب برای مطالعه صادر نمی‌گردد.'
+    })}
+  `);
+}
+
+function bindRuleAffectedStudies(){
+  const rrqb = el('#btn-open-rule-req-modal-aff'); if(rrqb) rrqb.onclick = () => ruleCorrectionRequestModal();
+  els('[data-req-rule-study]').forEach(b => b.onclick = () => ruleCorrectionRequestModal(null, b.dataset.reqRuleStudy, b.dataset.reqRuleName));
+  els('[data-solve-req]').forEach(b => b.onclick = () => ruleFulfillModal(b.dataset.solveReq));
+  bindRows();
+}
+
+/* ---------- 75-C. Rule Requests Cartable Page ---------- */
+function RuleRequestsPage(){
+  if(!can('VIEW_RULES')) return Denied('کارتابل درخواست‌های ضابطه','این بخش در حوزه مسئولیت متولی قواعد است.');
+
+  const reqs = DB.ruleRequests || [];
+  const waitingReqs = reqs.filter(r => ['WAITING', 'waiting', 'PENDING', 'open'].includes(r.status));
+  const fulfilledReqs = reqs.filter(r => ['FULFILLED', 'fulfilled', 'done'].includes(r.status));
+
+  return Shell(`
+    ${Crumb([{t:'میز کار من',h:'#/'},{t:'قواعد و شاخص‌ها',h:'#/rules'},{t:'کارتابل درخواست‌های اصلاح و تدوین'}])}
+    <div class="phead">
+      <div>
+        <div class="eyebrow">حاکمیت قواعد TUIP</div>
+        <h1>کارتابل درخواست‌های تدوین و اصلاح ضابطه</h1>
+        <p class="sub">درخواست‌های واصله از مطالعات شهری جهت رفع تعارض احکام، تدوین ضابطه جدید یا به‌روزرسانی قوانین مسدودکننده</p>
+      </div>
+      <div class="acts">
+        <button class="btn btn-pri" id="btn-open-rule-req-modal-cart">${ico.plus} ثبت درخواست اصلاح ضابطه با پیوست</button>
+        <a class="btn" href="#/rules/affected-studies">${ico.study} مطالعات متأثر</a>
+        <a class="btn" href="#/rules">${ico.rules} کاتالوگ ضوابط</a>
+      </div>
+    </div>
+
+    <div class="kpis" style="margin-bottom:14px">
+      ${KPIc(reqs.length, 'کل درخواست‌ها', 'سابقه ارجاعات ضابطه', 'k-pri', '#/rules/requests')}
+      ${KPIc(waitingReqs.length, 'در انتظار پاسخ متولی', 'نیازمند تدوین نسخه مصوب', 'k-warn', '#/rules/requests')}
+      ${KPIc(fulfilledReqs.length, 'تأمین‌شده و رفع مسدودی', 'نسخه مصوب ابلاغ شد', 'k-ok', '#/rules/requests')}
+    </div>
+
+    ${Card('فهرست درخواست‌های اصلاح و تدوین ضابطه', `
+      <div class="tw">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>شناسه</th>
+              <th>ضابطه و کد</th>
+              <th>مطالعه متأثر</th>
+              <th>متقاضی و تاریخ</th>
+              <th>دلیل و فوریت</th>
+              <th>شرح درخواست</th>
+              <th>پیوست ارسالی از لپ‌تاپ</th>
+              <th>وضعیت</th>
+              <th>اقدام</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${reqs.length ? reqs.map(r => {
+              const isWaiting = ['WAITING', 'waiting', 'PENDING', 'open'].includes(r.status);
+              return `
+                <tr>
+                  <td class="code">${r.id}</td>
+                  <td>
+                    <span class="ttl">${r.rule_title || r.rule_code}</span>
+                    <span class="sub code">${r.rule_code}</span>
+                  </td>
+                  <td>
+                    <a class="link code" href="#/study/${r.study_id}">${r.study_id}</a>
+                    <div style="font-size:11.5px;color:#64748B">${byId(r.study_id) ? byId(r.study_id).name : ''}</div>
+                  </td>
+                  <td style="white-space:nowrap">
+                    <b>${r.requester || 'کارشناس مطالعه'}</b>
+                    <div style="font-size:11px;color:#64748B">${r.created_at || '—'}</div>
+                  </td>
+                  <td style="white-space:nowrap">
+                    <span class="bdg b-warn plain">${r.reason === 'CONFLICT' ? 'تعارض احکام قانونی' : r.reason === 'OUTDATED' ? 'انقضای مصوبه' : r.reason === 'MISSING' ? 'فقدان ضابطه مصوب' : 'ابهام در فرمول AST'}</span>
+                  </td>
+                  <td style="font-size:12px;max-width:240px;line-height:1.5">
+                    ${r.description || '—'}
+                  </td>
+                  <td>
+                    ${r.attachment_name ? `
+                      <div style="display:flex;align-items:center;gap:6px;padding:4px 8px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:4px;font-size:11.5px;color:#1E40AF">
+                        <span>📎</span>
+                        <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px" title="${r.attachment_name}">
+                          <b>${r.attachment_name}</b>
+                        </div>
+                        <span class="muted" style="font-size:10px">${r.attachment_size || ''}</span>
+                      </div>
+                    ` : `<span class="muted" style="font-size:11.5px">بدون پیوست</span>`}
+                  </td>
+                  <td style="white-space:nowrap">
+                    <span class="bdg ${isWaiting ? 'b-warn' : 'b-ok'} plain">
+                      ${isWaiting ? 'در انتظار پاسخ و ارسال نسخه مصوب' : 'تأمین‌شده و رفع مسدودی'}
+                    </span>
+                  </td>
+                  <td style="white-space:nowrap">
+                    ${isWaiting ? `
+                      <button class="btn btn-sm btn-pri" style="background:#059669;border-color:#059669" data-solve-req="${r.id}">
+                        ${ico.check} پاسخ و رفع مسدودی
+                      </button>
+                    ` : `
+                      <span style="font-size:11.5px;color:#047857;display:flex;align-items:center;gap:4px">
+                        ${ico.check} مصوب شد
+                      </span>
+                    `}
+                  </td>
+                </tr>
+              `;
+            }).join('') : `
+              <tr>
+                <td colspan="9" style="text-align:center;padding:24px;color:#64748B">درخواستی در سامانه ثبت نشده است.</td>
+              </tr>
+            `}
+          </tbody>
+        </table>
+      </div>
+    `, {
+      foot: 'پاسخ به هر درخواست موجب ایجاد نسخه مصوب در کاتالوگ ضوابط و رفع مسدودی مطالعه متأثر می‌گردد.'
+    })}
+  `);
+}
+
+function bindRuleRequests(){
+  const rrqb = el('#btn-open-rule-req-modal-cart'); if(rrqb) rrqb.onclick = () => ruleCorrectionRequestModal();
+  els('[data-solve-req]').forEach(b => b.onclick = () => ruleFulfillModal(b.dataset.solveReq));
+  bindRows();
+}
+
+/* ---------- 75-D. Rule Correction Request Modal (with Laptop File/Photo Upload) ---------- */
+function ruleCorrectionRequestModal(prefillRuleCode, prefillStudyId, prefillRuleTitle){
+  const studies = DB.studies || [];
+  const rules = DB.rules || [];
+  const curRule = rules.find(r => r.id === prefillRuleCode);
+  const curTitle = prefillRuleTitle || (curRule ? curRule.t : '');
+
+  openModal(`
+    <div class="modal-h">
+      <h2>${ico.rules} ارسال درخواست تدوین یا اصلاح ضابطه مسدودکننده به متولی قواعد</h2>
+      <button class="icon-btn" data-close>${ico.block}</button>
+    </div>
+    <div class="modal-b">
+      <div class="notice n-info" style="margin-bottom:12px">
+        ${ico.alert}
+        <div>
+          با ارسال این درخواست، وضعیت ضابطه مسدودکننده به <b>«در انتظار پاسخ»</b> تغییر یافته و <b>از صف قرنطینه و مسدودی فعال برداشته می‌شود</b> تا متولی قواعد نسخه مصوب جدید را تدوین و بارگذاری نماید.
+        </div>
+      </div>
+
+      <div class="grid cols-2" style="margin-bottom:12px;gap:10px">
+        <div>
+          <label class="f-lbl">مطالعه متأثر</label>
+          <select class="f-in" id="rrev-study">
+            ${studies.map(s => `
+              <option value="${s.id}" ${prefillStudyId === s.id ? 'selected' : ''}>${s.id} — ${s.name}</option>
+            `).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="f-lbl">ضابطه مسدودکننده یا مورد تقاضا</label>
+          <select class="f-in" id="rrev-rule">
+            ${rules.map(r => `
+              <option value="${r.id}" ${prefillRuleCode === r.id ? 'selected' : ''}>${r.id} — ${r.t}</option>
+            `).join('')}
+            <option value="NEW_RULE" ${!prefillRuleCode ? 'selected' : ''}>+ تدوین ضابطه جدید یا الحاق حکم</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label class="f-lbl">دلیل درخواست اصلاح</label>
+        <select class="f-in" id="rrev-reason">
+          <option value="CONFLICT">تعارض احکام قانونی و لزوم تعیین تقدم حقوقی</option>
+          <option value="OUTDATED">انقضای مصوبه قبلی و ضرورت تدوین نسخه جدید</option>
+          <option value="MISSING">فقدان ضابطه مصوب در سامانه TUIP</option>
+          <option value="PARAM_MISMATCH">ابهام یا عدم تطابق پارامترهای هندسی/کالبدی با فرمول AST</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label class="f-lbl">شرح درخواست و ادله حقوقی یا فنی</label>
+        <textarea class="f-in" id="rrev-desc" rows="3" placeholder="توضیح دهید چرا این ضابطه مسدودکننده است و چه تغییری مورد نیاز است...">تعارض مصوبه کمیسیون ماده ۵ با حریم هیدرولوژی وزارت نیرو در پهنه مسیل؛ نیازمند تعیین مرجع حقوقی مقدم و ابلاغ نسخه معتبر جهت رفع مسدودی مطالعه.</textarea>
+      </div>
+
+      <!-- بارگذاری عکس یا فایل از روی لپ‌تاپ -->
+      <div style="margin-bottom:12px">
+        <label class="f-lbl">پیوست تصویر مصوبه، نامه شورا یا سند PDF (انتخاب مستقیم از روی لپ‌تاپ)</label>
+        <div id="rrev-drop" style="border:2px dashed #3B82F6;background:#F8FAFC;border-radius:var(--r-m);padding:16px;text-align:center;cursor:pointer;transition:all .15s">
+          <div style="font-size:24px;color:#2563EB;margin-bottom:4px">${ico.plus}</div>
+          <div style="font-weight:600;font-size:12.5px;color:#1E40AF">برای انتخاب عکس یا فایل از روی لپ‌تاپ خود اینجا کلیک کنید</div>
+          <div style="font-size:11.5px;color:#64748B;margin-top:3px">پشتیبانی از انواع تصاویر (PNG، JPG)، فایل‌های مصوبه PDF، اکسل و اسناد Word</div>
+        </div>
+        <input type="file" id="rrev-file-input" style="display:none" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip">
+        <div id="rrev-file-preview" style="margin-top:8px"></div>
+      </div>
+    </div>
+    <div class="modal-f">
+      <button class="btn btn-pri" id="rrev-go">${ico.check} ثبت و ابلاغ اخطار / درخواست اصلاح</button>
+      <button class="btn btn-ghost" data-close>انصراف</button>
+    </div>
+  `);
+
+  const dropEl = el('#rrev-drop', modal);
+  const fileInputEl = el('#rrev-file-input', modal);
+  const previewEl = el('#rrev-file-preview', modal);
+  let attachedFileName = null;
+  let attachedFileSize = null;
+
+  if (dropEl && fileInputEl) {
+    dropEl.onclick = () => fileInputEl.click();
+    fileInputEl.onchange = (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      attachedFileName = f.name;
+      attachedFileSize = (f.size / 1024).toFixed(1) + ' کیلوبایت';
+      const isImg = f.type.startsWith('image/');
+      const reader = new FileReader();
+      reader.onload = (re) => {
+        previewEl.innerHTML = `
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:var(--r-s)">
+            ${isImg ? `<img src="${re.target.result}" style="width:44px;height:44px;object-fit:cover;border-radius:4px;border:1px solid #93C5FD">` : `<span style="font-size:24px">${ico.doc}</span>`}
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:600;font-size:12.5px;color:#1E3A8A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.name}</div>
+              <div style="font-size:11px;color:#3B82F6">${attachedFileSize} · پیوست شد از لپ‌تاپ شما</div>
+            </div>
+            <button type="button" class="btn btn-sm btn-ghost" id="rrev-rm-file" style="color:#EF4444;padding:2px 8px">حذف</button>
+          </div>`;
+        const rmBtn = el('#rrev-rm-file', modal);
+        if (rmBtn) {
+          rmBtn.onclick = () => {
+            fileInputEl.value = '';
+            previewEl.innerHTML = '';
+            attachedFileName = null;
+            attachedFileSize = null;
+          };
+        }
+        toast('فایل «' + f.name + '» از روی لپ‌تاپ شما با موفقیت پیوست شد.', true);
+      };
+      reader.readAsDataURL(f);
+    };
+  }
+
+  el('#rrev-go', modal).onclick = () => {
+    const studyId = el('#rrev-study', modal).value;
+    const ruleCode = el('#rrev-rule', modal).value;
+    const reason = el('#rrev-reason', modal).value;
+    const desc = el('#rrev-desc', modal).value.trim();
+
+    const selectedRule = rules.find(r => r.id === ruleCode);
+    const ruleTitle = selectedRule ? selectedRule.t : (curTitle || 'ضابطه جدید');
+
+    // Create or update ruleRequest
+    DB.ruleRequests = DB.ruleRequests || [];
+    const newReqId = 'RR-' + String(DB.ruleRequests.length + 1).padStart(3, '0');
+    const newReq = {
+      id: newReqId,
+      study_id: studyId,
+      rule_code: ruleCode,
+      rule_title: ruleTitle,
+      reason: reason,
+      description: desc,
+      requester: ME() || 'کارشناس مطالعه',
+      status: 'WAITING', // در انتظار پاسخ
+      created_at: NOW,
+      due_date: '۱۴۰۵/۰۷/۱۵',
+      attachment_name: attachedFileName,
+      attachment_size: attachedFileSize
+    };
+    DB.ruleRequests.unshift(newReq);
+
+    // If target rule exists, transition to waiting_revision so it's removed from active blocking
+    if (selectedRule) {
+      selectedRule.st = 'waiting_revision';
+      selectedRule.revisionNote = desc;
+    }
+
+    // Audit and notify
+    logAct({
+      action: 'REQUEST_RULE_REVISION',
+      et: 'rule',
+      eid: ruleCode,
+      etitle: ruleTitle,
+      text: `درخواست اصلاح مبدأ ضابطه «${ruleTitle}» برای مطالعه ${studyId} ثبت شد؛ وضعیت به «در انتظار پاسخ» منتقل و از صف قرنطینه فعال خارج گردید.${attachedFileName ? ' (پیوست: ' + attachedFileName + ')' : ''}`,
+      k: 'warn'
+    });
+
+    usersByRole('ruleman').forEach(u => {
+      notify({
+        to: u,
+        type: 'warn',
+        title: 'اخطار و درخواست اصلاح ضابطه مسدودکننده',
+        msg: `مطالعه ${studyId}: درخواست اصلاح ضابطه ${ruleTitle}`,
+        route: '#/rules/requests',
+        et: 'rule',
+        eid: ruleCode
+      });
+    });
+
+    closeAll();
+    saveDB();
+    render();
+
+    // Trigger green success message
+    toast('درخواست اصلاح مبدأ با موفقیت به متولی قواعد ابلاغ گردید؛ وضعیت به «در انتظار پاسخ» منتقل شد و از صف قرنطینه و مسدودی فعال برداشته شد.', true);
+  };
+}
+
+/* ---------- 75-E. Rule Fulfill Modal (Rule Steward response and study unblock) ---------- */
+function ruleFulfillModal(requestId){
+  const req = (DB.ruleRequests || []).find(r => r.id === requestId);
+  if (!req) { toast('درخواست مورد نظر یافت نشد', false); return; }
+
+  openModal(`
+    <div class="modal-h">
+      <h2>${ico.check} پاسخ به درخواست، تدوین نسخه مصوب و رفع مسدودی مطالعه</h2>
+      <button class="icon-btn" data-close>${ico.block}</button>
+    </div>
+    <div class="modal-b">
+      <dl class="kv" style="margin-bottom:12px">
+        <dt>شناسه درخواست</dt><dd class="code">${req.id}</dd>
+        <dt>مطالعه متأثر</dt><dd><a class="link code" href="#/study/${req.study_id}">${req.study_id}</a> (${byId(req.study_id) ? byId(req.study_id).name : ''})</dd>
+        <dt>ضابطه موضوع درخواست</dt><dd><b>${req.rule_title}</b> <span class="code">${req.rule_code}</span></dd>
+        <dt>دلیل ثبت درخواست</dt><dd><span class="bdg b-warn plain">${req.reason === 'CONFLICT' ? 'تعارض احکام قانونی' : req.reason === 'OUTDATED' ? 'انقضای مصوبه' : req.reason === 'MISSING' ? 'فقدان ضابطه مصوب' : 'ابهام در فرمول AST'}</span></dd>
+        <dt>متقاضی و تاریخ</dt><dd>${req.requester} (${req.created_at})</dd>
+        ${req.attachment_name ? `
+          <dt>پیوست ارسالی از لپ‌تاپ</dt>
+          <dd>
+            <div style="display:flex;align-items:center;gap:6px;color:#2563EB">
+              <span>📎</span><b>${req.attachment_name}</b> <span class="muted">(${req.attachment_size || ''})</span>
+            </div>
+          </dd>
+        ` : ''}
+      </dl>
+
+      <div style="margin-bottom:12px">
+        <label class="f-lbl">مرجع مصوبه حقوقی / روزنامه رسمی</label>
+        <input class="f-in" id="rful-cit" value="مصوبه شماره ۱۲۸۸ کمیسیون ماده ۵ شهر تهران — مورخ ۱۴۰۵/۰۵/۲۰">
+      </div>
+
+      <div class="grid cols-2" style="margin-bottom:12px;gap:10px">
+        <div>
+          <label class="f-lbl">شماره نسخه جدید مصوب</label>
+          <input class="f-in" id="rful-ver" value="v5">
+        </div>
+        <div>
+          <label class="f-lbl">دامنه اعمال و تاریخ اثر</label>
+          <input class="f-in" id="rful-eff" value="۱۴۰۵/۰۶/۲۳">
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label class="f-lbl">منطق و فرمول اجرایی ضابطه (AST Rule Specification)</label>
+        <textarea class="f-in code" id="rful-ast" rows="2" style="direction:ltr;text-align:left">lot_coverage <= 0.6 && max_floors <= 6 && far <= 2.4</textarea>
+      </div>
+
+      <div class="notice n-info">
+        ${ico.spark}
+        <div>
+          با تصویب این نسخه، وضعیت درخواست به <b>«تأمین‌شده»</b> تغییر می‌یابد، ضابطه در کاتالوگ با وضعیت <b>«تأییدشده»</b> فعال می‌گردد و <b>مسدودی مطالعه متأثر به‌طور خودکار رفع خواهد شد</b>.
+        </div>
+      </div>
+    </div>
+    <div class="modal-f">
+      <button class="btn btn-pri" id="rful-go" style="background:#059669;border-color:#059669">
+        ${ico.check} تصویب نسخه رسمی ضابطه و رفع مسدودی مطالعه
+      </button>
+      <button class="btn btn-ghost" data-close>انصراف</button>
+    </div>
+  `);
+
+  el('#rful-go', modal).onclick = () => {
+    const cit = el('#rful-cit', modal).value.trim();
+    const ver = el('#rful-ver', modal).value.trim() || 'v5';
+    const eff = el('#rful-eff', modal).value.trim() || NOW;
+    const ast = el('#rful-ast', modal).value.trim();
+
+    // Fulfill request
+    req.status = 'FULFILLED';
+    req.fulfilled_at = NOW;
+    req.fulfilled_by = ME() || 'متولی قواعد';
+    req.resolution = cit;
+
+    // Update or add rule in DB.rules
+    let targetRule = (DB.rules || []).find(r => r.id === req.rule_code);
+    if (targetRule) {
+      targetRule.st = 'approved';
+      targetRule.v = ver;
+      targetRule.eff = eff;
+      targetRule.exp = null;
+      targetRule.citation = cit;
+      targetRule.ast = ast;
+    } else {
+      DB.rules = DB.rules || [];
+      DB.rules.push({
+        id: req.rule_code || ('RL-' + String(DB.rules.length + 1).padStart(2, '0')),
+        t: req.rule_title,
+        pack: 'بسته ضوابط مصوب',
+        v: ver,
+        st: 'approved',
+        eff: eff,
+        exp: null,
+        sev: 'blocking',
+        studies: [req.study_id],
+        citation: cit,
+        ast: ast
+      });
+    }
+
+    logAct({
+      action: 'APPROVE_RULE_VERSION',
+      et: 'rule',
+      eid: req.rule_code,
+      etitle: req.rule_title,
+      text: `نسخه مصوب ${ver} ضابطه «${req.rule_title}» تدوین و منتشر شد؛ مسدودی مطالعه ${req.study_id} برطرف گردید.`,
+      k: 'ok'
+    });
+
+    notify({
+      to: req.requester,
+      type: 'ok',
+      title: 'رفع مسدودی مطالعه — ضابطه جدید مصوب شد',
+      msg: `درخواست شما برای «${req.rule_title}» با نسخه ${ver} تأمین و مسدودی رفع گردید.`,
+      route: '#/study/' + req.study_id + '/baseline',
+      et: 'study',
+      eid: req.study_id
+    });
+
+    closeAll();
+    saveDB();
+    render();
+
+    toast(`نسخه مصوب ${ver} ضابطه با موفقیت منتشر گردید، درخواست تأمین شد و مسدودی مطالعه ${req.study_id} برطرف شد.`, true);
+  };
 }
 function ModelsPage(){
   if(!can('VIEW_MODELS')) return Denied('مدل‌ها','رجیستری مدل در حوزه مسئولیت متخصص مدل است.');
@@ -9300,6 +10366,16 @@ function fulfillRequest(reqId,opt){
   const r=DB.dataRequests.find(x=>x.id===reqId); if(!r) return;
   const st=byId(r.studyId);
   let d=opt.dsCode?ds(opt.dsCode):null;
+
+  if(opt.dsCode){
+    const dCheck=ds(opt.dsCode);
+    const curV=dsCur(dCheck);
+    if(curV && curV.st==='quarantined' && !dCheck.versions.some(v=>v.st==='published')){
+      toast('خطای گیت حاکمیتی: این نسخه در وضعیت قرنطینه است و قانوناً نمی‌تواند نیازمندی مطالعه را تأمین کند. ابتدا باید نسخه اصلاح‌شده بارگذاری و منتشر گردد.', false);
+      return;
+    }
+  }
+
   if(!d){
     const code=(r.role.toUpperCase().slice(0,8).replace(/_/g,'-'))+'-'+fa(DB.datasets.length+1).replace(/[۰-۹]/g,x=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(x));
     d={code,title:`${r.label} — ${r.region}`,kind:'tabular',role:r.role,owner:ME(),
@@ -9400,45 +10476,571 @@ function bindDataRequests(){
 }
 function fulfilModal(reqId){
   const r=DB.dataRequests.find(x=>x.id===reqId);
+  if(!r) return;
   const cands=DB.datasets.filter(d=>d.role===r.role);
+
   openModal(`<div class="modal-h"><h2>تأمین داده برای درخواست ${r.id}</h2><button class="icon-btn" data-close>${ico.block}</button></div>
    <div class="modal-b">
      <dl class="kv" style="margin-bottom:12px">
-       <dt>نیاز</dt><dd>${r.label} <span class="code">${r.role}</span></dd>
-       <dt>مطالعه</dt><dd>${byId(r.studyId)?byId(r.studyId).name:r.studyId} — ${r.region}</dd>
+       <dt>نیاز مطالعه</dt><dd>${r.label} <span class="code">${r.role}</span></dd>
+       <dt>مطالعه متقاضی</dt><dd>${byId(r.studyId)?byId(r.studyId).name:r.studyId} — ${r.region}</dd>
        <dt>درخواست‌کننده</dt><dd>${r.by} · ${r.tm}</dd>
-       <dt>دلیل</dt><dd>${esc(r.reason||'')}</dd></dl>
-     <label class="f-lbl">روش تأمین</label>
+       <dt>دلیل نیاز</dt><dd>${esc(r.reason||'')}</dd></dl>
+     <label class="f-lbl">روش تأمین داده</label>
      <div class="roles" style="margin-bottom:12px">
        <label class="role ${cands.length?'on':''}" data-fmode="existing" ${cands.length?'':'style="opacity:.5"'}>
-         <span class="rk"></span><span><b>اتصال مجموعه موجود کاتالوگ</b>
-         <span>${cands.length?fa(cands.length)+' مجموعه با همین نقش داده در کاتالوگ هست':'مجموعه‌ای با این نقش داده در کاتالوگ نیست'}</span></span></label>
+         <span class="rk"></span><span><b>اتصال مجموعه موجود در کاتالوگ</b>
+         <span>${cands.length?fa(cands.length)+' مجموعه با همین نقش در کاتالوگ موجود است':'مجموعه‌ای با این نقش داده در کاتالوگ نیست'}</span></span></label>
        <label class="role ${cands.length?'':'on'}" data-fmode="new"><span class="rk"></span>
          <span><b>ثبت و انتشار مجموعه تازه برای این محدوده</b>
-         <span>یک مجموعه نمونه با نسخه منتشرشده ساخته و به مطالعه متصل می‌شود</span></span></label></div>
+         <span>یک نسخه سالم با اعتبارسنجی کامل ساخته، منتشر و به مطالعه متصل می‌شود</span></span></label></div>
      <div id="f-exist" style="${cands.length?'':'display:none'}">
-       <label class="f-lbl">مجموعه داده</label>
-       <select class="f-in" id="f-ds">${cands.map(d=>{const pub=d.versions.some(v=>v.st==='published');
-         const fr=freshness(d); const note=!pub?' — بدون نسخه منتشرشده؛ با تأمین منتشر می‌شود'
-           :fr.c==='b-stop'?' — منقضی؛ با تأمین نسخه تازه منتشر می‌شود'
-           :!regionOK(d,r.region)?' — خارج از محدوده؛ با تأمین گستره آن توسعه می‌یابد':' — مناسب';
-         return `<option value="${d.code}">${d.title} — ${d.code}${note}</option>`;}).join('')}</select>
-       <p class="muted" style="font-size:11px;margin-top:5px">اگر مجموعه نسخه منتشرشده نداشته باشد یا از قاعده تازگی گذشته باشد، با این اقدام نسخه تازه‌ای منتشر و به مطالعه متصل می‌شود.</p></div>
-     <div style="margin-top:12px"><label class="f-lbl">یادداشت (اختیاری)</label>
-       <input class="f-in" id="f-note" placeholder="مثال: نسخه ۱۴۰۵/۰۵ برداشت میدانی"></div>
+       <label class="f-lbl">انتخاب مجموعه داده</label>
+       <select class="f-in" id="f-ds">${cands.map(d=>{
+         const cur=dsCur(d);
+         const isQuar=cur&&cur.st==='quarantined';
+         const pub=d.versions.some(v=>v.st==='published');
+         const fr=freshness(d);
+         let note='';
+         if(isQuar&&!pub){
+           note=' — ⛔ قرنطینه (غیرقابل اتصال به پرونده)';
+         } else if(!pub){
+           note=' — بدون نسخه منتشرشده؛ با تأمین منتشر می‌شود';
+         } else if(fr.c==='b-stop'){
+           note=' — ⚠️ دارای کهنگی زمانی';
+         } else {
+           note=' — مناسب و معتبر';
+         }
+         return `<option value="${d.code}" data-is-quar="${isQuar&&!pub?'1':'0'}">${d.title} — ${d.code}${note}</option>`;
+       }).join('')}</select>
+       <div id="f-quar-warning" style="display:none;margin-top:8px" class="notice n-stop">
+         ${ico.lock}
+         <div>
+           <b>خطای گیت حاکمیتی:</b> این نسخه در وضعیت قرنطینه قرار دارد (دارای خطای مسدودکننده) و قانوناً نمی‌تواند به پرونده پژوهشی متصل شود یا قفل مطالعه را باز کند. ابتدا باید از طریق میز قرنطینه، نسخه اصلاح‌شده بارگذاری و منتشر گردد.
+         </div>
+       </div>
+       <p class="muted" style="font-size:11px;margin-top:5px">تنها نسخه‌هایی که از آزمون‌های فنی و بررسی معنایی عبور کرده و منتشر شده‌اند قابلیت اتصال قطعی دارند.</p></div>
+     <div style="margin-top:12px"><label class="f-lbl">یادداشت و مستندات تأمین (اختیاری)</label>
+       <input class="f-in" id="f-note" placeholder="مثال: نسخه ۱۴۰۵/۰۵ برداشت میدانی تأییدشده"></div>
    </div>
-   <div class="modal-f"><button class="btn btn-pri" id="f-go">تأمین و اتصال به مطالعه</button>
+   <div class="modal-f"><button class="btn btn-pri" id="f-go">تأمین داده و رفع قفل مطالعه</button>
      <button class="btn btn-ghost" data-close>انصراف</button></div>`);
+
   let mode=cands.length?'existing':'new';
+  const checkQuarSelection=()=>{
+    const sel=el('#f-ds',modal);
+    const opt=sel?sel.options[sel.selectedIndex]:null;
+    const isQuar=opt&&opt.dataset.isQuar==='1';
+    const warn=el('#f-quar-warning',modal);
+    const goBtn=el('#f-go',modal);
+    if(warn) warn.style.display=isQuar&&mode==='existing'?'':'none';
+    if(goBtn){
+      goBtn.disabled=isQuar&&mode==='existing';
+      goBtn.style.opacity=isQuar&&mode==='existing'?'0.5':'1';
+    }
+  };
+
   els('[data-fmode]',modal).forEach(n=>n.onclick=()=>{
     if(n.dataset.fmode==='existing'&&!cands.length) return;
     mode=n.dataset.fmode;
     els('[data-fmode]',modal).forEach(x=>x.classList.toggle('on',x===n));
     el('#f-exist').style.display=mode==='existing'?'':'none';
+    checkQuarSelection();
   });
+
+  const dsSelect=el('#f-ds',modal);
+  if(dsSelect) dsSelect.onchange=checkQuarSelection;
+  checkQuarSelection();
+
   el('#f-go',modal).onclick=()=>{
-    fulfillRequest(reqId,{dsCode:mode==='existing'?el('#f-ds').value:null,note:el('#f-note').value.trim()});
-    closeAll(); render(); toast('داده تأمین و به فصل صفر مطالعه متصل شد — کارشناس مطلع گردید');
+    const dsCode=mode==='existing'?el('#f-ds').value:null;
+    const note=el('#f-note').value.trim();
+
+    if(dsCode){
+      const selected=DB.datasets.find(d=>d.code===dsCode);
+      const cur=dsCur(selected);
+      const pub=selected?.versions.find(v=>v.st==='published');
+      if(cur&&cur.st==='quarantined'&&!pub){
+        toast('این نسخه در قرنطینه است و نمی‌تواند به مطالعه متصل شود.', false);
+        return;
+      }
+    }
+
+    fulfillRequest(reqId,{dsCode,note});
+    closeAll(); render(); toast('داده تأمین و به فصل صفر مطالعه متصل شد — قفل وابستگی مطالعه باز گردید.');
+  };
+}
+
+/* ---------- 86-B. refresh stale dataset modal ---------- */
+function refreshStaleModal(preselectedCode){
+  const allDs=DB.datasets;
+  const stales=allDs.filter(d=>{
+    const fr=freshness(d);
+    return fr.c==='b-stop'||fr.c==='b-warn'||d.versions.some(v=>v.st==='quarantined');
+  });
+  const targetCode=preselectedCode||(stales.length?stales[0].code:allDs[0]?.code);
+  const curDs=DB.datasets.find(d=>d.code===targetCode)||allDs[0];
+  const curVer=dsCur(curDs);
+  const nextVer=(curVer?curVer.v:0)+1;
+
+  openModal(`
+    <div class="modal-h">
+      <h2>${ico.spark} بارگذاری نسخه به‌روز و رفع کهنگی (تولید نسخه تازه)</h2>
+      <button class="icon-btn" data-close>${ico.block}</button>
+    </div>
+    <div class="modal-b">
+      <div class="notice n-info" style="margin-bottom:12px">
+        ${ico.spark}
+        <div>
+          <b>قانون جایگزینی بدون تخریب (Non-destructive Superseding):</b>
+          با انتشار نسخه جدید، نسخه پیشین هرگز حذف نمی‌شود و به وضعیت <span class="bdg b-neu plain">SUPERSEDED</span> می‌رود.
+          مطالعات پیشین که نتایج خود را بر مبنای نسخه قبلی نهایی کرده‌اند، پایداری تحلیلی خود را حفظ می‌کنند و صرفاً یک اعلان آگاهی دریافت می‌نمایند.
+        </div>
+      </div>
+
+      <div class="grid cols-2" style="margin-bottom:12px">
+        <div>
+          <label class="f-lbl">مجموعه داده نیازمند به‌روزرسانی</label>
+          <select class="f-in" id="ref-ds">
+            ${allDs.map(d=>{
+              const fr=freshness(d);
+              const isSel=d.code===targetCode;
+              return `<option value="${d.code}" ${isSel?'selected':''}>${d.title} (${d.code}) — ${fr.t}</option>`;
+            }).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="f-lbl">شماره نسخه جدید</label>
+          <input class="f-in num" id="ref-ver" value="v${fa(nextVer)}" readonly style="background:#F1F5F9">
+        </div>
+      </div>
+
+      <div class="grid cols-2" style="margin-bottom:12px">
+        <div>
+          <label class="f-lbl">تاریخ مشاهده و برداشت جدید (تقویم منبع)</label>
+          <input class="f-in num" id="ref-obs" value="۱۴۰۵/۰۶/۲۳">
+        </div>
+        <div>
+          <label class="f-lbl">نام فایل داده تازه بارگذاری‌شده</label>
+          <div style="display:flex;gap:6px">
+            <input class="f-in code" id="ref-file" value="${curDs.code.toLowerCase()}_survey_1405_fresh.csv" style="flex:1">
+            <button type="button" class="btn btn-sm" id="ref-upload-btn" title="انتخاب عکس یا فایل از لپ‌تاپ">${ico.plus} انتخاب از لپ‌تاپ</button>
+            <input type="file" id="ref-file-input" style="display:none" accept=".csv,.xlsx,.xls,.json,.geojson,.zip,.png,.jpg,.jpeg">
+          </div>
+        </div>
+      </div>
+
+      <div class="grid cols-3" style="margin-bottom:12px">
+        <div>
+          <label class="f-lbl">تعداد رکوردهای ورودی</label>
+          <input class="f-in num" id="ref-rec-in" value="${fa(curVer?Math.round(curVer.rows*1.05):2500)}">
+        </div>
+        <div>
+          <label class="f-lbl">رکوردهای پذیرفته‌شده</label>
+          <input class="f-in num" id="ref-rec-ok" value="${fa(curVer?Math.round(curVer.rows*1.04):2480)}" readonly style="background:#F1F5F9">
+        </div>
+        <div>
+          <label class="f-lbl">رکوردهای ردشده (تکراری/نامعتبر)</label>
+          <input class="f-in num" id="ref-rec-rej" value="۲۰" readonly style="background:#F1F5F9">
+        </div>
+      </div>
+
+      <div class="notice n-ok" style="margin-bottom:12px">
+        ${ico.check}
+        <div>
+          <b>تراز رکوردها برقرار است:</b> ورودی = پذیرفته + ردشده (بدون رکورد گمشده). اعتبارسنجی فنی ۲۴گانه با موفقیت عبور کرد.
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label class="f-lbl">دلیل تغییر و مستندات به‌روزرسانی</label>
+        <textarea class="f-in" id="ref-reason" rows="2">برداشت آماری و میدانی شهریور ۱۴۰۵ جهت رفع کهنگی و انطباق با قاعده پوشش زمانی ۳۶ ماهه</textarea>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label class="f-lbl">تأییدیه معنایی متولی داده</label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="checkbox" id="ref-sem-check" checked>
+          <label for="ref-sem-check" style="font-size:12.5px;cursor:pointer">
+            تطبیق معنایی و صحت مفاهیم تخصصی این نسخه توسط متولی داده (مهندس مریم فراهانی) کنترل و تأیید شد.
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-f">
+      <button class="btn btn-pri" id="ref-go">${ico.check} اعتبارسنجی و انتشار نسخه تازه</button>
+      <button class="btn btn-ghost" data-close>انصراف</button>
+    </div>
+  `);
+
+  const dsSelect=el('#ref-ds',modal);
+  if(dsSelect){
+    dsSelect.onchange=()=>{
+      const selected=DB.datasets.find(d=>d.code===dsSelect.value);
+      if(selected){
+        const v=dsCur(selected);
+        el('#ref-ver').value='v'+fa((v?v.v:0)+1);
+        el('#ref-file').value=selected.code.toLowerCase()+'_survey_1405_fresh.csv';
+      }
+    };
+  }
+
+  const refUpBtn = el('#ref-upload-btn', modal);
+  const refFileInput = el('#ref-file-input', modal);
+  if (refUpBtn && refFileInput) {
+    refUpBtn.onclick = () => refFileInput.click();
+    refFileInput.onchange = (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (f) {
+        el('#ref-file', modal).value = f.name;
+        toast('فایل دوره تازه «' + f.name + '» از روی لپ‌تاپ شما با موفقیت انتخاب شد.', true);
+      }
+    };
+  }
+
+  el('#ref-go',modal).onclick=()=>{
+    const dsCode=el('#ref-ds').value;
+    const target=DB.datasets.find(d=>d.code===dsCode);
+    if(!target){ toast('مجموعه داده یافت نشد',false); return; }
+
+    const cur=dsCur(target);
+    const newVerNum=(cur?cur.v:0)+1;
+    const obsDate=el('#ref-obs').value.trim()||'۱۴۰۵/۰۶/۲۳';
+    const reason=el('#ref-reason').value.trim()||'به‌روزرسانی جهت رفع کهنگی';
+
+    // Mark previous published versions as superseded
+    target.versions.forEach(v=>{
+      if(v.st==='published') v.st='superseded';
+    });
+
+    const rowsCount=cur?Math.round(cur.rows*1.04):2480;
+    const newVer={
+      v:newVerNum,
+      st:'published',
+      rows:rowsCount,
+      counts:[rowsCount+20,rowsCount,20,0],
+      obs:obsDate,
+      imported:NOW,
+      pub:NOW,
+      reason,
+      checks:[
+        chk('REQUIRED_FIELDS','pass',0,rowsCount+20,'۰٪','همه فیلدهای الزامی موجود است.','—','—'),
+        chk('DUPLICATES','warning',20,rowsCount+20,'حداکثر ۱٪','۲۰ رکورد با کد تکراری حذف شد.','شمارش ورودی و پذیرفته اختلاف متوازن دارد.','—'),
+        chk('VALUE_RANGE','pass',0,rowsCount,'۰٪','مقادیر در بازه مجاز قرار دارند.','—','—'),
+        chk('TEMPORAL_COVERAGE','pass',0,rowsCount,'حداکثر ۳۶ ماه',`تاریخ مشاهده ${obsDate} در دوره مجاز است و کهنگی برطرف شد.`,'—','—')
+      ]
+    };
+    target.versions.push(newVer);
+
+    // Notify studies that used this dataset
+    (target.uses||[]).forEach(sid=>{
+      const s=byId(sid);
+      if(!s) return;
+      DB.stale[sid]=(DB.stale[sid]||[]).filter(x=>x.code!==target.code);
+      DB.stale[sid].push({code:target.code,title:target.title,v:newVerNum,tm:NOW});
+      logAct({
+        action:'DATA_VERSION_AVAILABLE',
+        et:'study',
+        eid:sid,
+        etitle:s.name,
+        text:`نسخه تازه v${fa(newVerNum)} داده «${target.title}» منتشر شد؛ نتایج فعلی مطالعه بر پایه نسخه v${fa(cur?cur.v:1)} معتبر می‌ماند.`,
+        k:'warn'
+      });
+      notify({
+        to:s.owner,
+        self:true,
+        type:'warn',
+        title:'نسخه جدید داده برای مطالعه شما منتشر شد',
+        msg:`${target.title} v${fa(newVerNum)} — تحلیل‌های وابسته امکان بررسی اثر دارند`,
+        route:'#/study/'+sid+'/data',
+        et:'study',
+        eid:sid
+      });
+    });
+
+    logAct({
+      action:'PUBLISH_DATASET_VERSION',
+      et:'dataset',
+      eid:target.code,
+      etitle:target.title,
+      from:'stale',
+      to:'published',
+      text:`نسخه تازه v${fa(newVerNum)} داده «${target.title}» برای رفع کهنگی منتشر شد و نسخه قبلی جایگزین گردید.`,
+      k:'ok'
+    });
+
+    closeAll();
+    render();
+    toast(`نسخه v${fa(newVerNum)} داده «${target.title}» با موفقیت منتشر شد و کهنگی برطرف گردید.`);
+  };
+}
+
+/* ---------- 86-C. quarantine fix modal ---------- */
+function quarantineFixModal(datasetCode){
+  const targetDs=DB.datasets.find(d=>d.code===datasetCode)||DB.datasets.find(d=>d.versions.some(v=>v.st==='quarantined'));
+  if(!targetDs){ toast('مجموعه‌ای در قرنطینه یافت نشد',false); return; }
+  const qVer=targetDs.versions.find(v=>v.st==='quarantined')||dsCur(targetDs);
+  const nextVer=(targetDs.versions.slice(-1)[0]?.v||0)+1;
+
+  openModal(`
+    <div class="modal-h">
+      <h2>${ico.lock} رفع مسدودی قرنطینه — بارگذاری نسخه اصلاح‌شده</h2>
+      <button class="icon-btn" data-close>${ico.block}</button>
+    </div>
+    <div class="modal-b">
+      <div class="notice n-stop" style="margin-bottom:12px">
+        ${ico.alert}
+        <div>
+          <b>علت قرارگیری در قرنطینه (نسخه v${fa(qVer.v)}):</b><br>
+          ${qVer.checks?.filter(c=>c.outcome==='error').map(c=>`• ${CHECKS[c.code]}: ${c.why}`).join('<br>')||'مغایرت اساسی در اعتبارسنجی هندسی یا طرحواره'}
+        </div>
+      </div>
+
+      <p class="t2" style="font-size:12.5px;margin-bottom:12px">
+        <b>قانون ایزولاسیون:</b> نسخه قرنطینه‌شده بازنویسی یا حذف نمی‌شود تا تاریخچه ممیزی سامانه مخدوش نگردد. بارگذاری فایل اصلاح‌شده، نسخه نامزد جدید v${fa(nextVer)} می‌سازد.
+      </p>
+
+      <div class="grid cols-2" style="margin-bottom:12px">
+        <div>
+          <label class="f-lbl">مجموعه داده</label>
+          <input class="f-in" value="${targetDs.title} (${targetDs.code})" readonly style="background:#F1F5F9">
+        </div>
+        <div>
+          <label class="f-lbl">شماره نسخه اصلاح‌شده</label>
+          <input class="f-in num" value="v${fa(nextVer)}" readonly style="background:#F1F5F9">
+        </div>
+      </div>
+
+      <div class="grid cols-2" style="margin-bottom:12px">
+        <div>
+          <label class="f-lbl">فایل اصلاح‌شده دریافتی از مبدأ</label>
+          <div style="display:flex;gap:6px">
+            <input class="f-in code" id="qfix-file" value="${targetDs.code.toLowerCase()}_v${nextVer}_fixed_crs.csv" style="flex:1">
+            <button type="button" class="btn btn-sm" id="qfix-upload-btn" title="انتخاب عکس یا فایل از لپ‌تاپ">${ico.plus} انتخاب از لپ‌تاپ</button>
+            <input type="file" id="qfix-file-input" style="display:none" accept=".csv,.xlsx,.xls,.json,.geojson,.zip,.png,.jpg,.jpeg">
+          </div>
+        </div>
+        <div>
+          <label class="f-lbl">سامانه مختصات مبدأ (CRS)</label>
+          <input class="f-in code" value="EPSG:32639 (UTM Zone 39N) — اعلام‌شده و معتبر" readonly style="background:#F1F5F9">
+        </div>
+      </div>
+
+      <div class="notice n-ok" style="margin-bottom:12px">
+        ${ico.check}
+        <div>
+          <b>پیش‌نمایش نتایج اعتبارسنجی نسخه اصلاح‌شده:</b><br>
+          • آزمون بسته بودن حلقه‌های هندسی: ۱۰۰٪ معتبر (بدون خطای خودتقاطع)<br>
+          • آزمون تطبیق کد بلوک‌ها و تراز رکوردها: کامل و متوازن<br>
+          • خطاهای مسدودکننده: ۰ خطا · هشدار: ۱ مورد (قابل چشم‌پوشی)
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label class="f-lbl">توضیح اصلاحات انجام‌شده</label>
+        <textarea class="f-in" id="qfix-note" rows="2">اصلاح کدگذاری بلوک‌ها و تبدیل سامانه مختصات به UTM Zone 39N با رفع عوارض هندسی معیوب</textarea>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label class="f-lbl">تأییدیه بررسی معنایی</label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="checkbox" id="qfix-sem" checked>
+          <label for="qfix-sem" style="font-size:12.5px;cursor:pointer">
+            تأیید می‌کنم که فایل اصلاح‌شده فاقد خطای مسدودکننده است و صلاحیت انتشار رسمی را دارد.
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-f">
+      <button class="btn btn-pri" id="qfix-go">${ico.check} اعتبارسنجی و انتشار نسخه اصلاح‌شده</button>
+      <button class="btn btn-ghost" data-close>انصراف</button>
+    </div>
+  `);
+
+  const qfixUpBtn = el('#qfix-upload-btn', modal);
+  const qfixFileInput = el('#qfix-file-input', modal);
+  if (qfixUpBtn && qfixFileInput) {
+    qfixUpBtn.onclick = () => qfixFileInput.click();
+    qfixFileInput.onchange = (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (f) {
+        el('#qfix-file', modal).value = f.name;
+        toast('فایل اصلاح‌شده «' + f.name + '» از روی لپ‌تاپ شما با موفقیت انتخاب شد.', true);
+      }
+    };
+  }
+
+  el('#qfix-go',modal).onclick=()=>{
+    const note=el('#qfix-note').value.trim()||'اصلاح فایل و رفع مسدودی قرنطینه';
+    const rows=qVer.counts&&qVer.counts[1]?qVer.counts[1]:1850;
+
+    // Create new published version
+    const newVer={
+      v:nextVer,
+      st:'published',
+      rows:rows,
+      counts:[rows,rows,0,0],
+      obs:'۱۴۰۵/۰۵',
+      imported:NOW,
+      pub:NOW,
+      reason:note,
+      checks:[
+        chk('REQUIRED_FIELDS','pass',0,rows,'۰٪','همه فیلدهای الزامی موجود است.','—','—'),
+        chk('GEOMETRY_VALIDITY','pass',0,rows,'۰٪','هندسه‌ها معتبر و بدون خودتقاطع‌اند.','—','—'),
+        chk('CRS_DECLARED','pass',0,rows,'—','سامانه مختصات مبدأ EPSG:32639 تأیید شد.','—','—'),
+        chk('TEMPORAL_COVERAGE','pass',0,rows,'حداکثر ۳۶ ماه','دوره زمانی معتبر است.','—','—')
+      ]
+    };
+    targetDs.versions.push(newVer);
+
+    logAct({
+      action:'RESOLVE_QUARANTINE',
+      et:'dataset',
+      eid:targetDs.code,
+      etitle:targetDs.title,
+      from:'quarantined',
+      to:'published',
+      text:`نسخه v${fa(nextVer)} داده «${targetDs.title}» بارگذاری و با رفع مسدودی قرنطینه منتشر شد. نسخه v${fa(qVer.v)} در قرنطینه حفظ گردید.`,
+      k:'ok'
+    });
+
+    closeAll();
+    render();
+    toast(`نسخه اصلاح‌شده v${fa(nextVer)} داده «${targetDs.title}» با موفقیت منتشر و مسدودی قرنطینه رفع شد.`);
+  };
+}
+
+/* ---------- 86-D. quarantine request revision modal ---------- */
+function quarantineRequestRevisionModal(datasetCode){
+  const targetDs=DB.datasets.find(d=>d.code===datasetCode)||DB.datasets[0];
+  const qVer=targetDs.versions.find(v=>v.st==='quarantined')||dsCur(targetDs);
+
+  openModal(`
+    <div class="modal-h">
+      <h2>${ico.mail} ارسال درخواست اصلاح مبدأ به ارائه‌دهنده داده</h2>
+      <button class="icon-btn" data-close>${ico.block}</button>
+    </div>
+    <div class="modal-b">
+      <dl class="kv" style="margin-bottom:12px">
+        <dt>مجموعه داده</dt><dd>${targetDs.title} <span class="code">${targetDs.code}</span></dd>
+        <dt>نسخه قرنطینه</dt><dd><span class="vbadge">v${fa(qVer.v)}</span> <span class="bdg b-stop">قرنطینه</span></dd>
+        <dt>ارائه‌دهنده / سازمان مبدأ</dt><dd>${targetDs.org} (${targetDs.owner})</dd>
+      </dl>
+
+      <div style="margin-bottom:12px">
+        <label class="f-lbl">متن اخطار و شرح خطاهای مسدودکننده</label>
+        <textarea class="f-in" id="qrev-text" rows="3">فایل ارسالی به‌دلیل عدم تطابق سامانه مختصات مبدأ با مختصات هندسی و وجود رکوردهای نامعتبر در گیت کنترل کیفیت TUIP متوقف و به قرنطینه منتقل شد. لطفاً فایل اصلاح‌شده را با مختصات EPSG:32639 و پس از بررسی بسته‌بودن حلقه‌های هندسی ارسال فرمایید.</textarea>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label class="f-lbl">پیوست تصویر خطا، گزارش کنترل کیفیت یا مستندات مبدأ (انتخاب از روی لپ‌تاپ)</label>
+        <div id="qrev-drop" style="border:2px dashed #3B82F6;background:#F8FAFC;border-radius:var(--r-m);padding:14px;text-align:center;cursor:pointer;transition:all .15s">
+          <div style="font-size:24px;color:#2563EB;margin-bottom:4px">${ico.plus}</div>
+          <div style="font-weight:600;font-size:12.5px;color:#1E40AF">برای انتخاب عکس یا فایل از روی لپ‌تاپ خود اینجا کلیک کنید</div>
+          <div style="font-size:11.5px;color:#64748B;margin-top:3px">پشتیبانی از انواع تصاویر (PNG، JPG)، فایل‌های گزارش PDF، اکسل، CSV و زیپ</div>
+        </div>
+        <input type="file" id="qrev-file-input" style="display:none" accept="image/*,.pdf,.csv,.xlsx,.xls,.zip,.json,.geojson">
+        <div id="qrev-file-preview" style="margin-top:8px"></div>
+      </div>
+
+      <div class="notice n-warn">
+        ${ico.alert}
+        <div>
+          ثبت درخواست اصلاح مبدأ، وضعیت این نامزد را در دفتر مسائل داده به «درخواست اصلاح از مبدأ» تغییر می‌دهد و به متولی سازمانی ابلاغ می‌گردد.
+        </div>
+      </div>
+    </div>
+    <div class="modal-f">
+      <button class="btn btn-pri" id="qrev-go">${ico.check} ثبت و ابلاغ اخطار اصلاح</button>
+      <button class="btn btn-ghost" data-close>انصراف</button>
+    </div>
+  `);
+
+  const dropEl = el('#qrev-drop', modal);
+  const fileInputEl = el('#qrev-file-input', modal);
+  const previewEl = el('#qrev-file-preview', modal);
+  let attachedFileName = null;
+
+  if (dropEl && fileInputEl) {
+    dropEl.onclick = () => fileInputEl.click();
+    fileInputEl.onchange = (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      attachedFileName = f.name;
+      const isImg = f.type.startsWith('image/');
+      const reader = new FileReader();
+      reader.onload = (re) => {
+        previewEl.innerHTML = `
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:var(--r-s)">
+            ${isImg ? `<img src="${re.target.result}" style="width:44px;height:44px;object-fit:cover;border-radius:4px;border:1px solid #93C5FD">` : `<span style="font-size:24px">${ico.doc}</span>`}
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:600;font-size:12.5px;color:#1E3A8A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.name}</div>
+              <div style="font-size:11px;color:#3B82F6">${(f.size/1024).toFixed(1)} کیلوبایت · پیوست شد از سیستم</div>
+            </div>
+            <button type="button" class="btn btn-sm btn-ghost" id="qrev-rm-file" style="color:#EF4444;padding:2px 8px">حذف</button>
+          </div>`;
+        const rmBtn = el('#qrev-rm-file', modal);
+        if (rmBtn) {
+          rmBtn.onclick = () => {
+            fileInputEl.value = '';
+            previewEl.innerHTML = '';
+            attachedFileName = null;
+          };
+        }
+        toast('فایل «' + f.name + '» از روی سیستم شما با موفقیت پیوست شد.', true);
+      };
+      reader.readAsDataURL(f);
+    };
+  }
+
+  el('#qrev-go',modal).onclick=()=>{
+    const txt=el('#qrev-text').value.trim()||'درخواست اصلاح مبدأ';
+    qVer.st = 'waiting_revision';
+    qVer.revisionNote = txt;
+    qVer.revisionDate = NOW;
+
+    let iss = (DB.issues||[]).find(i=>i.ds===targetDs.code);
+    if(iss){
+      iss.st = 'waiting';
+      iss.dispo = 'در انتظار پاسخ و ارسال فایل اصلاح‌شده از مبدأ';
+    } else {
+      DB.issues = DB.issues || [];
+      DB.issues.push({
+        id: 'ISS-' + (DB.issues.length + 1),
+        ds: targetDs.code,
+        t: 'درخواست اصلاح مبدأ برای ' + targetDs.title,
+        owner: targetDs.owner,
+        impact: 'مسدودی نسخه و وابستگی‌های وابسته',
+        studies: targetDs.uses || [],
+        st: 'waiting',
+        due: '۱۴۰۵/۰۷/۱۰',
+        dispo: 'در انتظار پاسخ و ارسال فایل اصلاح‌شده از مبدأ'
+      });
+    }
+
+    logAct({
+      action:'REQUEST_DATA_REVISION',
+      et:'dataset',
+      eid:targetDs.code,
+      etitle:targetDs.title,
+      from:'quarantined',
+      to:'waiting_revision',
+      text:`درخواست اصلاح مبدأ برای داده «${targetDs.title}» ثبت شد و به وضعیت «در انتظار پاسخ مبدأ» منتقل و از صف قرنطینه فعال خارج گردید: ${txt}${attachedFileName ? ' (پیوست: ' + attachedFileName + ')' : ''}`,
+      k:'ok'
+    });
+    notify({
+      to:targetDs.owner,
+      type:'warn',
+      title:'اخطار قرنطینه داده — درخواست اصلاح مبدأ',
+      msg:`${targetDs.title}: ${txt}`,
+      route:'#/data/'+targetDs.code+'/quality',
+      et:'dataset',
+      eid:targetDs.code
+    });
+    saveDB();
+    closeAll();
+    render();
+    toast('درخواست اصلاح مبدأ با موفقیت به سازمان ارائه‌دهنده ابلاغ شد؛ داده به وضعیت «در انتظار پاسخ مبدأ» منتقل و از صف قرنطینه فعال خارج گردید.', true);
   };
 }
 
@@ -9475,6 +11077,8 @@ function route(){
   if(h.startsWith('#/study-case/') && window.handleStudyCaseRoute) return window.handleStudyCaseRoute(h);
   if((h === '#/study-cases' || h.startsWith('#/study-cases?')) && window.handleStudyCaseRoute) return window.handleStudyCaseRoute(h);
   if(h.startsWith('#/studies')){
+    if(myRole()==='steward') return {p:AffectedStudiesPage(),b:bindAffectedStudies};
+    if(myRole()==='ruleman') return {p:RuleAffectedStudiesPage(),b:bindRuleAffectedStudies};
     if(!can('VIEW_STUDY')&&!can('VIEW_ASSIGNED_STUDY')) return {p:Denied('مطالعات','فهرست مطالعات در حوزه مسئولیت نقش شما نیست.')};
     if(h.startsWith('#/studies/new')&&!can('CREATE_STUDY')) return {p:Denied('ایجاد مطالعه','ایجاد مطالعه در اختیار تحلیلگر شهری است.')};
     return h.startsWith('#/studies/new')?{p:NewStudy(),b:bindWizard}:{p:StudiesPage(),b:bindStudies};
@@ -9488,7 +11092,13 @@ function route(){
   if(h.startsWith('#/health')) return {p:HealthPage(),b:bindRows};
   if(h.startsWith('#/models')) return {p:ModelsPage(),b:bindRows};
   if(h.startsWith('#/runs')) return {p:RunsPage(),b:bindRows};
-  if(h.startsWith('#/rules')) return {p:RulesPage(),b:bindRules};
+  if(h.startsWith('#/rules')){
+    if(!can('VIEW_RULES')) return {p:Denied('قواعد و شاخص‌ها','مشاهده ضوابط و شاخص‌ها در حوزه مسئولیت متولی قواعد و کارشناس تحلیل است.')};
+    const rseg=h.slice(1).split('?')[0].split('/').filter(Boolean).slice(1);
+    if(rseg[0]==='affected-studies') return {p:RuleAffectedStudiesPage(),b:bindRuleAffectedStudies};
+    if(rseg[0]==='requests') return {p:RuleRequestsPage(),b:bindRuleRequests};
+    return {p:RulesPage(),b:bindRules};
+  }
   if(h.startsWith('#/findings')) return {p:FindingsPage(),b:bindHome};
   if(h.startsWith('#/decisions')) return {p:DecisionsPage(),b:bindRows};
   if(h.startsWith('#/review')) return {p:ReviewPage(),b:bindRows};
@@ -9512,6 +11122,12 @@ function route(){
   if(m){
     if(byId(m[1])&&!canOpenStudy(m[1]))
       return {p:Denied('مطالعه','این مطالعه به شما یا دفتر شما ارجاع نشده است.','دسترسی مشاور بر پایه ارجاع مطالعه است، نه دسترسی سراسری.')};
+    if(myRole()==='steward' && !['overview', 'chapter0', 'baseline', 'data'].includes(m[2]||'overview')){
+      return {p:Denied('بخش تحلیل مطالعه','بر اساس ماتریس دسترسی (RBAC)، متولی داده صرفاً اجازه مشاهده اثرگذاری داده‌ها و وضعیت وابستگی‌ها را دارد و به بخش‌های تحلیل، سناریوها و مدل‌ها دسترسی ندارد.')};
+    }
+    if(myRole()==='ruleman' && !['overview', 'chapter0', 'baseline', 'rules'].includes(m[2]||'overview')){
+      return {p:Denied('بخش تحلیل مطالعه','بر اساس اصل تفکیک وظایف سازمانی (RBAC / SoD)، متولی قواعد و ضوابط صرفاً اجازه مشاهده اثرگذاری ضوابط و وضعیت انطباق قوانین را دارد و به بخش‌های تحلیل مطالعات، سناریوها، اجرای مدل‌ها و تصمیم‌گیری نهایی دسترسی ندارد.')};
+    }
     if(m[2]==='chapter0') return {p:StudyPage(m[1],'chapter0'),b:()=>bindStudyPage(m[1],'chapter0')};
     return {p:StudyPage(m[1],m[2]||'overview'),b:()=>bindStudyPage(m[1],m[2]||'overview')};
   }
@@ -9519,6 +11135,7 @@ function route(){
     if(!can('VIEW_DATA')) return {p:Denied('کاتالوگ داده','مشاهده و مدیریت کاتالوگ داده در حوزه مسئولیت متولی داده و نقش‌های تحلیلی است.','در میز تصمیم، خلاصه و شواهد نسخه‌دار همان داده در اختیار شماست.')};
     const seg=h.slice(1).split('?')[0].split('/').filter(Boolean).slice(1);
     if(seg[0]==='requests') return {p:DataRequestsPage(),b:bindDataRequests};
+    if(seg[0]==='affected-studies') return {p:AffectedStudiesPage(),b:bindAffectedStudies};
     if(seg[0]==='ingest'&&!can('MANAGE_DATA')) return {p:Denied('بارگذاری نسخه داده','بارگذاری، نگاشت، اعتبارسنجی و انتشار نسخه داده تنها در اختیار متولی داده است.')};
     if(!seg.length) return {p:CatalogPage(),b:bindCatalog};
     if(seg[0]==='ingest') return {p:IngestPage(),b:bindIngest};

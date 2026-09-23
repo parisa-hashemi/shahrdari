@@ -411,6 +411,53 @@ apiRouter.post('/data-requests/:id/fulfill', (req: Request, res: Response) => {
   }
 });
 
+apiRouter.post('/data-requests/:id/start', (req: Request, res: Response) => {
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس مریم فراهانی (متولی داده)',
+    role: (req.headers['x-user-role'] as string) || 'steward',
+  };
+  try {
+    const result = store.startDataRequest(req.params.id, actor);
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message || 'خطا در شروع بررسی درخواست' });
+  }
+});
+
+apiRouter.post('/data-requests/:id/reject', (req: Request, res: Response) => {
+  const { reason } = req.body;
+  if (!reason || !String(reason).trim()) {
+    return res.status(400).json({ error: 'علت رد درخواست الزامی است' });
+  }
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس مریم فراهانی (متولی داده)',
+    role: (req.headers['x-user-role'] as string) || 'steward',
+  };
+  try {
+    const result = store.rejectDataRequest(req.params.id, reason, actor);
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message || 'خطا در رد درخواست' });
+  }
+});
+
+apiRouter.post('/study-cases/:id/requirements/:reqId/limitation', (req: Request, res: Response) => {
+  const { limitation_note } = req.body;
+  if (!limitation_note || !String(limitation_note).trim()) {
+    return res.status(400).json({ error: 'شرح محدودیت داده الزامی است' });
+  }
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس زهرا کاظمی (تحلیلگر شهری)',
+    role: (req.headers['x-user-role'] as string) || 'analyst',
+  };
+  try {
+    const result = store.recordDataRequirementLimitation(req.params.id, req.params.reqId, limitation_note, actor);
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message || 'خطا در ثبت محدودیت داده' });
+  }
+});
+
 apiRouter.post('/study-cases/:id/recheck', (req: Request, res: Response) => {
   try {
     const updatedCase = store.recalculateStudyCaseBlockingState(req.params.id);
@@ -423,5 +470,800 @@ apiRouter.post('/study-cases/:id/recheck', (req: Request, res: Response) => {
     });
   } catch (err: any) {
     return res.status(400).json({ error: err.message || 'خطا در ارزیابی مجدد وابستگی‌ها' });
+  }
+});
+
+/* ------------------------------------------------------------
+   DATA STEWARD API ROUTES
+   ------------------------------------------------------------ */
+
+apiRouter.get('/data-steward/kpis', (req: Request, res: Response) => {
+  try {
+    const kpis = store.getDataStewardKPIs();
+    return res.json({ success: true, kpis });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+apiRouter.get('/data-steward/queues', (req: Request, res: Response) => {
+  try {
+    const queues = store.getDataStewardQueues();
+    return res.json({ success: true, queues });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+apiRouter.get('/data-steward/audit', (req: Request, res: Response) => {
+  try {
+    const entityId = req.query.entityId as string | undefined;
+    const audits = store.getDatasetAuditLog(entityId);
+    return res.json({ success: true, audits, count: audits.length });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+apiRouter.get('/datasets/search', (req: Request, res: Response) => {
+  try {
+    const results = store.searchCatalog(req.query as any);
+    return res.json({ success: true, results, count: results.length });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.get('/datasets', (req: Request, res: Response) => {
+  try {
+    const filters = req.query as { status?: string; region?: string; search?: string };
+    const datasets = store.getDatasets(filters);
+    return res.json({ success: true, datasets, count: datasets.length });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/datasets', (req: Request, res: Response) => {
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس مریم فراهانی (متولی داده)',
+    role: (req.headers['x-user-role'] as string) || 'steward',
+  };
+  try {
+    const dataset = store.createDataset(req.body, actor);
+    return res.json({ success: true, dataset });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.get('/datasets/:code', (req: Request, res: Response) => {
+  const ds = store.getDataset(req.params.code);
+  if (!ds) {
+    return res.status(404).json({ error: 'مجموعه داده یافت نشد' });
+  }
+  const versions = store.getDatasetVersions(req.params.code);
+  return res.json({ success: true, dataset: ds, versions });
+});
+
+apiRouter.get('/datasets/:code/versions', (req: Request, res: Response) => {
+  const versions = store.getDatasetVersions(req.params.code);
+  return res.json({ success: true, versions, count: versions.length });
+});
+
+apiRouter.get('/datasets/:code/versions/:version', (req: Request, res: Response) => {
+  const ver = store.getDatasetVersion(req.params.code, Number(req.params.version));
+  if (!ver) {
+    return res.status(404).json({ error: 'نسخه داده یافت نشد' });
+  }
+  return res.json({ success: true, version: ver });
+});
+
+apiRouter.post('/datasets/:code/versions/candidate', (req: Request, res: Response) => {
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس مریم فراهانی (متولی داده)',
+    role: (req.headers['x-user-role'] as string) || 'steward',
+  };
+  try {
+    const version = store.createCandidateVersion(req.params.code, req.body, actor);
+    return res.json({ success: true, version });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/datasets/:code/versions/:version/profile', (req: Request, res: Response) => {
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس مریم فراهانی (متولی داده)',
+    role: (req.headers['x-user-role'] as string) || 'steward',
+  };
+  try {
+    const version = store.profileDatasetVersion(req.params.code, Number(req.params.version), req.body, actor);
+    return res.json({ success: true, version });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/datasets/:code/versions/:version/map', (req: Request, res: Response) => {
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس مریم فراهانی (متولی داده)',
+    role: (req.headers['x-user-role'] as string) || 'steward',
+  };
+  try {
+    const version = store.mapDatasetVersion(req.params.code, Number(req.params.version), req.body.mappings || [], actor);
+    return res.json({ success: true, version });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/datasets/:code/versions/:version/validate', (req: Request, res: Response) => {
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس مریم فراهانی (متولی داده)',
+    role: (req.headers['x-user-role'] as string) || 'steward',
+  };
+  try {
+    const result = store.validateDatasetVersion(req.params.code, Number(req.params.version), actor, req.body);
+    return res.json({
+      success: true,
+      status: result.version.status,
+      version: result.version,
+      checks: result.checks,
+      issues: result.issues,
+      quality: result.quality,
+      reconciliation: result.reconciliation,
+      blockingErrorsCount: result.blockingErrorsCount,
+      warningsCount: result.warningsCount,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/datasets/:code/versions/:version/quarantine', (req: Request, res: Response) => {
+  const { reason } = req.body;
+  if (!reason || !String(reason).trim()) {
+    return res.status(400).json({ error: 'دلیل قرنطینه‌سازی داده اجباری است' });
+  }
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس مریم فراهانی (متولی داده)',
+    role: (req.headers['x-user-role'] as string) || 'steward',
+  };
+  try {
+    const version = store.quarantineDatasetVersion(req.params.code, Number(req.params.version), reason, actor);
+    return res.json({ success: true, message: 'نسخه داده با ثبت دلیل به قرنطینه منتقل شد', version });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/datasets/:code/versions/:version/request-correction', (req: Request, res: Response) => {
+  const { reason } = req.body;
+  if (!reason || !String(reason).trim()) {
+    return res.status(400).json({ error: 'شرح اصلاحات موردنیاز الزامی است' });
+  }
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس مریم فراهانی (متولی داده)',
+    role: (req.headers['x-user-role'] as string) || 'steward',
+  };
+  try {
+    const version = store.requestVersionCorrection(req.params.code, Number(req.params.version), reason, actor);
+    return res.json({ success: true, message: 'درخواست اصلاح به ارائه‌دهنده ارسال شد', version });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/datasets/:code/versions/:version/approve', (req: Request, res: Response) => {
+  const { approved_by, notes } = req.body;
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'دکتر علیرضا برومند (مدیر کل ترابری شهری)',
+    role: (req.headers['x-user-role'] as string) || 'steward',
+  };
+  try {
+    const version = store.approveSemanticReview(req.params.code, Number(req.params.version), approved_by || actor.name, notes, actor);
+    return res.json({ success: true, message: 'تأیید معنایی با موفقیت ثبت شد', version });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/datasets/:code/versions/:version/publish', (req: Request, res: Response) => {
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس مریم فراهانی (متولی داده)',
+    role: (req.headers['x-user-role'] as string) || 'steward',
+  };
+  try {
+    const result = store.publishDatasetVersion(req.params.code, Number(req.params.version), actor.name, actor);
+    return res.json({
+      success: true,
+      message: `نسخه ${req.params.code} v${req.params.version} با موفقیت منتشر گردید.`,
+      version: result.version,
+      dataset: result.dataset,
+      supersededVersion: result.supersededVersion,
+      noticesCount: result.notices.length,
+      notices: result.notices,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.get('/datasets/:code/compare', (req: Request, res: Response) => {
+  const vFrom = Number(req.query.from);
+  const vTo = Number(req.query.to);
+  if (!vFrom || !vTo) {
+    return res.status(400).json({ error: 'مشخص کردن شماره نسخه‌های مبدأ و مقصد (from, to) الزامی است' });
+  }
+  try {
+    const comparison = store.compareDatasetVersions(req.params.code, vFrom, vTo);
+    return res.json({ success: true, comparison });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+/* ============================================================
+   RULE STEWARD (قواعد و ضوابط شهرسازی) API ENDPOINTS
+   ============================================================ */
+
+// 1. KPIs, Queues & Audit
+apiRouter.get('/rule-steward/kpis', (_req: Request, res: Response) => {
+  try {
+    const kpis = store.getRuleStewardKPIs();
+    return res.json({ success: true, kpis });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+apiRouter.get('/rule-steward/queues', (_req: Request, res: Response) => {
+  try {
+    const queues = store.getRuleStewardQueues();
+    return res.json({ success: true, queues });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+apiRouter.get('/rule-steward/audits', (req: Request, res: Response) => {
+  try {
+    const entityId = req.query.entity_id as string | undefined;
+    const audits = store.getRuleAudits(entityId);
+    return res.json({ success: true, audits });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// 2. Rules Catalog & CRUD
+apiRouter.get('/rules', (req: Request, res: Response) => {
+  try {
+    const filters = {
+      category: req.query.category as string,
+      jurisdiction: req.query.jurisdiction as string,
+      status: req.query.status as string,
+      owner: req.query.owner as string,
+      severity: req.query.severity as string,
+      rule_pack: req.query.rule_pack as string,
+      search: req.query.search as string,
+      study_id: req.query.study_id as string,
+    };
+    const rules = store.getRules(filters);
+    return res.json({ success: true, rules, count: rules.length });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+apiRouter.get('/rules/:code', (req: Request, res: Response) => {
+  try {
+    const details = store.getRule(req.params.code);
+    if (!details) {
+      return res.status(404).json({ error: `ضابطه با کد ${req.params.code} یافت نشد.` });
+    }
+    return res.json({ success: true, ...details });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/rules', (req: Request, res: Response) => {
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس لیلا اکبری (متولی قواعد و ضوابط)',
+    role: (req.headers['x-user-role'] as string) || 'ruleman',
+  };
+  try {
+    const result = store.createRule(req.body, actor);
+    return res.status(201).json({
+      success: true,
+      message: `ضابطه «${result.rule.title}» با موفقیت در وضعیت پیش‌نویس ثبت گردید.`,
+      rule: result.rule,
+      version: result.version,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+// 3. Rule Versions Lifecycle
+apiRouter.get('/rules/:code/versions', (req: Request, res: Response) => {
+  try {
+    const versions = store.getRuleVersions(req.params.code);
+    return res.json({ success: true, versions, count: versions.length });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+apiRouter.get('/rules/:code/versions/:version', (req: Request, res: Response) => {
+  try {
+    const version = store.getRuleVersion(req.params.code, Number(req.params.version));
+    if (!version) {
+      return res.status(404).json({ error: `نسخه ${req.params.version} ضابطه ${req.params.code} یافت نشد.` });
+    }
+    return res.json({ success: true, version });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/rules/:code/versions', (req: Request, res: Response) => {
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس لیلا اکبری (متولی قواعد و ضوابط)',
+    role: (req.headers['x-user-role'] as string) || 'ruleman',
+  };
+  try {
+    const newVersion = store.createRuleVersion(req.params.code, req.body, actor);
+    return res.status(201).json({
+      success: true,
+      message: `نسخه جدید v${newVersion.version_number} برای ضابطه ${req.params.code} با موفقیت ایجاد گردید.`,
+      version: newVersion,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.put('/rules/:code/versions/:version/source', (req: Request, res: Response) => {
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس لیلا اکبری (متولی قواعد و ضوابط)',
+    role: (req.headers['x-user-role'] as string) || 'ruleman',
+  };
+  try {
+    const updated = store.updateRuleSource(req.params.code, Number(req.params.version), req.body, actor);
+    return res.json({
+      success: true,
+      message: 'استناد قانونی ضابطه به‌روزرسانی شد و هش منبع مجدداً محاسبه گردید.',
+      version: updated,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/rules/:code/versions/:version/validate', (req: Request, res: Response) => {
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس لیلا اکبری (متولی قواعد و ضوابط)',
+    role: (req.headers['x-user-role'] as string) || 'ruleman',
+  };
+  try {
+    const result = store.validateRule(req.params.code, Number(req.params.version), actor);
+    return res.json({
+      success: true,
+      valid: result.valid,
+      errors: result.errors,
+      version: result.version,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/rules/:code/versions/:version/test', (req: Request, res: Response) => {
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس لیلا اکبری (متولی قواعد و ضوابط)',
+    role: (req.headers['x-user-role'] as string) || 'ruleman',
+  };
+  try {
+    const result = store.testRule(req.params.code, Number(req.params.version), actor);
+    return res.json({
+      success: true,
+      allPassed: result.allPassed,
+      runs: result.runs,
+      version: result.version,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.get('/rules/:code/versions/:version/tests', (req: Request, res: Response) => {
+  try {
+    const tests = store.getRuleTests(req.params.code, Number(req.params.version));
+    return res.json({ success: true, ...tests });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/rules/:code/versions/:version/submit-review', (req: Request, res: Response) => {
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس لیلا اکبری (متولی قواعد و ضوابط)',
+    role: (req.headers['x-user-role'] as string) || 'ruleman',
+  };
+  try {
+    const v = store.submitRuleForReview(req.params.code, Number(req.params.version), actor);
+    return res.json({
+      success: true,
+      message: `نسخه ${req.params.code} v${req.params.version} جهت بررسی به کمیسیون تخصصی ارسال گردید.`,
+      version: v,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/rules/:code/versions/:version/approve', (req: Request, res: Response) => {
+  const { approver_name, notes } = req.body;
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'دکتر محمدرضا سلطانی (رئیس کمیسیون تخصصی)',
+    role: (req.headers['x-user-role'] as string) || 'approver',
+  };
+  try {
+    const v = store.approveRule(
+      req.params.code,
+      Number(req.params.version),
+      approver_name || actor.name,
+      notes,
+      actor
+    );
+    return res.json({
+      success: true,
+      message: `نسخه ${req.params.code} v${req.params.version} رسماً مصوب گردید.`,
+      version: v,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/rules/:code/versions/:version/reject', (req: Request, res: Response) => {
+  const { reason } = req.body;
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'دکتر محمدرضا سلطانی (رئیس کمیسیون تخصصی)',
+    role: (req.headers['x-user-role'] as string) || 'approver',
+  };
+  try {
+    const v = store.rejectRule(req.params.code, Number(req.params.version), reason, actor);
+    return res.json({
+      success: true,
+      message: 'ضابطه رد شد و به وضعیت پیش‌نویس بازگردانده شد.',
+      version: v,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/rules/:code/versions/:version/request-changes', (req: Request, res: Response) => {
+  const { reason } = req.body;
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'دکتر محمدرضا سلطانی (رئیس کمیسیون تخصصی)',
+    role: (req.headers['x-user-role'] as string) || 'approver',
+  };
+  try {
+    const v = store.requestRuleChanges(req.params.code, Number(req.params.version), reason, actor);
+    return res.json({
+      success: true,
+      message: 'درخواست اصلاحات با موفقیت ثبت شد.',
+      version: v,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/rules/:code/versions/:version/withdraw', (req: Request, res: Response) => {
+  const { reason } = req.body;
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس لیلا اکبری (متولی قواعد و ضوابط)',
+    role: (req.headers['x-user-role'] as string) || 'ruleman',
+  };
+  try {
+    const result = store.withdrawRule(req.params.code, Number(req.params.version), reason, actor);
+    return res.json({
+      success: true,
+      message: `نسخه ${req.params.code} v${req.params.version} از اعتبار ساقط شد (WITHDRAWN). مطالعات وابسته تحت تأثیر قرار گرفتند (${result.affectedStudiesCount} مطالعه).`,
+      version: result.version,
+      affectedStudiesCount: result.affectedStudiesCount,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+// 4. Rule Evaluation & Sandbox Engine
+apiRouter.post('/rules/evaluate', (req: Request, res: Response) => {
+  try {
+    const evaluation = store.evaluateRule(req.body);
+    return res.json({ success: true, evaluation });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/rules/:code/versions/:version/sandbox', (req: Request, res: Response) => {
+  try {
+    const { inputs, units } = req.body;
+    const result = store.sandboxEvaluateRule(
+      req.params.code,
+      Number(req.params.version),
+      inputs || {},
+      units || {}
+    );
+    return res.json({ success: true, result });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+// 5. Conflicts & Precedence Policies
+apiRouter.get('/rules-conflicts', (req: Request, res: Response) => {
+  try {
+    const code = req.query.code as string | undefined;
+    const result = store.getRuleConflicts(code);
+    return res.json({ success: true, ...result });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/rules-conflicts/resolve', (req: Request, res: Response) => {
+  const { target_rule_code, precedes_rule_code, precedence_data } = req.body;
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس لیلا اکبری (متولی قواعد و ضوابط)',
+    role: (req.headers['x-user-role'] as string) || 'ruleman',
+  };
+  try {
+    const prec = store.resolveRuleConflict(target_rule_code, precedes_rule_code, precedence_data, actor);
+    return res.json({
+      success: true,
+      message: `سلسله‌مراتب تقدم حقوقی ثبت شد: «${target_rule_code}» بر «${precedes_rule_code}» حاکم است.`,
+      precedence: prec,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+// 6. Dependencies & Impact Analysis
+apiRouter.get('/rules/:code/dependencies', (req: Request, res: Response) => {
+  try {
+    const deps = store.getRuleDependencies(req.params.code);
+    return res.json({ success: true, ...deps });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+apiRouter.get('/rules/:code/impact', (req: Request, res: Response) => {
+  try {
+    const fromV = req.query.from ? Number(req.query.from) : undefined;
+    const toV = req.query.to ? Number(req.query.to) : undefined;
+    const impact = store.getRuleImpact(req.params.code, fromV, toV);
+    return res.json({ success: true, impact });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// 7. Rule Packs (Immutable Bundles)
+apiRouter.get('/rule-packs', (_req: Request, res: Response) => {
+  try {
+    const packs = store.getRulePacks();
+    return res.json({ success: true, packs, count: packs.length });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+apiRouter.get('/rule-packs/:id', (req: Request, res: Response) => {
+  try {
+    const details = store.getRulePack(req.params.id);
+    if (!details) {
+      return res.status(404).json({ error: `بسته ضوابط ${req.params.id} یافت نشد.` });
+    }
+    return res.json({ success: true, ...details });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/rule-packs', (req: Request, res: Response) => {
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس لیلا اکبری (متولی قواعد و ضوابط)',
+    role: (req.headers['x-user-role'] as string) || 'ruleman',
+  };
+  try {
+    const pack = store.createRulePack(req.body, actor);
+    return res.status(201).json({
+      success: true,
+      message: `بسته ضوابط «${pack.title}» با موفقیت ایجاد گردید.`,
+      pack,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/rule-packs/:id/versions/:version/validate', (req: Request, res: Response) => {
+  try {
+    const val = store.validateRulePack(req.params.id, Number(req.params.version));
+    return res.json({ success: true, ...val });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/rule-packs/:id/versions/:version/approve', (req: Request, res: Response) => {
+  const { approver_name, notes } = req.body;
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'دکتر محمدرضا سلطانی (رئیس کمیسیون تخصصی)',
+    role: (req.headers['x-user-role'] as string) || 'approver',
+  };
+  try {
+    const packV = store.approveRulePack(
+      req.params.id,
+      Number(req.params.version),
+      approver_name || actor.name,
+      notes,
+      actor
+    );
+    return res.json({
+      success: true,
+      message: `بسته ضوابط ${req.params.id} نسخه v${req.params.version} مصوب شد.`,
+      version: packV,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/rule-packs/:id/versions/:version/publish', (req: Request, res: Response) => {
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس لیلا اکبری (متولی قواعد و ضوابط)',
+    role: (req.headers['x-user-role'] as string) || 'ruleman',
+  };
+  try {
+    const result = store.publishRulePack(req.params.id, Number(req.params.version), actor.name, actor);
+    return res.json({
+      success: true,
+      message: `بسته ضوابط ${req.params.id} نسخه v${req.params.version} رسماً منتشر گردید و تغییرناپذیر شد.`,
+      pack: result.pack,
+      version: result.version,
+      affectedStudiesNotified: result.affectedStudiesNotified,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+// 8. Rule Requests Pipeline & Auto-Unblock Integration
+apiRouter.get('/rule-requests', (req: Request, res: Response) => {
+  try {
+    const filters = {
+      status: req.query.status as string,
+      study_case_id: req.query.study_case_id as string,
+      rule_code: req.query.rule_code as string,
+      priority: req.query.priority as string,
+    };
+    const requests = store.getRuleRequests(filters);
+    return res.json({ success: true, requests, count: requests.length });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+apiRouter.get('/rule-requests/:id', (req: Request, res: Response) => {
+  try {
+    const request = store.getRuleRequest(req.params.id);
+    if (!request) {
+      return res.status(404).json({ error: `درخواست با شناسه ${req.params.id} یافت نشد.` });
+    }
+    return res.json({ success: true, request });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/rule-requests', (req: Request, res: Response) => {
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس زهرا کاظمی (تحلیلگر شهری)',
+    role: (req.headers['x-user-role'] as string) || 'analyst',
+  };
+  try {
+    const request = store.createRuleRequest(req.body, actor);
+    return res.status(201).json({
+      success: true,
+      message: `درخواست ضابطه با شناسه «${request.id}» با موفقیت ثبت شد.`,
+      request,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/rule-requests/:id/start', (req: Request, res: Response) => {
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس لیلا اکبری (متولی قواعد و ضوابط)',
+    role: (req.headers['x-user-role'] as string) || 'ruleman',
+  };
+  try {
+    const request = store.startRuleRequest(req.params.id, actor);
+    return res.json({
+      success: true,
+      message: `بررسی درخواست ضابطه ${req.params.id} آغاز گردید (IN_PROGRESS).`,
+      request,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/rule-requests/:id/fulfill', (req: Request, res: Response) => {
+  const { fulfilled_version, pack_id, note } = req.body;
+  if (!fulfilled_version) {
+    return res.status(400).json({ error: 'شماره نسخه رسمی تأمین‌شده (fulfilled_version) الزامی است.' });
+  }
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس لیلا اکبری (متولی قواعد و ضوابط)',
+    role: (req.headers['x-user-role'] as string) || 'ruleman',
+  };
+  try {
+    const result = store.fulfillRuleRequest(
+      req.params.id,
+      Number(fulfilled_version),
+      pack_id || 'PACK-TEH-2026-v4',
+      actor,
+      note
+    );
+    return res.json({
+      success: true,
+      message: `درخواست با موفقیت تأمین شد و به مطالعه ${result.studyCase.id} متصل گردید. وضعیت مطالعه: ${result.studyCase.status}`,
+      request: result.request,
+      studyCase: result.studyCase,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+apiRouter.post('/rule-requests/:id/reject', (req: Request, res: Response) => {
+  const { reason } = req.body;
+  const actor = {
+    name: (req.headers['x-user-name'] as string) || 'مهندس لیلا اکبری (متولی قواعد و ضوابط)',
+    role: (req.headers['x-user-role'] as string) || 'ruleman',
+  };
+  try {
+    const request = store.rejectRuleRequest(req.params.id, reason, actor);
+    return res.json({
+      success: true,
+      message: `درخواست ${req.params.id} رد شد.`,
+      request,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+// 9. Study Case Rule Requirements
+apiRouter.get('/study-cases/:id/rule-requirements', (req: Request, res: Response) => {
+  try {
+    const requirements = store.getStudyCaseRuleRequirements(req.params.id);
+    return res.json({ success: true, requirements, count: requirements.length });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
   }
 });

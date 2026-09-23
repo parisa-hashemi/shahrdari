@@ -129,61 +129,243 @@ async function apiRecheckBlocking(caseId) {
 
 function initLocalStore() {
   if (!window.DB) window.DB = {};
-  if (!window.DB.studyCases) {
-    window.DB.studyCases = [
-      {
-        id: 'CASE-1405-00045',
-        proposal_id: 'PR-1405-000124',
-        study_id: 'ST-1405-014',
-        title: 'پرونده تحلیلی: بهسازی شبکه معابر و زون پیاده دانشگاه تهران',
-        region: 'منطقه ۶',
-        district: 'ناحیه ۲',
-        scope: 'ناحیه ۲ — محلات ۳ و ۴ (پیرامون دانشگاه تهران)',
-        owner_analyst: 'مهندس زهرا کاظمی',
+
+  const defaultCases = [
+    {
+      id: 'CASE-1405-00045',
+      proposal_id: 'PR-1405-000124',
+      study_id: 'ST-1405-014',
+      title: 'پرونده تحلیلی: بهسازی شبکه معابر و زون پیاده دانشگاه تهران',
+      region: 'منطقه ۶',
+      district: 'ناحیه ۲',
+      scope: 'ناحیه ۲ — محلات ۳ و ۴ (پیرامون دانشگاه تهران)',
+      owner_analyst: 'مهندس زهرا کاظمی',
+      status: 'BLOCKED',
+      workflow_step: 3,
+      problem_statement: 'عدم تناسب ظرفیت شریان با بار سفر و تقاضای عبوری و تداخل شدید سواره و پیاده',
+      objective: 'آرام‌سازی سرعت، توسعه مسیرهای امن پیاده و بهبود خدمات اتوبوس برقی',
+      blockers_count: 2,
+      total_requirements: 3,
+      satisfied_requirements: 1,
+      baseline: {
         status: 'BLOCKED',
-        workflow_step: 3,
-        problem_statement: 'عدم تناسب ظرفیت شریان با بار سفر و تقاضای عبوری و تداخل شدید سواره و پیاده',
-        objective: 'آرام‌سازی سرعت، توسعه مسیرهای امن پیاده و بهبود خدمات اتوبوس برقی',
-        blockers_count: 2,
-        total_requirements: 3,
-        satisfied_requirements: 1,
-        baseline: {
-          status: 'BLOCKED',
-          pinned_datasets: {
-            'REQ-1405-03': { dataset_code: 'PARCEL-06', version: 3, approved_at: '۱۴۰۵/۰۶/۲۰' }
-          }
-        },
-        scenario_id: null,
-        created_at: '۱۴۰۵/۰۶/۲۲',
-        updated_at: '۱۴۰۵/۰۶/۲۳'
+        pinned_datasets: {
+          'REQ-1405-03': { dataset_code: 'PARCEL-06', version: 3, approved_at: '۱۴۰۵/۰۶/۲۰' }
+        }
       },
-      {
-        id: 'CASE-1405-00046',
-        proposal_id: 'PR-1405-000125',
-        study_id: 'ST-1405-014',
-        title: 'پرونده تحلیلی: احداث پارکینگ هوشمند مکانیزه و بارانداز کالا بلوار کشاورز',
-        region: 'منطقه ۶',
-        district: 'ناحیه ۲',
-        scope: 'ناحیه ۲ — بلوار کشاورز تقاطع کارگر',
-        owner_analyst: 'امیرحسین طاهری',
+      scenario_id: null,
+      created_at: '۱۴۰۵/۰۶/۲۲',
+      updated_at: '۱۴۰۵/۰۶/۲۳'
+    },
+    {
+      id: 'CASE-1405-00046',
+      proposal_id: 'PR-1405-000125',
+      study_id: 'ST-1405-014',
+      title: 'پرونده تحلیلی: احداث پارکینگ هوشمند مکانیزه و بارانداز کالا بلوار کشاورز',
+      region: 'منطقه ۶',
+      district: 'ناحیه ۲',
+      scope: 'ناحیه ۲ — بلوار کشاورز تقاطع کارگر',
+      owner_analyst: 'مهندس زهرا کاظمی',
+      status: 'BLOCKED',
+      workflow_step: 3,
+      problem_statement: 'کمبود شدید فضای پارک حاشیه‌ای و اشباع خط عبور در ساعات اوج تجاری',
+      objective: 'ساماندهی پارک حاشیه‌ای و هدایت ناوگان توزیع کالا به پارکینگ‌های مکانیزه',
+      blockers_count: 1,
+      total_requirements: 2,
+      satisfied_requirements: 1,
+      baseline: {
         status: 'BLOCKED',
-        workflow_step: 3,
-        problem_statement: 'کمبود شدید فضای پارک حاشیه‌ای و اشباع خط عبور در ساعات اوج تجاری',
-        objective: 'ساماندهی پارک حاشیه‌ای و هدایت ناوگان توزیع کالا به پارکینگ‌های مکانیزه',
-        blockers_count: 1,
-        total_requirements: 2,
-        satisfied_requirements: 1,
-        baseline: {
-          status: 'BLOCKED',
-          pinned_datasets: {
-            'REQ-1405-05': { dataset_code: 'ROAD-06', version: 2, approved_at: '۱۴۰۵/۰۶/۱۵' }
-          }
-        },
-        scenario_id: null,
-        created_at: '۱۴۰۵/۰۶/۲۰',
-        updated_at: '۱۴۰۵/۰۶/۲۳'
+        pinned_datasets: {
+          'REQ-1405-05': { dataset_code: 'ROAD-06', version: 2, approved_at: '۱۴۰۵/۰۶/۱۵' }
+        }
+      },
+      scenario_id: null,
+      created_at: '۱۴۰۵/۰۶/۲۰',
+      updated_at: '۱۴۰۵/۰۶/۲۳'
+    },
+    {
+      id: 'CASE-1405-00047',
+      proposal_id: 'PR-1405-003',
+      study_id: 'ST-1405-009',
+      title: 'پرونده تحلیلی: ارزیابی اثر ترافیکی تجمیع پلاک‌های کارگر شمالی',
+      region: 'منطقه ۶',
+      district: 'ناحیه ۲',
+      scope: 'محور کارگر — حدفاصل بلوار کشاورز تا نصرت',
+      owner_analyst: 'مهندس زهرا کاظمی',
+      status: 'READY_FOR_NEXT_STEP',
+      workflow_step: 4,
+      problem_statement: 'تغییر کاربری و تقاضای سفر ناشی از تجمیع پلاک‌های اداری و تجاری',
+      objective: 'شبیه‌سازی بار ترافیکی و تعیین ظرفیت مجاز پارکینگ‌های تأمینی',
+      blockers_count: 0,
+      total_requirements: 3,
+      satisfied_requirements: 3,
+      baseline: {
+        status: 'READY',
+        pinned_datasets: {
+          'REQ-1405-07': { dataset_code: 'ROAD-06', version: 12, approved_at: '۱۴۰۵/۰۶/۲۳' }
+        }
+      },
+      scenario_id: 'SC-009-1',
+      created_at: '۱۴۰۵/۰۶/۱۹',
+      updated_at: '۱۴۰۵/۰۶/۲۳'
+    },
+    {
+      id: 'CASE-1405-00048',
+      proposal_id: 'PR-1405-000126',
+      study_id: 'ST-1405-021',
+      title: 'پرونده مطالعاتی: ظرفیت‌سنجی توسعه TOD ایستگاه میدان ولیعصر',
+      region: 'منطقه ۶',
+      district: 'ناحیه ۳',
+      scope: 'شعاع ۸۰۰ متری ایستگاه مترو میدان ولیعصر',
+      owner_analyst: 'مهندس زهرا کاظمی',
+      status: 'READY_FOR_NEXT_STEP',
+      workflow_step: 5,
+      problem_statement: 'عدم بهره‌گیری بهینه از ظرفیت مدهای انبوه‌بر و اختلاط نامناسب کاربری‌ها',
+      objective: 'توسعه مبتنی بر حمل‌ونقل همگانی و بازآفرینی فضاهای عمومی پیرامونی',
+      blockers_count: 0,
+      total_requirements: 4,
+      satisfied_requirements: 4,
+      baseline: {
+        status: 'READY',
+        pinned_datasets: {
+          'REQ-1405-08': { dataset_code: 'TRANSIT-06', version: 4, approved_at: '۱۴۰۵/۰۶/۲۱' }
+        }
+      },
+      scenario_id: 'SC-021-2',
+      created_at: '۱۴۰۵/۰۶/۱۷',
+      updated_at: '۱4۰۵/۰۶/۲۲'
+    },
+    {
+      id: 'CASE-1405-00049',
+      proposal_id: 'PR-1405-000127',
+      study_id: 'ST-1405-002',
+      title: 'پرونده مطالعاتی: مکان‌یابی مراکز خدمات محله‌ای و سرانه‌های هفت‌گانه منطقه ۱۵',
+      region: 'منطقه ۱۵',
+      district: 'ناحیه ۱',
+      scope: 'محلات کم‌برخوردار ناحیه ۱ و ۲ منطقه ۱۵',
+      owner_analyst: 'مهندس زهرا کاظمی',
+      status: 'IN_ANALYSIS',
+      workflow_step: 5,
+      problem_statement: 'کمبود سرانه‌های خدماتی هفت‌گانه آموزشی، درمانی و فضای سبز در بافت فشرده',
+      objective: 'تحلیل شعاع دسترسی پیاده و پهنه‌بندی زمین‌های قهوه‌ای جهت اختصاص خدمات',
+      blockers_count: 0,
+      total_requirements: 3,
+      satisfied_requirements: 3,
+      baseline: {
+        status: 'READY',
+        pinned_datasets: {}
+      },
+      scenario_id: 'SC-002-1',
+      created_at: '۱۴۰۵/۰۶/۱۴',
+      updated_at: '۱۴۰۵/۰۶/۲۳'
+    },
+    {
+      id: 'CASE-1405-00050',
+      proposal_id: 'PR-1405-000128',
+      study_id: 'ST-1405-017',
+      title: 'پرونده مطالعاتی: پایش سرانه خدمات و ارزیابی کمبودهای محله نارمک',
+      region: 'منطقه ۸',
+      district: 'ناحیه ۱',
+      scope: 'محله نارمک — ۱۲ زیرمحله',
+      owner_analyst: 'سارا نوروزی',
+      status: 'BLOCKED',
+      workflow_step: 3,
+      problem_statement: 'عدم انطباق توزیع جمعیت با سرانه‌های استاندارد و فرسودگی تجهیزات شهری',
+      objective: 'پایش و به‌روزرسانی اطلس سرانه‌های شهری منطقه ۸',
+      blockers_count: 1,
+      total_requirements: 3,
+      satisfied_requirements: 2,
+      baseline: { status: 'BLOCKED', pinned_datasets: {} },
+      scenario_id: null,
+      created_at: '۱۴۰۵/۰۶/۱۵',
+      updated_at: '۱۴۰۵/۰۶/۲۲'
+    },
+    {
+      id: 'CASE-1405-00051',
+      proposal_id: 'PR-1405-000129',
+      study_id: 'ST-1405-005',
+      title: 'پرونده مطالعاتی: تاب‌آوری سیلاب و پهنه‌بندی مخاطرات حوضه دره فرحزاد',
+      region: 'منطقه ۲',
+      district: 'ناحیه ۳',
+      scope: 'حوضه بالادست — ۴ زیرحوضه',
+      owner_analyst: 'فرزانه مقدم',
+      status: 'BLOCKED',
+      workflow_step: 3,
+      problem_statement: 'احتمال وقوع سیلاب و ساخت‌وساز غیرمجاز در بستر و حریم اکولوژیک مسیل',
+      objective: 'تعیین حد بستر و شبیه‌سازی هیدرولوژیکی دوره‌های بازگشت ۵۰ و ۱۰۰ ساله',
+      blockers_count: 1,
+      total_requirements: 2,
+      satisfied_requirements: 1,
+      baseline: { status: 'BLOCKED', pinned_datasets: {} },
+      scenario_id: null,
+      created_at: '۱۴۰۵/۰۶/۱۰',
+      updated_at: '۱۴۰۵/۰۶/۱۸'
+    },
+    {
+      id: 'CASE-1405-00052',
+      proposal_id: 'PR-1405-000130',
+      study_id: 'ST-1404-031',
+      title: 'پرونده مطالعاتی: بازنگری ضوابط ارتفاعی و تراکم ساختمانی محور شریعتی',
+      region: 'منطقه ۳',
+      district: 'ناحیه ۲',
+      scope: 'محور شریعتی — حدفاصل میرداماد تا صدر',
+      owner_analyst: 'امیرحسین طاهری',
+      status: 'READY_FOR_NEXT_STEP',
+      workflow_step: 4,
+      problem_statement: 'تعارض میان ضوابط طرح تفصیلی و مصوبات کمیسیون ماده پنج در تراکم مجاز',
+      objective: 'یکپارچه‌سازی ضوابط ارتفاعی با توجه به ظرفیت شبکه شریانی و سایه‌اندازی',
+      blockers_count: 0,
+      total_requirements: 3,
+      satisfied_requirements: 3,
+      baseline: { status: 'READY', pinned_datasets: {} },
+      scenario_id: null,
+      created_at: '۱۴۰۵/۰۶/۰۵',
+      updated_at: '۱۴۰۵/۰۶/۲۰'
+    }
+  ];
+
+  if (!window.DB.studyCases || window.DB.studyCases.length < 5) {
+    window.DB.studyCases = defaultCases;
+  } else {
+    // Ensure all default cases exist
+    defaultCases.forEach(dc => {
+      const exists = window.DB.studyCases.find(x => x.id === dc.id);
+      if (!exists) {
+        window.DB.studyCases.push(dc);
+      } else if (!exists.owner_analyst) {
+        exists.owner_analyst = dc.owner_analyst;
       }
-    ];
+    });
+  }
+
+  // Ensure all studies in window.DB.studies have a linked studyCase
+  if (window.DB.studies && window.DB.studies.length) {
+    window.DB.studies.forEach(s => {
+      const hasCase = window.DB.studyCases.some(c => c.study_id === s.id);
+      if (!hasCase) {
+        window.DB.studyCases.push({
+          id: `CASE-${s.id.replace('ST-', '')}`,
+          study_id: s.id,
+          proposal_id: `PR-${s.id.replace('ST-', '')}`,
+          title: `پرونده تحلیلی: ${s.name || s.t || s.id}`,
+          region: s.region || 'منطقه ۶',
+          district: s.sub || 'ناحیه ۱',
+          scope: s.sub || s.scope || 'محدوده مصوب مطالعه',
+          owner_analyst: s.owner || (window.ME ? window.ME() : 'مهندس زهرا کاظمی'),
+          status: s.status === 'blocked' || s.status === 'waitdata' ? 'BLOCKED' : 'READY_FOR_NEXT_STEP',
+          workflow_step: s.stage || 3,
+          problem_statement: 'پایش و به‌روزرسانی وضع موجود و ارزیابی سناریوهای توسعه',
+          objective: 'تکمیل داده‌های موردنیاز و اجرای مدل‌های تحلیلی',
+          blockers_count: s.status === 'blocked' || s.status === 'waitdata' ? 1 : 0,
+          total_requirements: 2,
+          satisfied_requirements: s.status === 'blocked' || s.status === 'waitdata' ? 1 : 2,
+          baseline: { status: s.status === 'blocked' || s.status === 'waitdata' ? 'BLOCKED' : 'READY', pinned_datasets: {} },
+          scenario_id: null,
+          created_at: s.created || '۱۴۰۵/۰۶/۰۱',
+          updated_at: s.updated || '۱۴۰۵/۰۶/۲۳'
+        });
+      }
+    });
   }
 
   if (!window.DB.studyRequirements) {
@@ -267,6 +449,38 @@ function initLocalStore() {
         status: 'SATISFIED',
         attached_dataset: 'ROAD-06',
         attached_version: 2
+      },
+      {
+        id: 'REQ-1405-07',
+        study_case_id: 'CASE-1405-00047',
+        name: 'شبکه معابر و بار ترافیکی کارگر شمالی',
+        category: 'حمل‌ونقل و ترافیک',
+        reason: 'برای ارزیابی اثر ترافیکی تجمیع پلاک‌ها',
+        module_code: 'M04 Trip Generation',
+        scope: 'منطقه ۶ — خیابان کارگر',
+        time_period: 'وضع موجود',
+        required: true,
+        blocking: false,
+        satisfied: true,
+        status: 'SATISFIED',
+        attached_dataset: 'ROAD-06',
+        attached_version: 12
+      },
+      {
+        id: 'REQ-1405-08',
+        study_case_id: 'CASE-1405-00048',
+        name: 'شبکه حمل‌ونقل و خطوط اتوبوسرانی و مترو میدان ولیعصر',
+        category: 'حمل‌ونقل همگانی',
+        reason: 'برای تحلیل دسترسی و شعاع پیاده ایستگاه TOD',
+        module_code: 'M06 Transit Accessibility',
+        scope: 'منطقه ۶ — میدان ولیعصر',
+        time_period: 'وضع موجود',
+        required: true,
+        blocking: false,
+        satisfied: true,
+        status: 'SATISFIED',
+        attached_dataset: 'TRANSIT-06',
+        attached_version: 4
       }
     ];
   }
@@ -1432,14 +1646,11 @@ function openStewardFulfillModal(caseId, requirement, allRequests, onDone) {
    8. STUDY CASE PAGE: FULL COMPONENT & SECTIONS
    ------------------------------------------------------------ */
 
-async function renderStudyCaseDetail(caseId) {
-  const container = el('#app');
-  if (!container) return;
-
-  const data = await apiGetStudyCase(caseId);
+function StudyCaseDetailPage(caseId) {
+  initLocalStore();
+  const data = getLocalStudyCase(caseId);
   if (!data || !data.studyCase) {
-    container.innerHTML = window.Shell(window.State('search', 'پرونده مطالعه یافت نشد', 'شناسه پرونده در سامانه معتبر نیست.', `<a class="btn btn-pri" href="#/study-cases">فهرست پرونده‌های مطالعه</a>`));
-    return;
+    return window.Shell ? window.Shell(window.State ? window.State('search', 'پرونده مطالعه یافت نشد', 'شناسه پرونده در سامانه معتبر نیست.', `<a class="btn btn-pri" href="#/study-cases">فهرست پرونده‌های مطالعه</a>`) : 'پرونده مطالعه یافت نشد') : '<div>پرونده مطالعه یافت نشد</div>';
   }
 
   const sc = data.studyCase;
@@ -1454,7 +1665,7 @@ async function renderStudyCaseDetail(caseId) {
     { t: sc.id }
   ]) : '';
 
-  const html = window.Shell(`
+  return window.Shell(`
   ${crumb}
   <!-- Header -->
   <div class="phead" style="margin-bottom:14px">
@@ -1686,8 +1897,16 @@ async function renderStudyCaseDetail(caseId) {
     </div>
   </section>
   `);
+}
 
-  container.innerHTML = html;
+function bindStudyCaseDetail(caseId) {
+  const data = getLocalStudyCase(caseId);
+  if (!data || !data.studyCase) return;
+
+  const sc = data.studyCase;
+  const blockers = data.blockers || [];
+  const requests = data.requests || [];
+  const requirements = data.requirements || [];
 
   // Bind Events
   const openBlockersBtn = el('#btn-view-blockers');
@@ -1705,15 +1924,18 @@ async function renderStudyCaseDetail(caseId) {
     recheckBtn.onclick = async () => {
       recheckBtn.disabled = true;
       recheckBtn.innerText = 'در حال ارزیابی...';
-      const res = await apiRecheckBlocking(caseId);
+      await apiRecheckBlocking(caseId);
       if (window.toast) window.toast('وضعیت وابستگی‌ها ارزیابی مجدد شد.');
-      renderStudyCaseDetail(caseId);
+      if (window.render) window.render();
     };
   }
 
   const refreshBtn = el('#btn-refresh-case');
   if (refreshBtn) {
-    refreshBtn.onclick = () => renderStudyCaseDetail(caseId);
+    refreshBtn.onclick = () => {
+      if (window.toast) window.toast('در حال به‌روزرسانی پرونده...');
+      if (window.render) window.render();
+    };
   }
 
   const createScenarioBtn = el('#btn-act-create-scenario');
@@ -1721,10 +1943,12 @@ async function renderStudyCaseDetail(caseId) {
     createScenarioBtn.onclick = () => {
       syncStudyCaseWithChapterZero(sc.id);
       if (window.toast) window.toast('در حال راه‌اندازی و اجرای ماژول‌های ۱۲گانه...', true);
-      if (window.startAnalysis) {
+      if (window.startAnalysis && sc.proposal_id) {
         window.startAnalysis(sc.proposal_id);
-      } else {
+      } else if (sc.proposal_id) {
         location.hash = `#/proposal/${sc.proposal_id}`;
+      } else {
+        location.hash = `#/scenarios`;
       }
     };
   }
@@ -1734,10 +1958,12 @@ async function renderStudyCaseDetail(caseId) {
     runAnalysisBtn.onclick = () => {
       syncStudyCaseWithChapterZero(sc.id);
       if (window.toast) window.toast('در حال راه‌اندازی و اجرای ماژول‌های ۱۲گانه...', true);
-      if (window.startAnalysis) {
+      if (window.startAnalysis && sc.proposal_id) {
         window.startAnalysis(sc.proposal_id);
-      } else {
+      } else if (sc.proposal_id) {
         location.hash = `#/proposal/${sc.proposal_id}`;
+      } else {
+        location.hash = `#/runs`;
       }
     };
   }
@@ -1754,114 +1980,394 @@ async function renderStudyCaseDetail(caseId) {
   });
 }
 
+async function renderStudyCaseDetail(caseId) {
+  const container = el('#app');
+  if (!container) return;
+  try { await apiGetStudyCase(caseId); } catch (e) {}
+  container.innerHTML = StudyCaseDetailPage(caseId);
+  bindStudyCaseDetail(caseId);
+}
+
 /* ------------------------------------------------------------
-   9. STUDY CASES LIST PAGE (`#/study-cases`)
+   9. NEW STUDY CASE MODAL
    ------------------------------------------------------------ */
 
-async function StudyCasesListPage() {
-  initLocalStore();
-  let cases = [];
-  try {
-    const res = await fetch('/api/study-cases');
-    if (res.ok) {
-      const data = await res.json();
-      cases = data.studyCases || [];
-    }
-  } catch (e) {
-    cases = window.DB.studyCases || [];
-  }
-  if (!cases.length) cases = window.DB.studyCases || [];
-
-  const curUser = window.STATE?.user;
-  const isAnalyst = curUser?.role === 'analyst';
+function openNewStudyCaseModal() {
+  const studies = window.DB?.studies || [];
   const myName = window.ME ? window.ME() : 'مهندس زهرا کاظمی';
 
-  // Analyst filtering if analyst
-  if (isAnalyst) {
-    cases = cases.filter(c => !c.owner_analyst || c.owner_analyst.includes(myName) || myName.includes(c.owner_analyst));
+  const html = `
+  <div style="font-size:13px;line-height:1.6">
+    <p class="sub" style="margin-bottom:14px">
+      پرونده مطالعه ساختار تحلیلی اصلی پیوند میان پیشنهادهای شهری، سیاهه داده‌های وضع موجود و ارزیابی سناریوهاست.
+    </p>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <label class="lbl"><b>عنوان پرونده تحلیلی *</b></label>
+        <input type="text" id="new-case-title" class="inp" style="width:100%" placeholder="مثال: پرونده تحلیلی ساماندهی تقاطع‌های پهنه مرکزی" />
+      </div>
+
+      <div class="split" style="gap:12px">
+        <div>
+          <label class="lbl"><b>مطالعه مادر متناظر</b></label>
+          <select id="new-case-study" class="inp" style="width:100%">
+            ${studies.map(s => `<option value="${s.id}">${s.id} — ${s.name || s.t}</option>`).join('')}
+            <option value="">مطالعه مستقل (بدون مطالعه مادر)</option>
+          </select>
+        </div>
+        <div>
+          <label class="lbl"><b>منطقه شهرداری</b></label>
+          <select id="new-case-region" class="inp" style="width:100%">
+            <option value="منطقه ۶">منطقه ۶</option>
+            <option value="منطقه ۲">منطقه ۲</option>
+            <option value="منطقه ۱۵">منطقه ۱۵</option>
+            <option value="منطقه ۸">منطقه ۸</option>
+            <option value="منطقه ۳">منطقه ۳</option>
+            <option value="منطقه ۱۲">منطقه ۱۲</option>
+            <option value="تمام مناطق">تمام مناطق تهران</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="lbl"><b>محدوده کالبدی مداخله</b></label>
+        <input type="text" id="new-case-scope" class="inp" style="width:100%" placeholder="مثال: ناحیه ۲ — محلات ۳ و ۴ پیرامون بلوار کشاورز" />
+      </div>
+
+      <div>
+        <label class="lbl"><b>مسئله وضع موجود</b></label>
+        <textarea id="new-case-problem" class="inp" style="width:100%;height:60px" placeholder="شرح اجمالی مسئله ترافیکی، کالبدی یا جمعیتی وضع موجود..."></textarea>
+      </div>
+
+      <div>
+        <label class="lbl"><b>هدف و خروجی مورد انتظار</b></label>
+        <input type="text" id="new-case-objective" class="inp" style="width:100%" placeholder="مثال: آرام‌سازی سرعت و کاهش بار ترافیک عبوری" />
+      </div>
+
+      <div>
+        <label class="lbl"><b>کارشناس تحلیلگر مسئول</b></label>
+        <input type="text" id="new-case-owner" class="inp" style="width:100%;background:#F3F4F6" value="${myName}" readonly />
+      </div>
+    </div>
+  </div>
+  `;
+
+  if (window.openModal) {
+    window.openModal('ثبت پرونده جدید مطالعه تحلیلی', html, {
+      confirmText: 'ثبت و افتتاح پرونده',
+      onConfirm: () => {
+        const titleInp = el('#new-case-title');
+        const title = titleInp ? titleInp.value.trim() : '';
+        if (!title) {
+          if (window.toast) window.toast('لطفاً عنوان پرونده را وارد کنید.', false);
+          return;
+        }
+
+        const studyId = el('#new-case-study') ? el('#new-case-study').value : '';
+        const region = el('#new-case-region') ? el('#new-case-region').value : 'منطقه ۶';
+        const scope = el('#new-case-scope') ? el('#new-case-scope').value.trim() : 'محدوده مطالعه';
+        const problem = el('#new-case-problem') ? el('#new-case-problem').value.trim() : 'مسئله وضع موجود';
+        const objective = el('#new-case-objective') ? el('#new-case-objective').value.trim() : 'ارزیابی سناریو و تحلیل ۱۲گانه';
+
+        const newId = `CASE-1405-000${String(53 + (window.DB?.studyCases?.length || 0)).padStart(2, '0')}`;
+        const propId = `PR-1405-000${String(130 + (window.DB?.studyCases?.length || 0)).padStart(3, '0')}`;
+
+        const newCase = {
+          id: newId,
+          proposal_id: propId,
+          study_id: studyId,
+          title,
+          region,
+          district: 'ناحیه ۲',
+          scope: scope || region,
+          owner_analyst: myName,
+          status: 'READY_FOR_NEXT_STEP',
+          workflow_step: 3,
+          problem_statement: problem,
+          objective,
+          blockers_count: 0,
+          total_requirements: 2,
+          satisfied_requirements: 2,
+          baseline: { status: 'READY', pinned_datasets: {} },
+          scenario_id: null,
+          created_at: '۱۴۰۵/۰۶/۲۳',
+          updated_at: '۱۴۰۵/۰۶/۲۳'
+        };
+
+        if (!window.DB.studyCases) window.DB.studyCases = [];
+        window.DB.studyCases.unshift(newCase);
+
+        if (!window.DB.studyRequirements) window.DB.studyRequirements = [];
+        window.DB.studyRequirements.push({
+          id: `REQ-${newId}-01`,
+          study_case_id: newId,
+          name: 'شبکه معابر و شریانی محدوده',
+          category: 'حمل‌ونقل و معابر',
+          reason: 'برای تحلیل جریان تردد',
+          module_code: 'M04 Trip Generation',
+          scope,
+          time_period: 'وضع موجود مصوب',
+          required: true,
+          blocking: false,
+          satisfied: true,
+          status: 'SATISFIED',
+          attached_dataset: 'ROAD-06',
+          attached_version: 12
+        });
+
+        if (window.saveDB) window.saveDB();
+        if (window.logAct) window.logAct({ action: 'REGISTER_CASE', et: 'case', eid: newId, etitle: title, text: `پرونده مطالعه جدید «${title}» ثبت شد` });
+        if (window.toast) window.toast(`پرونده مطالعه ${newId} با موفقیت ثبت شد.`);
+        if (window.closeAll) window.closeAll();
+        location.hash = `#/study-case/${newId}`;
+      }
+    });
   }
+}
+
+/* ------------------------------------------------------------
+   10. STUDY CASES LIST PAGE (`#/study-cases`)
+   ------------------------------------------------------------ */
+
+function StudyCasesListPage() {
+  initLocalStore();
+  let cases = window.DB.studyCases || [];
+
+  const curUser = window.STATE?.user;
+  const myName = window.ME ? window.ME() : 'مهندس زهرا کاظمی';
+
+  // State filters
+  const state = window.STUDY_CASE_SYSTEM || (window.STUDY_CASE_SYSTEM = {});
+  if (!state.activeTab) state.activeTab = 'my';
+  const activeTab = state.activeTab;
+  const searchQuery = (state.searchQuery || '').trim().toLowerCase();
+  const regionFilter = state.regionFilter || '';
+
+  // KPI Calculations
+  const totalCount = cases.length;
+  const myCasesCount = cases.filter(c => !c.owner_analyst || c.owner_analyst.includes(myName) || myName.includes(c.owner_analyst)).length;
+  const blockedCount = cases.filter(c => c.status === 'BLOCKED' || (c.blockers_count > 0)).length;
+  const readyCount = cases.filter(c => c.status === 'READY_FOR_NEXT_STEP' || (c.blockers_count === 0 && c.status !== 'BLOCKED')).length;
+  const inAnalysisCount = cases.filter(c => c.status === 'IN_ANALYSIS' || c.status === 'COMPLETED').length;
+
+  // Tab Filtering
+  let filteredCases = [...cases];
+  if (activeTab === 'my') {
+    filteredCases = filteredCases.filter(c => !c.owner_analyst || c.owner_analyst.includes(myName) || myName.includes(c.owner_analyst));
+  } else if (activeTab === 'blocked') {
+    filteredCases = filteredCases.filter(c => c.status === 'BLOCKED' || (c.blockers_count > 0));
+  } else if (activeTab === 'ready') {
+    filteredCases = filteredCases.filter(c => c.status === 'READY_FOR_NEXT_STEP' || (c.blockers_count === 0 && c.status !== 'BLOCKED'));
+  } else if (activeTab === 'analysis') {
+    filteredCases = filteredCases.filter(c => c.status === 'IN_ANALYSIS' || c.status === 'COMPLETED');
+  }
+
+  // Region Filter
+  if (regionFilter) {
+    filteredCases = filteredCases.filter(c => c.region === regionFilter || (c.region || '').includes(regionFilter));
+  }
+
+  // Search Query
+  if (searchQuery) {
+    filteredCases = filteredCases.filter(c =>
+      (c.title && c.title.toLowerCase().includes(searchQuery)) ||
+      (c.id && c.id.toLowerCase().includes(searchQuery)) ||
+      (c.study_id && c.study_id.toLowerCase().includes(searchQuery)) ||
+      (c.proposal_id && c.proposal_id.toLowerCase().includes(searchQuery)) ||
+      (c.region && c.region.toLowerCase().includes(searchQuery)) ||
+      (c.district && c.district.toLowerCase().includes(searchQuery)) ||
+      (c.scope && c.scope.toLowerCase().includes(searchQuery)) ||
+      (c.owner_analyst && c.owner_analyst.toLowerCase().includes(searchQuery))
+    );
+  }
+
+  const regions = [...new Set(cases.map(c => c.region).filter(Boolean))];
 
   return window.Shell(`
   ${window.Crumb ? window.Crumb([{ t: 'میز کار تحلیلگر', h: '#/' }, { t: 'پرونده‌های مطالعه' }]) : ''}
   <div class="phead">
     <div>
-      <div class="eyebrow">کارتابل تحلیلگر شهری · مدیریت پرونده‌های فعال</div>
+      <div class="eyebrow">کارتابل تحلیلگر شهری · معاونت شهرسازی و معماری شهرداری تهران</div>
       <h1>پرونده‌های مطالعه (Study Cases)</h1>
       <p class="sub">
-        ردیابی جریان تحلیل، وضعیت داده‌های مسدودکننده، تدوین سناریو و مقایسه با وضع موجود تثبیت‌شده
+        مدیریت پرونده‌های فعال تحلیلی، وضعیت داده‌های مسدودکننده (Blockers)، تدوین سناریو و مقایسه با وضع موجود تثبیت‌شده
       </p>
+    </div>
+    <div class="acts">
+      <button class="btn btn-pri" id="btn-open-new-case-modal">
+        ${window.ico?.plus || '➕'} ثبت پرونده جدید مطالعه
+      </button>
+      <button class="btn btn-ghost" id="btn-refresh-study-cases">
+        ${window.ico?.run || '🔄'} به‌روزرسانی
+      </button>
     </div>
   </div>
 
-  <div class="kpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
-    <div class="kpi k-pri">
-      <div class="v num">${window.fa ? window.fa(cases.length) : cases.length}</div>
+  <!-- KPI summary cards -->
+  <div class="kpis" style="grid-template-columns:repeat(5,1fr);margin-bottom:16px">
+    <div class="kpi k-pri ${activeTab === 'all' ? 'active-kpi' : ''}" style="cursor:pointer" data-tab-switch="all">
+      <div class="v num">${window.fa ? window.fa(totalCount) : totalCount}</div>
       <div class="l">کل پرونده‌های مطالعه</div>
+      <div class="d">سامانه تحلیل شهری</div>
     </div>
-    <div class="kpi k-stop">
-      <div class="v num">${window.fa ? window.fa(cases.filter(c => c.status === 'BLOCKED').length) : cases.filter(c => c.status === 'BLOCKED').length}</div>
+    <div class="kpi k-pri ${activeTab === 'my' ? 'active-kpi' : ''}" style="cursor:pointer;border-top:3px solid var(--pri)" data-tab-switch="my">
+      <div class="v num">${window.fa ? window.fa(myCasesCount) : myCasesCount}</div>
+      <div class="l">پرونده‌های من</div>
+      <div class="d">${myName}</div>
+    </div>
+    <div class="kpi k-stop ${activeTab === 'blocked' ? 'active-kpi' : ''}" style="cursor:pointer" data-tab-switch="blocked">
+      <div class="v num">${window.fa ? window.fa(blockedCount) : blockedCount}</div>
       <div class="l">مسدود (دارای Blocker)</div>
       <div class="d">نیازمند تأمین داده</div>
     </div>
-    <div class="kpi k-ok">
-      <div class="v num">${window.fa ? window.fa(cases.filter(c => c.status === 'READY_FOR_NEXT_STEP').length) : cases.filter(c => c.status === 'READY_FOR_NEXT_STEP').length}</div>
+    <div class="kpi k-ok ${activeTab === 'ready' ? 'active-kpi' : ''}" style="cursor:pointer" data-tab-switch="ready">
+      <div class="v num">${window.fa ? window.fa(readyCount) : readyCount}</div>
       <div class="l">آماده تحلیل (Ready)</div>
       <div class="d">بدون داده مسدودکننده</div>
     </div>
-    <div class="kpi k-run">
-      <div class="v num">${window.fa ? window.fa(cases.filter(c => c.status === 'IN_ANALYSIS' || c.status === 'COMPLETED').length) : 0}</div>
-      <div class="l">در حال تحلیل / تکمیل‌شده</div>
+    <div class="kpi k-run ${activeTab === 'analysis' ? 'active-kpi' : ''}" style="cursor:pointer" data-tab-switch="analysis">
+      <div class="v num">${window.fa ? window.fa(inAnalysisCount) : inAnalysisCount}</div>
+      <div class="l">در حال مدل‌سازی و سناریو</div>
+      <div class="d">گام‌های پیشرفته</div>
     </div>
   </div>
 
+  <!-- Filter tabs bar -->
+  <div class="tabs" style="margin-bottom:14px">
+    <button class="tab-btn ${activeTab === 'my' ? 'active' : ''}" data-tab="my">
+      ${window.ico?.user || '👤'} پرونده‌های من (${window.fa ? window.fa(myCasesCount) : myCasesCount})
+    </button>
+    <button class="tab-btn ${activeTab === 'all' ? 'active' : ''}" data-tab="all">
+      همه پرونده‌ها (${window.fa ? window.fa(totalCount) : totalCount})
+    </button>
+    <button class="tab-btn ${activeTab === 'blocked' ? 'active' : ''}" data-tab="blocked">
+      ${window.ico?.block || '⛔'} مسدودکننده فعال (${window.fa ? window.fa(blockedCount) : blockedCount})
+    </button>
+    <button class="tab-btn ${activeTab === 'ready' ? 'active' : ''}" data-tab="ready">
+      ${window.ico?.check || '✓'} آماده سناریو و تحلیل (${window.fa ? window.fa(readyCount) : readyCount})
+    </button>
+    <button class="tab-btn ${activeTab === 'analysis' ? 'active' : ''}" data-tab="analysis">
+      ${window.ico?.run || '⚡'} در حال تحلیل (${window.fa ? window.fa(inAnalysisCount) : inAnalysisCount})
+    </button>
+  </div>
+
+  <!-- Filter & search bar -->
+  <div class="card" style="margin-bottom:16px;padding:12px 16px">
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <div style="flex:1;min-width:240px;position:relative">
+        <input type="text" id="study-case-search" class="inp" style="width:100%;padding-right:32px" placeholder="جستجو در عنوان پرونده، شناسه (CASE-)، کد مطالعه (ST-)، منطقه یا مسئول..." value="${window.esc ? window.esc(searchQuery) : searchQuery}" />
+        <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none">🔍</span>
+      </div>
+      <div style="width:180px">
+        <select id="study-case-region-filter" class="inp" style="width:100%">
+          <option value="">همه مناطق شهرداری</option>
+          ${regions.map(r => `<option value="${r}" ${regionFilter === r ? 'selected' : ''}>${r}</option>`).join('')}
+        </select>
+      </div>
+      ${(searchQuery || regionFilter) ? `
+        <button class="btn btn-ghost btn-sm" id="btn-reset-filters" style="color:var(--stop)">
+          ✕ پاک کردن فیلترها
+        </button>
+      ` : ''}
+      <div style="margin-right:auto;font-size:12px;color:var(--muted)">
+        نمایش <b class="num" style="color:var(--text)">${window.fa ? window.fa(filteredCases.length) : filteredCases.length}</b> پرونده
+      </div>
+    </div>
+  </div>
+
+  <!-- Cases Table Card -->
   <section class="card">
     <div class="card-h" style="display:flex;justify-content:space-between;align-items:center">
-      <h3>فهرست پرونده‌های مطالعه</h3>
+      <h3>فهرست پرونده‌های مطالعه شهری</h3>
+      <span class="bdg b-neu plain" style="font-size:11.5px">
+        ${activeTab === 'my' ? 'نمایش پرونده‌های تخصیص‌یافته به شما' : 'فهرست کل پرونده‌ها'}
+      </span>
     </div>
     <div class="tw">
       <table class="tbl">
         <thead>
           <tr>
-            <th>عنوان پرونده مطالعه</th>
+            <th>عنوان پرونده تحلیلی</th>
             <th>شناسه پرونده</th>
-            <th>پیشنهاد علمی مرتبط</th>
+            <th>مطالعه مادر متناظر</th>
+            <th>پیشنهاد مرتبط</th>
             <th>محدوده و منطقه</th>
             <th>کارشناس مسئول</th>
-            <th>وضعیت پرونده</th>
-            <th>موانع مسدودکننده</th>
+            <th>وضعیت انسداد داده</th>
+            <th>گردش کار</th>
             <th>اقدام</th>
           </tr>
         </thead>
         <tbody>
-          ${cases.map(c => `
-            <tr>
+          ${filteredCases.length ? filteredCases.map(c => {
+            const isBlk = c.status === 'BLOCKED' || (c.blockers_count > 0);
+            const isMe = c.owner_analyst && (c.owner_analyst.includes(myName) || myName.includes(c.owner_analyst));
+
+            return `
+            <tr style="background:${isBlk ? '#FFFDFD' : '#FFF'}">
               <td>
-                <b><a class="link" href="#/study-case/${c.id}">${window.esc ? window.esc(c.title) : c.title}</a></b>
-                <div class="sub">${c.region} · ${c.district}</div>
+                <div style="display:flex;align-items:center;gap:6px">
+                  ${isBlk ? '<span style="color:#DC2626" title="دارای مانع مسدودکننده">⛔</span>' : '<span style="color:#059669" title="آماده">✓</span>'}
+                  <b><a class="link" href="#/study-case/${c.id}">${window.esc ? window.esc(c.title) : c.title}</a></b>
+                </div>
+                <div class="sub" style="margin-top:3px">${c.region} · ${c.district} · ${c.scope || ''}</div>
               </td>
               <td><span class="code">${c.id}</span></td>
-              <td><a class="code link" href="#/proposal/${c.proposal_id}">${c.proposal_id}</a></td>
-              <td>${c.scope}</td>
-              <td style="white-space:nowrap">${c.owner_analyst}</td>
               <td>
-                ${c.status === 'BLOCKED' ? '<span class="bdg b-stop plain">مسدود (BLOCKED)</span>' : '<span class="bdg b-ok plain">آماده تحلیل (READY)</span>'}
+                ${c.study_id ? `<a class="code link" href="#/study/${c.study_id}">${c.study_id}</a>` : '<span class="muted">—</span>'}
               </td>
               <td>
-                ${c.blockers_count > 0 ? `
-                  <span class="bdg b-stop" style="font-size:11px">
-                    ${window.fa ? window.fa(c.blockers_count) : c.blockers_count} مورد مسدودکننده
+                ${c.proposal_id ? `<a class="code link" href="#/proposal/${c.proposal_id}">${c.proposal_id}</a>` : '<span class="muted">—</span>'}
+              </td>
+              <td style="font-size:12px;white-space:nowrap">${c.region}</td>
+              <td style="white-space:nowrap">
+                <span class="bdg ${isMe ? 'b-pri' : 'b-neu'} plain" style="font-size:11.5px">
+                  ${c.owner_analyst || 'تعیین‌نشده'}
+                </span>
+              </td>
+              <td>
+                ${isBlk ? `
+                  <span class="bdg b-stop" style="font-size:11.5px">
+                    ${window.fa ? window.fa(c.blockers_count || 1) : (c.blockers_count || 1)} مورد مسدودکننده
                   </span>
                 ` : `
-                  <span class="bdg b-ok" style="font-size:11px">بدون مانع (تکمیل)</span>
+                  <span class="bdg b-ok" style="font-size:11.5px">داده‌ها آماده</span>
                 `}
+                <div style="font-size:10.5px;color:var(--muted);margin-top:2px">
+                  ${window.fa ? window.fa(c.satisfied_requirements || 0) : 0} از ${window.fa ? window.fa(c.total_requirements || 0) : 0} قلم داده
+                </div>
               </td>
               <td>
-                <a class="btn btn-sm ${c.status === 'BLOCKED' ? 'btn-pri' : ''}" href="#/study-case/${c.id}">
-                  ${c.status === 'BLOCKED' ? 'مشاهده و رفع موانع' : 'ورود به پرونده'}
-                </a>
+                <span class="bdg b-neu plain" style="font-size:11px">
+                  گام ${window.fa ? window.fa(c.workflow_step || 3) : (c.workflow_step || 3)} از ۹
+                </span>
+              </td>
+              <td>
+                <div style="display:flex;gap:6px">
+                  <a class="btn btn-sm ${isBlk ? 'btn-pri' : ''}" href="#/study-case/${c.id}" style="${isBlk ? 'background:#DC2626;border-color:#DC2626' : ''}">
+                    ${isBlk ? 'مشاهده و رفع موانع' : 'ورود به پرونده'}
+                  </a>
+                  ${!isBlk ? `
+                    <button class="btn btn-sm btn-ghost" data-quick-scenario="${c.id}" title="ایجاد سناریو">
+                      ${window.ico?.spark || '⚡'}
+                    </button>
+                  ` : ''}
+                </div>
+              </td>
+            </tr>`;
+          }).join('') : `
+            <tr>
+              <td colspan="9" style="text-align:center;padding:36px">
+                <div style="font-size:24px;margin-bottom:8px">🔍</div>
+                <b>هیچ پرونده‌ای با این مشخصات یافت نشد.</b>
+                <p class="sub" style="margin-top:4px">می‌توانید فیلترها را تغییر دهید یا پرونده جدیدی ثبت کنید.</p>
+                <button class="btn btn-sm btn-pri" id="btn-clear-search-empty" style="margin-top:10px">
+                  مشاهده همه پرونده‌ها
+                </button>
               </td>
             </tr>
-          `).join('')}
+          `}
         </tbody>
       </table>
     </div>
@@ -1871,28 +2377,126 @@ async function StudyCasesListPage() {
 
 function bindStudyCasesList() {
   if (window.bindRows) window.bindRows();
+
+  const state = window.STUDY_CASE_SYSTEM || (window.STUDY_CASE_SYSTEM = {});
+
+  // Tab switching
+  els('[data-tab]').forEach(btn => {
+    btn.onclick = () => {
+      state.activeTab = btn.dataset.tab;
+      if (window.render) window.render();
+    };
+  });
+
+  els('[data-tab-switch]').forEach(btn => {
+    btn.onclick = () => {
+      state.activeTab = btn.dataset.tabSwitch;
+      if (window.render) window.render();
+    };
+  });
+
+  // Search input
+  const searchInp = el('#study-case-search');
+  if (searchInp) {
+    searchInp.oninput = () => {
+      state.searchQuery = searchInp.value;
+      const pos = searchInp.selectionStart;
+      if (window.render) {
+        window.render();
+        const nextInp = el('#study-case-search');
+        if (nextInp) {
+          nextInp.focus();
+          try { nextInp.setSelectionRange(pos, pos); } catch (e) {}
+        }
+      }
+    };
+  }
+
+  // Region filter
+  const regionSelect = el('#study-case-region-filter');
+  if (regionSelect) {
+    regionSelect.onchange = () => {
+      state.regionFilter = regionSelect.value;
+      if (window.render) window.render();
+    };
+  }
+
+  // Reset filters
+  const resetBtn = el('#btn-reset-filters');
+  if (resetBtn) {
+    resetBtn.onclick = () => {
+      state.searchQuery = '';
+      state.regionFilter = '';
+      if (window.render) window.render();
+    };
+  }
+
+  const clearEmptyBtn = el('#btn-clear-search-empty');
+  if (clearEmptyBtn) {
+    clearEmptyBtn.onclick = () => {
+      state.activeTab = 'all';
+      state.searchQuery = '';
+      state.regionFilter = '';
+      if (window.render) window.render();
+    };
+  }
+
+  // New Case Modal button
+  const newCaseBtn = el('#btn-open-new-case-modal');
+  if (newCaseBtn) {
+    newCaseBtn.onclick = () => openNewStudyCaseModal();
+  }
+
+  // Refresh button
+  const refreshBtn = el('#btn-refresh-study-cases');
+  if (refreshBtn) {
+    refreshBtn.onclick = () => {
+      if (window.toast) window.toast('در حال به‌روزرسانی پرونده‌های مطالعه...');
+      if (window.render) window.render();
+    };
+  }
+
+  // Quick scenario buttons
+  els('[data-quick-scenario]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const caseId = btn.dataset.quickScenario;
+      const c = (window.DB?.studyCases || []).find(x => x.id === caseId);
+      if (c && c.proposal_id) {
+        if (window.startAnalysis) {
+          window.startAnalysis(c.proposal_id);
+        } else {
+          location.hash = `#/proposal/${c.proposal_id}`;
+        }
+      } else {
+        location.hash = `#/study-case/${caseId}`;
+      }
+    };
+  });
 }
 
 /* ------------------------------------------------------------
-   10. ROUTE DISPATCHER EXPOSURE
+   11. ROUTE DISPATCHER EXPOSURE
    ------------------------------------------------------------ */
 
 function handleStudyCaseRoute(h) {
+  initLocalStore();
   const match = h.match(/^#\/study-case\/([^/?]+)/);
   if (match) {
     const caseId = match[1];
-    setTimeout(() => renderStudyCaseDetail(caseId), 0);
     return {
-      p: window.Shell ? window.Shell(`<div style="padding:40px;text-align:center"><div class="spin" style="margin:0 auto 12px auto"></div><b>در حال بارگذاری پرونده مطالعه...</b></div>`) : '<div>Loading...</div>',
-      b: () => {}
+      p: StudyCaseDetailPage(caseId),
+      b: () => bindStudyCaseDetail(caseId)
     };
   }
   return { p: StudyCasesListPage(), b: bindStudyCasesList };
 }
 
 window.handleStudyCaseRoute = handleStudyCaseRoute;
+window._studyCaseRouteHandler = handleStudyCaseRoute;
 window.StudyCasesListPage = StudyCasesListPage;
 window.bindStudyCasesList = bindStudyCasesList;
+window.openNewStudyCaseModal = openNewStudyCaseModal;
 window.renderStudyCaseDetail = renderStudyCaseDetail;
 window.renderWorkflowStepper = renderWorkflowStepper;
 window.renderStudyCaseStateCard = renderStudyCaseStateCard;
@@ -1911,6 +2515,11 @@ window.apiRecheckBlocking = apiRecheckBlocking;
 window.openBlockersDrawer = openBlockersDrawer;
 window.openCreateDataRequestModal = openCreateDataRequestModal;
 window.openStewardFulfillModal = openStewardFulfillModal;
+
+// Auto re-render if current route is study-cases
+if (window.render && location.hash && (location.hash.startsWith('#/study-case') || location.hash === '#/study-cases')) {
+  setTimeout(() => window.render(), 10);
+}
 
 })();
 
